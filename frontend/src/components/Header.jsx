@@ -26,7 +26,7 @@ export const Header = () => {
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white shadow-lg py-3' 
+          ? 'bg-gradient-to-r from-orange-600/95 to-green-700/95 shadow-lg py-3 backdrop-blur-sm' 
           : 'bg-transparent py-5'
       }`}
     >
@@ -45,33 +45,25 @@ export const Header = () => {
           <nav className="hidden md:flex items-center gap-8">
             <button 
               onClick={() => scrollToSection('inicio')}
-              className={`font-medium transition-colors ${
-                isScrolled ? 'text-gray-700 hover:text-orange-600' : 'text-white hover:text-orange-200'
-              }`}
+              className="font-medium text-white hover:text-orange-200 transition-colors"
             >
               Inicio
             </button>
             <button 
               onClick={() => scrollToSection('como-funciona')}
-              className={`font-medium transition-colors ${
-                isScrolled ? 'text-gray-700 hover:text-orange-600' : 'text-white hover:text-orange-200'
-              }`}
+              className="font-medium text-white hover:text-orange-200 transition-colors"
             >
               Cómo funciona
             </button>
             <button 
               onClick={() => scrollToSection('viajes')}
-              className={`font-medium transition-colors ${
-                isScrolled ? 'text-gray-700 hover:text-orange-600' : 'text-white hover:text-orange-200'
-              }`}
+              className="font-medium text-white hover:text-orange-200 transition-colors"
             >
               Viajes
             </button>
             <button 
               onClick={() => scrollToSection('contacto')}
-              className={`font-medium transition-colors ${
-                isScrolled ? 'text-gray-700 hover:text-orange-600' : 'text-white hover:text-orange-200'
-              }`}
+              className="font-medium text-white hover:text-orange-200 transition-colors"
             >
               Contacto
             </button>
@@ -81,11 +73,7 @@ export const Header = () => {
           <div className="hidden md:block">
             <Button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className={`font-semibold transition-all duration-300 ${
-                isScrolled 
-                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white' 
-                  : 'bg-white text-orange-600 hover:bg-gray-100'
-              }`}
+              className="bg-white text-orange-600 hover:bg-gray-100 font-semibold transition-all duration-300"
             >
               <Plane className="w-4 h-4 mr-2" />
               Buscar viaje
@@ -98,9 +86,9 @@ export const Header = () => {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? (
-              <X className={`w-6 h-6 ${isScrolled ? 'text-gray-900' : 'text-white'}`} />
+              <X className="w-6 h-6 text-white" />
             ) : (
-              <Menu className={`w-6 h-6 ${isScrolled ? 'text-gray-900' : 'text-white'}`} />
+              <Menu className="w-6 h-6 text-white" />
             )}
           </button>
         </div>
