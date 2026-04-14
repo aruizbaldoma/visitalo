@@ -39,7 +39,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md py-4 transition-all duration-300">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md py-3 transition-all duration-300">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -50,7 +50,7 @@ export const Header = () => {
             <img 
               src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/1k7gc8cn_Gemini_Generated_Image_9h07xd9h07xd9h07.png"
               alt="RutasViaje"
-              className="h-14 w-auto"
+              className="h-20 w-auto"
               style={{
                 mixBlendMode: 'multiply',
                 filter: 'contrast(1.3) brightness(1.15)',
