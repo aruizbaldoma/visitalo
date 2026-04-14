@@ -51,6 +51,11 @@ export const Header = () => {
               src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/1k7gc8cn_Gemini_Generated_Image_9h07xd9h07xd9h07.png"
               alt="RutasViaje"
               className="h-10 w-auto"
+              style={{
+                mixBlendMode: 'multiply',
+                filter: 'contrast(1.3) brightness(1.15)',
+                isolation: 'isolate'
+              }}
             />
           </div>
 
