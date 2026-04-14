@@ -48,7 +48,7 @@ export const Header = () => {
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <img 
-              src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/3vl3k8k3_Gemini_Generated_Image_45rhh445rhh445rh.png"
+              src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/jspcrpng_rutasviajelogo.png"
               alt="RutasViaje"
               className="h-10 w-auto"
             />
