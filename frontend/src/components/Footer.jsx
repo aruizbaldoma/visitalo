@@ -9,12 +9,11 @@ export const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-3 mb-4 bg-white inline-block px-2 py-1 rounded">
+            <div className="flex items-center gap-3 mb-4">
               <img 
-                src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/x5ypj1u6_Gemini_Generated_Image_9h07xd9h07xd9h07.png"
+                src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/3vl3k8k3_Gemini_Generated_Image_45rhh445rhh445rh.png"
                 alt="RutasViaje"
                 className="h-8 w-auto"
-                style={{ backgroundColor: 'white' }}
               />
             </div>
             <p className="text-gray-400 mb-4 max-w-md">

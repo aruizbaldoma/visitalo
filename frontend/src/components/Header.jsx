@@ -44,19 +44,13 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div 
-            className="flex items-center gap-3 cursor-pointer px-4 py-2 rounded-md" 
+            className="flex items-center gap-3 cursor-pointer" 
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            style={{ backgroundColor: '#FFFFFF' }}
           >
             <img 
-              src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/x5ypj1u6_Gemini_Generated_Image_9h07xd9h07xd9h07.png"
+              src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/3vl3k8k3_Gemini_Generated_Image_45rhh445rhh445rh.png"
               alt="RutasViaje"
               className="h-10 w-auto"
-              style={{ 
-                backgroundColor: '#FFFFFF',
-                mixBlendMode: 'normal',
-                imageRendering: 'crisp-edges'
-              }}
             />
           </div>
 
