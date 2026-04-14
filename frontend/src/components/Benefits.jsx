@@ -24,8 +24,8 @@ export const Benefits = () => {
                 key={index} 
                 className="bg-white rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 border border-gray-100 group"
               >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-orange-100 to-green-100 mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Icon className="w-8 h-8 text-orange-600" />
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 group-hover:scale-110 transition-transform duration-300" style={{ background: 'linear-gradient(to bottom right, rgba(10, 37, 64, 0.1), rgba(46, 211, 183, 0.2))' }}>
+                  <Icon className="w-8 h-8" style={{ color: '#0A2540' }} />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">
                   {benefit.title}

@@ -19,12 +19,12 @@ export const Testimonials = () => {
           {testimonials.map((testimonial, index) => (
             <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardContent className="pt-6">
-                <Quote className="w-10 h-10 text-orange-300 mb-4" />
+                <Quote className="w-10 h-10 mb-4" style={{ color: 'rgba(46, 211, 183, 0.4)' }} />
                 
                 {/* Rating */}
                 <div className="flex gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-orange-400 text-orange-400" />
+                    <Star key={i} className="w-5 h-5" style={{ fill: '#2ED3B7', color: '#2ED3B7' }} />
                   ))}
                 </div>
 
@@ -46,19 +46,19 @@ export const Testimonials = () => {
         {/* Stats */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
           <div className="text-center">
-            <div className="text-4xl font-bold text-orange-600 mb-2">12,000+</div>
+            <div className="text-4xl font-bold mb-2" style={{ color: '#0A2540' }}>12,000+</div>
             <div className="text-gray-600">Viajes creados</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-green-600 mb-2">€450</div>
+            <div className="text-4xl font-bold mb-2" style={{ color: '#2ED3B7' }}>€450</div>
             <div className="text-gray-600">Ahorro promedio</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-orange-600 mb-2">4.9/5</div>
+            <div className="text-4xl font-bold mb-2" style={{ color: '#0A2540' }}>4.9/5</div>
             <div className="text-gray-600">Valoración</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-green-600 mb-2">24/7</div>
+            <div className="text-4xl font-bold mb-2" style={{ color: '#2ED3B7' }}>24/7</div>
             <div className="text-gray-600">Disponibilidad</div>
           </div>
         </div>

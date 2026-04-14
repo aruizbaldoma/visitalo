@@ -40,7 +40,7 @@ export const ExampleTrips = ({ searchResults = null }) => {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute top-4 right-4">
-                    <Badge className="bg-green-600 text-white text-lg px-4 py-2 shadow-lg">
+                    <Badge className="text-white text-lg px-4 py-2 shadow-lg" style={{ backgroundColor: '#2ED3B7' }}>
                       {trip.days} días
                     </Badge>
                   </div>
@@ -58,7 +58,7 @@ export const ExampleTrips = ({ searchResults = null }) => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="text-3xl font-bold text-orange-600">
+                      <div className="text-3xl font-bold" style={{ color: '#0A2540' }}>
                         {trip.price}€
                       </div>
                       <p className="text-sm text-gray-500">persona</p>
@@ -92,13 +92,13 @@ export const ExampleTrips = ({ searchResults = null }) => {
                   {/* Itinerary */}
                   <div>
                     <p className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-orange-500" />
+                      <Calendar className="w-4 h-4" style={{ color: '#0A2540' }} />
                       Itinerario
                     </p>
                     <ul className="space-y-1 text-sm text-gray-600">
                       {trip.itinerary.map((day, index) => (
                         <li key={index} className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
+                          <span className="mt-0.5" style={{ color: '#2ED3B7' }}>•</span>
                           <span>{day}</span>
                         </li>
                       ))}
@@ -113,7 +113,8 @@ export const ExampleTrips = ({ searchResults = null }) => {
 
                 <CardFooter>
                   <Button 
-                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+                    className="w-full text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 hover:opacity-90"
+                    style={{ background: 'linear-gradient(to right, #2ED3B7, #1AB89D)' }}
                   >
                     Ver viaje completo
                   </Button>

@@ -11,8 +11,8 @@ export const Footer = () => {
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <img 
-                src="https://customer-assets.emergentagent.com/job_dbdb8aee-0eaf-4856-9f23-61350fa97147/artifacts/hky0r2mi_ChatGPT%20Image%2013%20abr%202026%2C%2022_23_17.png"
-                alt="RutaBarata"
+                src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/hb6f0otz_Logolargo.png"
+                alt="RutasViaje"
                 className="h-8 w-auto"
               />
             </div>
@@ -21,13 +21,13 @@ export const Footer = () => {
               Ahorra tiempo y dinero en cada escapada.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-600 transition-colors">
+              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center transition-colors hover:opacity-80" style={{ backgroundColor: '#0A2540' }}>
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-600 transition-colors">
+              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center transition-colors hover:opacity-80" style={{ backgroundColor: '#0A2540' }}>
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-600 transition-colors">
+              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center transition-colors hover:opacity-80" style={{ backgroundColor: '#0A2540' }}>
                 <Twitter className="w-5 h-5" />
               </a>
             </div>
@@ -38,16 +38,16 @@ export const Footer = () => {
             <h3 className="text-white font-semibold mb-4">Enlaces</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#inicio" className="hover:text-orange-400 transition-colors">Inicio</a>
+                <a href="#inicio" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Inicio</a>
               </li>
               <li>
-                <a href="#como-funciona" className="hover:text-orange-400 transition-colors">Cómo funciona</a>
+                <a href="#como-funciona" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Cómo funciona</a>
               </li>
               <li>
-                <a href="#viajes" className="hover:text-orange-400 transition-colors">Viajes</a>
+                <a href="#viajes" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Viajes</a>
               </li>
               <li>
-                <a href="#contacto" className="hover:text-orange-400 transition-colors">Contacto</a>
+                <a href="#contacto" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Contacto</a>
               </li>
             </ul>
           </div>
@@ -57,17 +57,17 @@ export const Footer = () => {
             <h3 className="text-white font-semibold mb-4">Contacto</h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
-                <Mail className="w-5 h-5 text-orange-400 mt-0.5" />
-                <a href="mailto:hola@rutabarata.com" className="hover:text-orange-400 transition-colors">
+                <Mail className="w-5 h-5 mt-0.5" style={{ color: '#2ED3B7' }} />
+                <a href="mailto:hola@rutabarata.com" className="transition-colors" style={{ color: 'inherit' }} onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>
                   hola@rutabarata.com
                 </a>
               </li>
               <li className="flex items-start gap-2">
-                <MapPin className="w-5 h-5 text-orange-400 mt-0.5" />
+                <MapPin className="w-5 h-5 mt-0.5" style={{ color: '#2ED3B7' }} />
                 <span>Barcelona, España</span>
               </li>
               <li className="flex items-start gap-2">
-                <Plane className="w-5 h-5 text-orange-400 mt-0.5" />
+                <Plane className="w-5 h-5 mt-0.5" style={{ color: '#2ED3B7' }} />
                 <span>Viajes desde toda España</span>
               </li>
             </ul>
@@ -81,10 +81,10 @@ export const Footer = () => {
               © {currentYear} RutaBarata. Todos los derechos reservados.
             </p>
             <div className="flex gap-6 text-sm">
-              <a href="#" className="text-gray-500 hover:text-orange-400 transition-colors">
+              <a href="#" className="text-gray-500 transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(107, 114, 128)'}>
                 Términos y Condiciones
               </a>
-              <a href="#" className="text-gray-500 hover:text-orange-400 transition-colors">
+              <a href="#" className="text-gray-500 transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(107, 114, 128)'}>
                 Política de Privacidad
               </a>
             </div>

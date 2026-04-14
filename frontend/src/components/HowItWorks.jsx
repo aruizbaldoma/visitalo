@@ -27,15 +27,15 @@ export const HowItWorks = () => {
               <div key={item.step} className="relative text-center group">
                 {/* Connector line */}
                 {item.step < 3 && (
-                  <div className="hidden md:block absolute top-16 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-orange-300 to-green-300"></div>
+                  <div className="hidden md:block absolute top-16 left-[60%] w-[80%] h-0.5" style={{ background: 'linear-gradient(to right, rgba(10, 37, 64, 0.3), rgba(46, 211, 183, 0.5))' }}></div>
                 )}
 
                 {/* Icon circle */}
-                <div className="relative inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-orange-400 to-green-500 mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="relative inline-flex items-center justify-center w-32 h-32 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300" style={{ background: 'linear-gradient(to bottom right, #0A2540, #2ED3B7)' }}>
                   <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-                    <Icon className="w-12 h-12 text-orange-500" />
+                    <Icon className="w-12 h-12" style={{ color: '#0A2540' }} />
                   </div>
-                  <div className="absolute -top-2 -right-2 w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                  <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md" style={{ backgroundColor: '#2ED3B7' }}>
                     {item.step}
                   </div>
                 </div>

@@ -45,8 +45,8 @@ export const Header = () => {
           {/* Logo */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <img 
-              src="https://customer-assets.emergentagent.com/job_dbdb8aee-0eaf-4856-9f23-61350fa97147/artifacts/hky0r2mi_ChatGPT%20Image%2013%20abr%202026%2C%2022_23_17.png"
-              alt="RutaBarata"
+              src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/hb6f0otz_Logolargo.png"
+              alt="RutasViaje"
               className="h-10 w-auto"
             />
           </div>
@@ -57,9 +57,10 @@ export const Header = () => {
               onClick={() => scrollToSection('inicio')}
               className={`font-medium transition-colors ${
                 activeSection === 'inicio' 
-                  ? 'text-orange-600 font-semibold' 
-                  : 'text-green-700 hover:text-orange-500'
+                  ? 'font-semibold' 
+                  : 'hover:opacity-80'
               }`}
+              style={{ color: activeSection === 'inicio' ? '#2ED3B7' : '#0A2540' }}
             >
               Inicio
             </button>
@@ -67,9 +68,10 @@ export const Header = () => {
               onClick={() => scrollToSection('como-funciona')}
               className={`font-medium transition-colors ${
                 activeSection === 'como-funciona' 
-                  ? 'text-orange-600 font-semibold' 
-                  : 'text-green-700 hover:text-orange-500'
+                  ? 'font-semibold' 
+                  : 'hover:opacity-80'
               }`}
+              style={{ color: activeSection === 'como-funciona' ? '#2ED3B7' : '#0A2540' }}
             >
               Cómo funciona
             </button>
@@ -77,9 +79,10 @@ export const Header = () => {
               onClick={() => scrollToSection('viajes')}
               className={`font-medium transition-colors ${
                 activeSection === 'viajes' 
-                  ? 'text-orange-600 font-semibold' 
-                  : 'text-green-700 hover:text-orange-500'
+                  ? 'font-semibold' 
+                  : 'hover:opacity-80'
               }`}
+              style={{ color: activeSection === 'viajes' ? '#2ED3B7' : '#0A2540' }}
             >
               Viajes
             </button>
@@ -87,9 +90,10 @@ export const Header = () => {
               onClick={() => scrollToSection('contacto')}
               className={`font-medium transition-colors ${
                 activeSection === 'contacto' 
-                  ? 'text-orange-600 font-semibold' 
-                  : 'text-green-700 hover:text-orange-500'
+                  ? 'font-semibold' 
+                  : 'hover:opacity-80'
               }`}
+              style={{ color: activeSection === 'contacto' ? '#2ED3B7' : '#0A2540' }}
             >
               Contacto
             </button>
@@ -99,7 +103,8 @@ export const Header = () => {
           <div className="hidden md:block">
             <Button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold transition-all duration-300 shadow-md hover:shadow-lg"
+              className="text-white font-semibold transition-all duration-300 shadow-md hover:shadow-lg hover:opacity-90"
+              style={{ background: 'linear-gradient(to right, #2ED3B7, #1AB89D)' }}
             >
               <Plane className="w-4 h-4 mr-2" />
               Buscar viaje
@@ -110,11 +115,12 @@ export const Header = () => {
           <button 
             className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            style={{ color: '#0A2540' }}
           >
             {isMobileMenuOpen ? (
-              <X className="w-6 h-6 text-green-700" />
+              <X className="w-6 h-6" />
             ) : (
-              <Menu className="w-6 h-6 text-green-700" />
+              <Menu className="w-6 h-6" />
             )}
           </button>
         </div>
@@ -124,41 +130,41 @@ export const Header = () => {
           <nav className="md:hidden mt-4 pb-4 space-y-3">
             <button 
               onClick={() => scrollToSection('inicio')}
-              className={`block w-full text-left py-2 px-4 rounded-lg font-medium transition-colors ${
-                activeSection === 'inicio'
-                  ? 'bg-orange-100 text-orange-600'
-                  : 'bg-green-50 text-green-700 hover:bg-green-100'
-              }`}
+              className="block w-full text-left py-2 px-4 rounded-lg font-medium transition-colors"
+              style={{
+                backgroundColor: activeSection === 'inicio' ? '#E6F9F5' : '#F0F4F8',
+                color: activeSection === 'inicio' ? '#2ED3B7' : '#0A2540'
+              }}
             >
               Inicio
             </button>
             <button 
               onClick={() => scrollToSection('como-funciona')}
-              className={`block w-full text-left py-2 px-4 rounded-lg font-medium transition-colors ${
-                activeSection === 'como-funciona'
-                  ? 'bg-orange-100 text-orange-600'
-                  : 'bg-green-50 text-green-700 hover:bg-green-100'
-              }`}
+              className="block w-full text-left py-2 px-4 rounded-lg font-medium transition-colors"
+              style={{
+                backgroundColor: activeSection === 'como-funciona' ? '#E6F9F5' : '#F0F4F8',
+                color: activeSection === 'como-funciona' ? '#2ED3B7' : '#0A2540'
+              }}
             >
               Cómo funciona
             </button>
             <button 
               onClick={() => scrollToSection('viajes')}
-              className={`block w-full text-left py-2 px-4 rounded-lg font-medium transition-colors ${
-                activeSection === 'viajes'
-                  ? 'bg-orange-100 text-orange-600'
-                  : 'bg-green-50 text-green-700 hover:bg-green-100'
-              }`}
+              className="block w-full text-left py-2 px-4 rounded-lg font-medium transition-colors"
+              style={{
+                backgroundColor: activeSection === 'viajes' ? '#E6F9F5' : '#F0F4F8',
+                color: activeSection === 'viajes' ? '#2ED3B7' : '#0A2540'
+              }}
             >
               Viajes
             </button>
             <button 
               onClick={() => scrollToSection('contacto')}
-              className={`block w-full text-left py-2 px-4 rounded-lg font-medium transition-colors ${
-                activeSection === 'contacto'
-                  ? 'bg-orange-100 text-orange-600'
-                  : 'bg-green-50 text-green-700 hover:bg-green-100'
-              }`}
+              className="block w-full text-left py-2 px-4 rounded-lg font-medium transition-colors"
+              style={{
+                backgroundColor: activeSection === 'contacto' ? '#E6F9F5' : '#F0F4F8',
+                color: activeSection === 'contacto' ? '#2ED3B7' : '#0A2540'
+              }}
             >
               Contacto
             </button>
@@ -167,7 +173,8 @@ export const Header = () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
+              className="w-full text-white hover:opacity-90"
+              style={{ background: 'linear-gradient(to right, #2ED3B7, #1AB89D)' }}
             >
               <Plane className="w-4 h-4 mr-2" />
               Buscar viaje

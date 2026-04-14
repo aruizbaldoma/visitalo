@@ -38,7 +38,7 @@ export const Hero = ({ onSearch }) => {
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/90 via-orange-400/85 to-green-600/80"></div>
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, rgba(10, 37, 64, 0.92), rgba(10, 37, 64, 0.85), rgba(46, 211, 183, 0.75))' }}></div>
       </div>
 
       {/* Floating elements */}
@@ -66,7 +66,7 @@ export const Hero = ({ onSearch }) => {
                 {/* Departure city */}
                 <div className="text-left">
                   <Label htmlFor="departure" className="text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-orange-500" />
+                    <MapPin className="w-4 h-4" style={{ color: '#0A2540' }} />
                     Ciudad de origen
                   </Label>
                   <Select 
@@ -87,7 +87,7 @@ export const Hero = ({ onSearch }) => {
                 {/* Budget */}
                 <div className="text-left">
                   <Label htmlFor="budget" className="text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <Euro className="w-4 h-4 text-green-600" />
+                    <Euro className="w-4 h-4" style={{ color: '#2ED3B7' }} />
                     Presupuesto máximo
                   </Label>
                   <Input
@@ -105,7 +105,7 @@ export const Hero = ({ onSearch }) => {
                 {/* Start date */}
                 <div className="text-left">
                   <Label htmlFor="startDate" className="text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-orange-500" />
+                    <Calendar className="w-4 h-4" style={{ color: '#0A2540' }} />
                     Fecha de ida
                   </Label>
                   <Input
@@ -120,7 +120,7 @@ export const Hero = ({ onSearch }) => {
                 {/* End date */}
                 <div className="text-left">
                   <Label htmlFor="endDate" className="text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-orange-500" />
+                    <Calendar className="w-4 h-4" style={{ color: '#0A2540' }} />
                     Fecha de vuelta
                   </Label>
                   <Input
@@ -137,7 +137,8 @@ export const Hero = ({ onSearch }) => {
               <Button 
                 type="submit" 
                 size="lg" 
-                className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full h-14 text-lg text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:opacity-90"
+                style={{ background: 'linear-gradient(to right, #2ED3B7, #1AB89D)' }}
               >
                 <Search className="w-5 h-5 mr-2" />
                 Buscar mi viaje
