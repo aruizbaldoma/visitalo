@@ -113,8 +113,8 @@ export const ExampleTrips = ({ searchResults = null }) => {
 
                 <CardFooter>
                   <Button 
-                    className="w-full text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 hover:opacity-90"
-                    style={{ background: 'linear-gradient(to right, #2ED3B7, #1AB89D)' }}
+                    className="w-full text-white font-semibold shadow-sm hover:shadow-md transition-all duration-300 hover:opacity-90"
+                    style={{ background: '#2ED3B7' }}
                   >
                     Ver viaje completo
                   </Button>

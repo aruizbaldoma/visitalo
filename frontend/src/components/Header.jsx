@@ -39,7 +39,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md py-3 transition-all duration-300">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm py-2 transition-all duration-300">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -50,7 +50,7 @@ export const Header = () => {
             <img 
               src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/6ka0wty1_Logo_fondoblanco.png"
               alt="Rutaperfecta.com"
-              className="h-20 w-auto"
+              className="h-11 w-auto"
               style={{
                 mixBlendMode: 'multiply',
                 filter: 'contrast(1.3) brightness(1.15)',
@@ -60,10 +60,10 @@ export const Header = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-6">
             <button 
               onClick={() => scrollToSection('inicio')}
-              className={`font-medium transition-colors ${
+              className={`font-medium transition-colors text-sm ${
                 activeSection === 'inicio' 
                   ? 'font-semibold' 
                   : 'hover:opacity-80'
@@ -74,7 +74,7 @@ export const Header = () => {
             </button>
             <button 
               onClick={() => scrollToSection('como-funciona')}
-              className={`font-medium transition-colors ${
+              className={`font-medium transition-colors text-sm ${
                 activeSection === 'como-funciona' 
                   ? 'font-semibold' 
                   : 'hover:opacity-80'
@@ -85,7 +85,7 @@ export const Header = () => {
             </button>
             <button 
               onClick={() => scrollToSection('viajes')}
-              className={`font-medium transition-colors ${
+              className={`font-medium transition-colors text-sm ${
                 activeSection === 'viajes' 
                   ? 'font-semibold' 
                   : 'hover:opacity-80'
@@ -96,7 +96,7 @@ export const Header = () => {
             </button>
             <button 
               onClick={() => scrollToSection('contacto')}
-              className={`font-medium transition-colors ${
+              className={`font-medium transition-colors text-sm ${
                 activeSection === 'contacto' 
                   ? 'font-semibold' 
                   : 'hover:opacity-80'
@@ -111,8 +111,8 @@ export const Header = () => {
           <div className="hidden md:block">
             <Button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="text-white font-semibold transition-all duration-300 shadow-md hover:shadow-lg hover:opacity-90"
-              style={{ background: 'linear-gradient(to right, #2ED3B7, #1AB89D)' }}
+              className="text-white font-medium transition-all duration-300 shadow-sm hover:shadow-md hover:opacity-90 px-5 py-2 text-sm"
+              style={{ background: '#2ED3B7' }}
             >
               <Plane className="w-4 h-4 mr-2" />
               Buscar viaje

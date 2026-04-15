@@ -7,9 +7,9 @@ export const CTA = () => {
   };
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-20 relative overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, #0A2540, #0D3A5E, #2ED3B7)' }}></div>
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0A2540 0%, #0D3A5E 50%, #2ED3B7 100%)' }}></div>
       
       {/* Pattern overlay */}
       <div className="absolute inset-0 opacity-10" style={{
@@ -22,11 +22,11 @@ export const CTA = () => {
             <Plane className="w-10 h-10 text-white" />
           </div>
 
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-5 leading-tight">
             Encuentra tu próximo viaje ahora
           </h2>
           
-          <p className="text-xl md:text-2xl text-white/95 mb-10 font-light">
+          <p className="text-lg md:text-xl text-white/90 mb-8 font-light">
             Comienza a ahorrar en tus viajes hoy mismo. Es gratis y solo toma 30 segundos.
           </p>
 
@@ -34,7 +34,7 @@ export const CTA = () => {
             <Button 
               size="lg"
               onClick={scrollToTop}
-              className="h-16 px-10 text-lg bg-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
+              className="h-14 px-8 text-base bg-white font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
               style={{ color: '#0A2540' }}
             >
               Planificar viaje gratis
@@ -42,7 +42,7 @@ export const CTA = () => {
             </Button>
           </div>
 
-          <p className="mt-8 text-white/80 text-sm">
+          <p className="mt-6 text-white/75 text-sm">
             Sin tarjeta de crédito • Sin compromisos • Resultados instantáneos
           </p>
         </div>
