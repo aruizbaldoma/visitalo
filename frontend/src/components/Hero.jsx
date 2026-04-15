@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, MapPin, Euro, Search, Plane } from "lucide-react";
+import { Calendar, MapPin, Euro, Search } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -11,6 +11,10 @@ import {
   SelectValue,
 } from "./ui/select";
 import { departureCities } from "../data/mock";
+import axios from "axios";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 export const Hero = ({ onSearch }) => {
   const [searchData, setSearchData] = useState({
@@ -19,11 +23,30 @@ export const Hero = ({ onSearch }) => {
     endDate: "",
     budget: ""
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     if (searchData.budget && searchData.startDate && searchData.endDate) {
-      onSearch(searchData);
+      setIsLoading(true);
+      
+      try {
+        // Llamar al backend con Gemini
+        const response = await axios.post(`${API}/search-trips`, {
+          departureCity: searchData.departureCity,
+          startDate: searchData.startDate,
+          endDate: searchData.endDate,
+          budget: parseInt(searchData.budget)
+        });
+        
+        // Pasar los resultados al componente padre
+        onSearch(response.data.results);
+      } catch (error) {
+        console.error("Error buscando viajes:", error);
+        onSearch([]); // Enviar array vacío en caso de error
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
