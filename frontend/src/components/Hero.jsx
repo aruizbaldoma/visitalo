@@ -39,8 +39,11 @@ export const Hero = ({ onSearch }) => {
           budget: parseInt(searchData.budget)
         });
         
+        // Verificar si está en modo MOCK
+        const isMockMode = response.headers['x-mock-mode'] === 'true';
+        
         // Pasar los resultados al componente padre
-        onSearch(response.data.results);
+        onSearch(response.data.results, isMockMode);
       } catch (error) {
         console.error("Error buscando viajes:", error);
         onSearch([]); // Enviar array vacío en caso de error

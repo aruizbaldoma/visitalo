@@ -14,15 +14,21 @@ import { Toaster } from "./components/ui/sonner";
 function App() {
   const [searchResults, setSearchResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [isMockMode, setIsMockMode] = useState(false);
 
-  const handleSearch = async (results) => {
+  const handleSearch = async (results, mockMode = false) => {
     setIsSearching(true);
+    setIsMockMode(mockMode);
     toast.loading("Buscando los mejores viajes con IA...");
     
     try {
       // Los resultados ya vienen del backend
       setSearchResults(results);
       toast.dismiss();
+      
+      if (mockMode) {
+        toast.info("🎭 Modo Demo: Mostrando datos de ejemplo (sin gastar API)");
+      }
       
       if (results.length > 0) {
         toast.success(`¡Encontramos ${results.length} viaje(s) increíble(s)!`);
@@ -48,6 +54,20 @@ function App() {
   return (
     <div className="App">
       <Toaster position="top-center" richColors />
+      
+      {isMockMode && (
+        <div style={{
+          background: 'linear-gradient(90deg, #f59e0b 0%, #f97316 100%)',
+          color: 'white',
+          padding: '8px 16px',
+          textAlign: 'center',
+          fontSize: '14px',
+          fontWeight: '500'
+        }}>
+          🎭 MODO DEMO ACTIVO - Mostrando datos de ejemplo (sin gastar API de Gemini)
+        </div>
+      )}
+      
       <Header />
       
       <main>

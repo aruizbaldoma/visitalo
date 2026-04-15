@@ -21,7 +21,20 @@ class GeminiTravelService:
     ) -> List[Dict[str, Any]]:
         """
         Genera recomendaciones de viajes personalizadas usando Gemini 1.5 Flash
+        O retorna datos MOCK si USE_MOCK_DATA=true
         """
+        # Verificar si está en modo MOCK
+        use_mock = os.environ.get('USE_MOCK_DATA', 'false').lower() == 'true'
+        
+        if use_mock:
+            print(f"\n{'='*60}")
+            print(f"🎭 MODO MOCK ACTIVADO - Generando datos de prueba")
+            print(f"   - Origen: {departure_city}")
+            print(f"   - Fechas: {start_date} a {end_date}")
+            print(f"   - Presupuesto: {budget}€")
+            print(f"{'='*60}\n")
+            return self._generate_mock_trips(departure_city, start_date, end_date, budget)
+        
         print(f"\n{'='*60}")
         print(f"🔍 BÚSQUEDA RECIBIDA:")
         print(f"   - Origen: {departure_city}")
@@ -282,3 +295,250 @@ JSON:"""
         except Exception as e:
             print(f"❌ GEMINI API ERROR: {e}")
             raise Exception(f"Error en la API de Gemini: {str(e)}")
+
+
+    def _generate_mock_trips(
+        self,
+        departure_city: str,
+        start_date: str,
+        end_date: str,
+        budget: int
+    ) -> List[Dict[str, Any]]:
+        """
+        Genera datos MOCK de viajes para testing sin gastar API calls
+        """
+        # Calcular días
+        from datetime import datetime
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end = datetime.strptime(end_date, '%Y-%m-%d')
+        days = (end - start).days
+        
+        # Mapeo de imágenes (mismo que en el método real)
+        images = {
+            "Lisboa": "https://images.unsplash.com/photo-1585208798174-6cedd86e019a",
+            "Praga": "https://images.unsplash.com/photo-1541849546-216549ae216d",
+            "Budapest": "https://images.unsplash.com/photo-1541849546-216549ae216d",
+            "Berlín": "https://images.unsplash.com/photo-1560969184-10fe8719e047",
+            "Ámsterdam": "https://images.unsplash.com/photo-1534351590666-13e3e96b5017",
+            "París": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
+            "Roma": "https://images.unsplash.com/photo-1552832230-c0197dd311b5",
+            "Viena": "https://images.unsplash.com/photo-1516550893923-42d28e5677af",
+            "Florencia": "https://images.unsplash.com/photo-1543429258-955bcf73ca8e",
+            "Porto": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b",
+            "Copenhague": "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc",
+            "Estocolmo": "https://images.unsplash.com/photo-1509356843151-3e7d96241e11",
+        }
+        
+        # Diferentes conjuntos de viajes según presupuesto
+        if budget < 400:
+            # Presupuesto bajo: destinos cercanos y económicos
+            mock_trips = [
+                {
+                    "id": 1,
+                    "destination": "Porto",
+                    "country": "Portugal",
+                    "days": days,
+                    "price": int(budget * 0.65),
+                    "image": images["Porto"],
+                    "itinerary": [
+                        "Día 1: Llegada y paseo por la Ribeira, visita a las bodegas de vino de Oporto",
+                        "Día 2: Exploración del centro histórico, Torre de los Clérigos y Librería Lello",
+                        "Día 3: Excursión al valle del Duero, cata de vinos",
+                        f"Día {days}: Últimas compras y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                },
+                {
+                    "id": 2,
+                    "destination": "Lisboa",
+                    "country": "Portugal",
+                    "days": days,
+                    "price": int(budget * 0.75),
+                    "image": images["Lisboa"],
+                    "itinerary": [
+                        "Día 1: Barrio de Alfama, Castillo de San Jorge, cena con Fado",
+                        "Día 2: Belém: Torre, Monasterio de los Jerónimos, Pastéis de Belém",
+                        "Día 3: Chiado, Bairro Alto, Elevador de Santa Justa",
+                        f"Día {days}: Tranvía 28 y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                },
+                {
+                    "id": 3,
+                    "destination": "Praga",
+                    "country": "República Checa",
+                    "days": days,
+                    "price": int(budget * 0.85),
+                    "image": images["Praga"],
+                    "itinerary": [
+                        "Día 1: Plaza de la Ciudad Vieja, Reloj Astronómico, Puente de Carlos",
+                        "Día 2: Castillo de Praga, Catedral de San Vito, Callejón del Oro",
+                        "Día 3: Barrio Judío, degustación de cerveza checa",
+                        f"Día {days}: Compras de cristal de Bohemia y vuelta"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                },
+                {
+                    "id": 4,
+                    "destination": "Budapest",
+                    "country": "Hungría",
+                    "days": days,
+                    "price": int(budget * 0.90),
+                    "image": images["Budapest"],
+                    "itinerary": [
+                        "Día 1: Parlamento, Bastión de los Pescadores, vistas del Danubio",
+                        "Día 2: Baños termales Széchenyi, Avenida Andrássy",
+                        "Día 3: Castillo de Buda, Mercado Central",
+                        f"Día {days}: Crucero por el Danubio y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                }
+            ]
+        elif budget < 800:
+            # Presupuesto medio: mezcla de destinos
+            mock_trips = [
+                {
+                    "id": 1,
+                    "destination": "Berlín",
+                    "country": "Alemania",
+                    "days": days,
+                    "price": int(budget * 0.70),
+                    "image": images["Berlín"],
+                    "itinerary": [
+                        "Día 1: Puerta de Brandeburgo, Reichstag, Memorial del Holocausto",
+                        "Día 2: Isla de los Museos, East Side Gallery",
+                        "Día 3: Palacio de Charlottenburg, barrio de Kreuzberg",
+                        f"Día {days}: Checkpoint Charlie y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                },
+                {
+                    "id": 2,
+                    "destination": "Ámsterdam",
+                    "country": "Países Bajos",
+                    "days": days,
+                    "price": int(budget * 0.80),
+                    "image": images["Ámsterdam"],
+                    "itinerary": [
+                        "Día 1: Canales, Casa de Ana Frank, Jordaan",
+                        "Día 2: Museo Van Gogh, Rijksmuseum, Vondelpark",
+                        "Día 3: Paseo en bicicleta, Mercado de las Flores",
+                        f"Día {days}: Zaanse Schans y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                },
+                {
+                    "id": 3,
+                    "destination": "Viena",
+                    "country": "Austria",
+                    "days": days,
+                    "price": int(budget * 0.85),
+                    "image": images["Viena"],
+                    "itinerary": [
+                        "Día 1: Palacio de Schönbrunn, Ópera de Viena",
+                        "Día 2: Centro histórico, Catedral de San Esteban, Hofburg",
+                        "Día 3: Museos, café vienés tradicional",
+                        f"Día {days}: Compras y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                },
+                {
+                    "id": 4,
+                    "destination": "Florencia",
+                    "country": "Italia",
+                    "days": days,
+                    "price": int(budget * 0.90),
+                    "image": images["Florencia"],
+                    "itinerary": [
+                        "Día 1: Duomo, Galería de la Academia (David de Miguel Ángel)",
+                        "Día 2: Galería Uffizi, Ponte Vecchio, Palazzo Pitti",
+                        "Día 3: Piazzale Michelangelo, Jardines de Boboli",
+                        f"Día {days}: Compras en el Mercado de San Lorenzo y vuelta"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                }
+            ]
+        else:
+            # Presupuesto alto: destinos premium
+            mock_trips = [
+                {
+                    "id": 1,
+                    "destination": "París",
+                    "country": "Francia",
+                    "days": days,
+                    "price": int(budget * 0.75),
+                    "image": images["París"],
+                    "itinerary": [
+                        "Día 1: Torre Eiffel, Campos Elíseos, Arco de Triunfo",
+                        "Día 2: Museo del Louvre, Notre-Dame, Sainte-Chapelle",
+                        "Día 3: Montmartre, Sacré-Cœur, Moulin Rouge",
+                        f"Día {days}: Versalles y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                },
+                {
+                    "id": 2,
+                    "destination": "Roma",
+                    "country": "Italia",
+                    "days": days,
+                    "price": int(budget * 0.80),
+                    "image": images["Roma"],
+                    "itinerary": [
+                        "Día 1: Coliseo, Foro Romano, Palatino",
+                        "Día 2: Ciudad del Vaticano, Capilla Sixtina, Basílica de San Pedro",
+                        "Día 3: Fontana di Trevi, Panteón, Piazza Navona",
+                        f"Día {days}: Villa Borghese y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                },
+                {
+                    "id": 3,
+                    "destination": "Copenhague",
+                    "country": "Dinamarca",
+                    "days": days,
+                    "price": int(budget * 0.85),
+                    "image": images["Copenhague"],
+                    "itinerary": [
+                        "Día 1: Nyhavn, La Sirenita, Palacio de Amalienborg",
+                        "Día 2: Jardines de Tivoli, Strøget (zona comercial)",
+                        "Día 3: Christiania, restaurantes de diseño nórdico",
+                        f"Día {days}: Castillo de Kronborg y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                },
+                {
+                    "id": 4,
+                    "destination": "Estocolmo",
+                    "country": "Suecia",
+                    "days": days,
+                    "price": int(budget * 0.90),
+                    "image": images["Estocolmo"],
+                    "itinerary": [
+                        "Día 1: Gamla Stan (casco antiguo), Palacio Real",
+                        "Día 2: Museo Vasa, Skansen (museo al aire libre)",
+                        "Día 3: Archipelago tour, SoFo (barrio moderno)",
+                        f"Día {days}: ABBA Museum y vuelta a {departure_city}"
+                    ],
+                    "includes": {"flights": True, "hotel": True, "breakfast": True},
+                    "departure": departure_city
+                }
+            ]
+        
+        # Filtrar solo viajes dentro del presupuesto
+        filtered_trips = [trip for trip in mock_trips if trip['price'] <= budget]
+        
+        print(f"✅ MOCK DATA: Generados {len(filtered_trips)} viajes para {departure_city}")
+        print(f"   Destinos: {[trip['destination'] for trip in filtered_trips]}")
+        
+        return filtered_trips

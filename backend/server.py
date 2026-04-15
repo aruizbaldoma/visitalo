@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -88,10 +89,10 @@ async def get_status_checks():
     
     return status_checks
 
-@api_router.post("/search-trips", response_model=TravelSearchResponse)
+@api_router.post("/search-trips")
 async def search_trips(search_request: TravelSearchRequest):
     """
-    Endpoint para buscar viajes usando Gemini AI
+    Endpoint para buscar viajes usando Gemini AI o Mock Data
     """
     try:
         # Validar datos
@@ -117,7 +118,7 @@ async def search_trips(search_request: TravelSearchRequest):
         if not trips or len(trips) == 0:
             raise HTTPException(
                 status_code=500, 
-                detail="Gemini no generó viajes. Por favor intenta con otro presupuesto o destino."
+                detail="No se encontraron viajes dentro del presupuesto."
             )
         
         # Guardar búsqueda en la base de datos
@@ -125,15 +126,24 @@ async def search_trips(search_request: TravelSearchRequest):
             "search_id": str(uuid.uuid4()),
             "query": search_request.model_dump(),
             "results_count": len(trips),
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "is_mock": os.environ.get('USE_MOCK_DATA', 'false').lower() == 'true'
         }
         await db.travel_searches.insert_one(search_record)
         
         print(f"\n✅ RESPUESTA EXITOSA: {len(trips)} viajes generados\n")
         
-        return TravelSearchResponse(
+        # Crear respuesta con header indicando si es MOCK
+        response_data = TravelSearchResponse(
             results=trips,
             query=search_request
+        )
+        
+        # Retornar con header custom
+        is_mock = os.environ.get('USE_MOCK_DATA', 'false').lower() == 'true'
+        return JSONResponse(
+            content=response_data.model_dump(),
+            headers={"X-Mock-Mode": "true" if is_mock else "false"}
         )
     
     except HTTPException:
