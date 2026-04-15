@@ -21,7 +21,9 @@ export const Hero = ({ onSearch }) => {
     departureCity: "Barcelona",
     startDate: "",
     endDate: "",
-    budget: ""
+    budget: "",
+    includeFlights: true,
+    includeHotels: true
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,7 +38,9 @@ export const Hero = ({ onSearch }) => {
           departureCity: searchData.departureCity,
           startDate: searchData.startDate,
           endDate: searchData.endDate,
-          budget: parseInt(searchData.budget)
+          budget: parseInt(searchData.budget),
+          includeFlights: searchData.includeFlights,
+          includeHotels: searchData.includeHotels
         });
         
         // Verificar si está en modo MOCK
@@ -151,6 +155,41 @@ export const Hero = ({ onSearch }) => {
                   />
                 </div>
               </div>
+
+              {/* Filtros de servicios */}
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="includeFlights"
+                    checked={searchData.includeFlights}
+                    onChange={(e) => setSearchData({...searchData, includeFlights: e.target.checked})}
+                    className="w-5 h-5 rounded cursor-pointer"
+                    style={{ accentColor: '#3ccca4' }}
+                  />
+                  <Label htmlFor="includeFlights" className="text-gray-700 font-medium cursor-pointer flex items-center gap-2">
+                    ✈️ Incluir Vuelos
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="includeHotels"
+                    checked={searchData.includeHotels}
+                    onChange={(e) => setSearchData({...searchData, includeHotels: e.target.checked})}
+                    className="w-5 h-5 rounded cursor-pointer"
+                    style={{ accentColor: '#3ccca4' }}
+                  />
+                  <Label htmlFor="includeHotels" className="text-gray-700 font-medium cursor-pointer flex items-center gap-2">
+                    🏨 Incluir Hoteles
+                  </Label>
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500 text-center -mt-2">
+                📋 El itinerario siempre está incluido
+              </p>
 
               <Button 
                 type="submit" 

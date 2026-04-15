@@ -17,7 +17,9 @@ class GeminiTravelService:
         departure_city: str, 
         start_date: str, 
         end_date: str, 
-        budget: int
+        budget: int,
+        include_flights: bool = True,
+        include_hotels: bool = True
     ) -> List[Dict[str, Any]]:
         """
         Genera recomendaciones de viajes personalizadas usando Gemini 1.5 Flash
@@ -32,14 +34,18 @@ class GeminiTravelService:
             print(f"   - Origen: {departure_city}")
             print(f"   - Fechas: {start_date} a {end_date}")
             print(f"   - Presupuesto: {budget}€")
+            print(f"   - Incluye Vuelos: {include_flights}")
+            print(f"   - Incluye Hoteles: {include_hotels}")
             print(f"{'='*60}\n")
-            return self._generate_mock_trips(departure_city, start_date, end_date, budget)
+            return self._generate_mock_trips(departure_city, start_date, end_date, budget, include_flights, include_hotels)
         
         print(f"\n{'='*60}")
         print(f"🔍 BÚSQUEDA RECIBIDA:")
         print(f"   - Origen: {departure_city}")
         print(f"   - Fechas: {start_date} a {end_date}")
         print(f"   - Presupuesto: {budget}€")
+        print(f"   - Incluye Vuelos: {include_flights}")
+        print(f"   - Incluye Hoteles: {include_hotels}")
         print(f"{'='*60}\n")
         
         # Calcular número de días
@@ -47,69 +53,38 @@ class GeminiTravelService:
         end = datetime.strptime(end_date, '%Y-%m-%d')
         days = (end - start).days
         
-        # Determinar si es presupuesto alto o bajo
-        budget_level = "económico"
-        extra_instructions = "Sugiere opciones económicas con vuelos low-cost y hoteles de 2-3 estrellas."
+        # CONSTRUIR PROMPT DINÁMICO SEGÚN FILTROS
+        scenario_instruction = self._build_scenario_instruction(include_flights, include_hotels, budget)
         
-        if budget > 1000:
-            budget_level = "de lujo"
-            extra_instructions = "Incluye SOLO opciones de lujo: hoteles 5 estrellas, vuelos en clase business, actividades premium, restaurantes gourmet y experiencias exclusivas."
-        elif budget > 500:
-            budget_level = "medio-alto"
-            extra_instructions = "Sugiere opciones de calidad con buenos hoteles de 4 estrellas y actividades interesantes."
+        # Determinar estructura JSON según servicios incluidos
+        json_structure = self._build_json_structure(include_flights, include_hotels, days, departure_city)
         
-        # Crear el prompt optimizado
-        prompt = f"""Eres un experto en planificación de viajes. Genera EXACTAMENTE 4 recomendaciones de viajes DIFERENTES desde {departure_city} a destinos europeos.
+        # Crear el prompt optimizado DINÁMICO
+        prompt = f"""{scenario_instruction}
 
 INFORMACIÓN DE LA BÚSQUEDA:
 - Ciudad de origen: {departure_city}
 - Fechas: del {start_date} al {end_date} ({days} días)
 - Presupuesto máximo por persona: {budget}€
-- Nivel de viaje: {budget_level}
-
-INSTRUCCIONES ESPECIALES:
-{extra_instructions}
 
 DESTINOS IMPORTANTES:
 - Genera destinos VARIADOS: capitales europeas, ciudades costeras, destinos culturales
 - NO repitas siempre los mismos destinos
-- Adapta las recomendaciones al presupuesto: si es bajo, destinos cercanos; si es alto, cualquier destino premium de Europa
+- Adapta las recomendaciones al presupuesto
 - Considera la época del año (fechas proporcionadas)
 
 Devuelve SOLO un objeto JSON con este formato EXACTO (sin markdown, sin texto adicional):
 
-{{
-  "viajes": [
-    {{
-      "id": 1,
-      "destination": "Nombre Ciudad",
-      "country": "País",
-      "days": {days},
-      "price": 450,
-      "image": "https://images.unsplash.com/photo-1234567890123",
-      "itinerary": [
-        "Día 1: Actividad específica en el destino",
-        "Día 2: Otra actividad interesante",
-        "Día 3: Más actividades"
-      ],
-      "includes": {{
-        "flights": true,
-        "hotel": true,
-        "breakfast": true
-      }},
-      "departure": "{departure_city}"
-    }}
-  ]
-}}
+{json_structure}
 
 REGLAS CRÍTICAS:
 1. TODOS los precios DEBEN estar entre 100€ y {budget}€
 2. Responde SOLO JSON puro, sin ```json ni explicaciones
 3. Genera 4 destinos DIFERENTES y variados
-4. Itinerarios específicos con nombres reales de lugares
+4. Itinerarios específicos con nombres reales de lugares y experiencias
 5. Para las imágenes, usa URLs MUY SIMPLES: "https://images.unsplash.com/photo-1", "https://images.unsplash.com/photo-2", etc
 6. IDs únicos: 1, 2, 3, 4
-7. Las URLs de imagen deben ser SIMPLES: solo "https://images.unsplash.com/photo-N" donde N es 1,2,3,4
+7. Las URLs de imagen deben ser SIMPLES
 8. IMPORTANTE: Genera SOLO JSON válido y completo, sin texto adicional
 
 JSON:"""
@@ -302,10 +277,13 @@ JSON:"""
         departure_city: str,
         start_date: str,
         end_date: str,
-        budget: int
+        budget: int,
+        include_flights: bool = True,
+        include_hotels: bool = True
     ) -> List[Dict[str, Any]]:
         """
         Genera datos MOCK de viajes para testing sin gastar API calls
+        Soporta los 4 escenarios de filtrado
         """
         # Calcular días
         from datetime import datetime
@@ -538,7 +516,123 @@ JSON:"""
         # Filtrar solo viajes dentro del presupuesto
         filtered_trips = [trip for trip in mock_trips if trip['price'] <= budget]
         
+        # APLICAR FILTROS DE SERVICIOS
+        for trip in filtered_trips:
+            # Ajustar estructura según filtros
+            trip['includes']['flights'] = include_flights
+            trip['includes']['hotel'] = include_hotels
+            
+            # Añadir campos opcionales según filtros
+            if include_flights:
+                trip['flights'] = {
+                    "class": "Business" if not include_hotels and budget > 600 else "Economy",
+                    "details": f"Vuelo directo desde {departure_city}" if budget > 800 else f"Vuelo con escala desde {departure_city}"
+                }
+            
+            if include_hotels:
+                trip['hotels'] = {
+                    "name": f"Hotel Premium {trip['destination']}",
+                    "stars": 5 if not include_flights and budget > 500 else 4,
+                    "zone": "Centro histórico",
+                    "amenities": ["WiFi", "Desayuno", "Spa", "Piscina"] if not include_flights else ["WiFi", "Desayuno"]
+                }
+            
+            # Ajustar itinerario según escenario
+            if not include_flights and not include_hotels:
+                # CASO D: Solo experiencias VIP
+                trip['itinerary'] = [
+                    f"Día 1: Transfer en limusina + Guía privado por {trip['destination']} + Cena estrella Michelin",
+                    f"Día 2: Experiencia VIP 'saltarse la cola' en monumentos + Tour gastronómico premium",
+                    f"Día 3: Helicóptero panorámico + Spa de lujo + Reserva exclusiva en restaurante gourmet",
+                    f"Día {days}: Experiencias personalizadas según preferencias + Transfer premium"
+                ]
+            elif include_flights and not include_hotels:
+                # CASO B: Vuelos premium + experiencias
+                trip['itinerary'] = [
+                    f"Día 1: Vuelo Business/Premium + Tour gastronómico VIP",
+                    f"Día 2: Experiencias premium en {trip['destination']} + Cena en restaurante de renombre",
+                    f"Día 3: Tours privados + Actividades exclusivas",
+                    f"Día {days}: Compras en zonas exclusivas + Vuelo de regreso Premium"
+                ]
+            elif not include_flights and include_hotels:
+                # CASO C: Hoteles de lujo + logística local premium
+                trip['itinerary'] = [
+                    f"Día 1: Check-in hotel 5 estrellas + Transfer privado + Spa",
+                    f"Día 2: Desayuno gourmet + Tours con chofer privado + Experiencias locales VIP",
+                    f"Día 3: Acceso a club lounge del hotel + Actividades premium",
+                    f"Día {days}: Late check-out + Transfer privado al punto de partida"
+                ]
+        
         print(f"✅ MOCK DATA: Generados {len(filtered_trips)} viajes para {departure_city}")
         print(f"   Destinos: {[trip['destination'] for trip in filtered_trips]}")
+        print(f"   Filtros: Vuelos={include_flights}, Hoteles={include_hotels}")
         
         return filtered_trips
+
+    def _build_scenario_instruction(self, include_flights: bool, include_hotels: bool, budget: int) -> str:
+        """
+        Construye la instrucción del escenario según los servicios incluidos
+        """
+        if include_flights and include_hotels:
+            # CASO A: Vuelos + Hoteles
+            return f"""Actúa como un agente de viajes integral. Distribuye el presupuesto de {budget}€ entre vuelos, alojamiento de alta calidad y un itinerario detallado. Genera EXACTAMENTE 4 recomendaciones de viajes DIFERENTES."""
+        
+        elif include_flights and not include_hotels:
+            # CASO B: Solo Vuelos
+            return f"""No busques hoteles. Asume que el alojamiento ya está resuelto. Reasigna el presupuesto que iría a hoteles para proponer vuelos en clases superiores (Business/Premium Economy) y añade experiencias gastronómicas VIP o tours privados al itinerario. Presupuesto total: {budget}€. Genera EXACTAMENTE 4 recomendaciones DIFERENTES."""
+        
+        elif not include_flights and include_hotels:
+            # CASO C: Solo Hoteles
+            return f"""No busques vuelos. Asume que el usuario ya tiene transporte. Reasigna el presupuesto de transporte para buscar los hoteles más lujosos posibles en las mejores zonas y detalla la logística local (taxis premium, transfers privados) en el itinerario. Presupuesto total: {budget}€. Genera EXACTAMENTE 4 recomendaciones DIFERENTES."""
+        
+        else:
+            # CASO D: Ni Vuelos ni Hoteles - Solo Experiencias
+            return f"""Céntrate exclusivamente en la experiencia. Al no tener gastos de transporte ni alojamiento, utiliza TODO el presupuesto de {budget}€ para diseñar el itinerario más exclusivo imaginable: guías privados, entradas 'saltarse la cola', cenas en restaurantes con estrella Michelin, experiencias VIP y logística de transporte interno premium (limusinas, helicópteros si el presupuesto lo permite). Genera EXACTAMENTE 4 destinos DIFERENTES con experiencias únicas."""
+    
+    def _build_json_structure(self, include_flights: bool, include_hotels: bool, days: int, departure_city: str) -> str:
+        """
+        Construye la estructura JSON esperada según los servicios incluidos
+        """
+        # Construir la estructura de includes dinámicamente
+        includes_structure = '{'
+        if include_flights:
+            includes_structure += '\n        "flights": true,'
+        if include_hotels:
+            includes_structure += '\n        "hotel": true,'
+        includes_structure += '\n        "breakfast": true\n      }'
+        
+        # Construir campos opcionales
+        flights_field = '''
+      "flights": {
+        "class": "Economy" o "Business" o "Premium",
+        "details": "Descripción del vuelo"
+      },''' if include_flights else ''
+        
+        hotels_field = '''
+      "hotels": {
+        "name": "Nombre del hotel",
+        "stars": 4,
+        "zone": "Zona del hotel",
+        "amenities": ["WiFi", "Desayuno", "Spa"]
+      },''' if include_hotels else ''
+        
+        return f'''{{
+  "viajes": [
+    {{
+      "id": 1,
+      "destination": "Nombre Ciudad",
+      "country": "País",
+      "days": {days},
+      "price": 450,
+      "image": "https://images.unsplash.com/photo-1",{flights_field}{hotels_field}
+      "itinerary": [
+        "Día 1: Actividad específica y detallada",
+        "Día 2: Otra actividad memorable",
+        "Día 3: Experiencia única"
+      ],
+      "includes": {includes_structure},
+      "departure": "{departure_city}"
+    }}
+  ]
+}}'''
+

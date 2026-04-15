@@ -44,6 +44,9 @@ class TravelSearchRequest(BaseModel):
     startDate: str
     endDate: str
     budget: int
+    includeFlights: bool = True  # Por defecto incluye vuelos
+    includeHotels: bool = True   # Por defecto incluye hoteles
+    # Itinerario siempre incluido (obligatorio)
 
 class Trip(BaseModel):
     id: int
@@ -112,7 +115,9 @@ async def search_trips(search_request: TravelSearchRequest):
             departure_city=search_request.departureCity,
             start_date=search_request.startDate,
             end_date=search_request.endDate,
-            budget=search_request.budget
+            budget=search_request.budget,
+            include_flights=search_request.includeFlights,
+            include_hotels=search_request.includeHotels
         )
         
         if not trips or len(trips) == 0:
