@@ -62,17 +62,17 @@ export const Footer = () => {
             <h3 className="text-white font-semibold mb-4">Contacto</h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
-                <Mail className="w-5 h-5 mt-0.5" style={{ color: '#2ED3B7' }} />
+                <Mail className="w-5 h-5 mt-0.5" style={{ color: '#3ccca4' }} />
                 <a href="mailto:hola@rutabarata.com" className="transition-colors" style={{ color: 'inherit' }} onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>
                   hola@rutabarata.com
                 </a>
               </li>
               <li className="flex items-start gap-2">
-                <MapPin className="w-5 h-5 mt-0.5" style={{ color: '#2ED3B7' }} />
+                <MapPin className="w-5 h-5 mt-0.5" style={{ color: '#3ccca4' }} />
                 <span>Barcelona, España</span>
               </li>
               <li className="flex items-start gap-2">
-                <Plane className="w-5 h-5 mt-0.5" style={{ color: '#2ED3B7' }} />
+                <Plane className="w-5 h-5 mt-0.5" style={{ color: '#3ccca4' }} />
                 <span>Viajes desde toda España</span>
               </li>
             </ul>

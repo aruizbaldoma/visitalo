@@ -42,12 +42,12 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #0A2540, #2ED3B7);
+  background: linear-gradient(to bottom, #052c4e, #3ccca4);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #0A2540, #1AB89D);
+  background: linear-gradient(to bottom, #052c4e, #2FAA88);
 }
 
 /* Improve form inputs */

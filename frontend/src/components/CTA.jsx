@@ -9,7 +9,7 @@ export const CTA = () => {
   return (
     <section className="py-20 relative overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0A2540 0%, #0D3A5E 50%, #2ED3B7 100%)' }}></div>
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #052c4e 0%, #0D3A5E 50%, #3ccca4 100%)' }}></div>
       
       {/* Pattern overlay */}
       <div className="absolute inset-0 opacity-10" style={{
@@ -35,7 +35,7 @@ export const CTA = () => {
               size="lg"
               onClick={scrollToTop}
               className="h-14 px-8 text-base bg-white font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
-              style={{ color: '#0A2540' }}
+              style={{ color: '#052c4e' }}
             >
               Planificar viaje gratis
               <ArrowRight className="w-5 h-5 ml-2" />

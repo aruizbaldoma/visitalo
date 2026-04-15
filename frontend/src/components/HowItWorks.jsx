@@ -12,7 +12,7 @@ export const HowItWorks = () => {
     <section className="py-16 bg-gradient-to-b from-white to-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: '#0A2540' }}>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: '#052c4e' }}>
             Cómo funciona
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -31,11 +31,11 @@ export const HowItWorks = () => {
                 )}
 
                 {/* Icon circle */}
-                <div className="relative inline-flex items-center justify-center w-32 h-32 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300" style={{ background: 'linear-gradient(to bottom right, #0A2540, #2ED3B7)' }}>
+                <div className="relative inline-flex items-center justify-center w-32 h-32 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300" style={{ background: 'linear-gradient(to bottom right, #052c4e, #3ccca4)' }}>
                   <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-                    <Icon className="w-12 h-12" style={{ color: '#0A2540' }} />
+                    <Icon className="w-12 h-12" style={{ color: '#052c4e' }} />
                   </div>
-                  <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md" style={{ backgroundColor: '#2ED3B7' }}>
+                  <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md" style={{ backgroundColor: '#3ccca4' }}>
                     {item.step}
                   </div>
                 </div>
