@@ -3,11 +3,14 @@ import { useState } from "react";
 import { ActivityCard } from "./ActivityCard";
 import { ActivityInfoModal } from "./ActivityInfoModal";
 import { AlternativesModal } from "./AlternativesModal";
+import { TotalPricePanel } from "./TotalPricePanel";
+import { ConfirmationModal } from "./ConfirmationModal";
 
 export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showAlternativesModal, setShowAlternativesModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [itineraryData, setItineraryData] = useState(itinerary);
 
   // Actualizar cuando cambie el itinerario
@@ -60,6 +63,41 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
 
     setItineraryData({ ...itineraryData, days: updatedDays });
   };
+
+  const handleConfirm = () => {
+    if (!isAuthenticated) {
+      alert('Por favor, inicia sesión para confirmar tu itinerario');
+      return;
+    }
+    setShowConfirmationModal(true);
+  };
+
+  const handleConfirmPayment = () => {
+    // Aquí se integrará la pasarela de pago en el futuro
+    alert('🎉 ¡Itinerario confirmado! En el futuro aquí se procesará el pago.');
+    setShowConfirmationModal(false);
+  };
+
+  // Calcular precio total
+  const calculateTotalPrice = () => {
+    if (!itineraryData || !itineraryData.days) return 0;
+    
+    let total = 0;
+    itineraryData.days.forEach(day => {
+      day.morning.activities.forEach(activity => {
+        if (activity.price) total += activity.price;
+      });
+      day.afternoon.activities.forEach(activity => {
+        if (activity.price) total += activity.price;
+      });
+      day.night.activities.forEach(activity => {
+        if (activity.price) total += activity.price;
+      });
+    });
+    
+    return total;
+  };
+  
   if (!itineraryData) {
     return (
       <div className="text-center py-20">
@@ -79,7 +117,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
   const { destination, totalDays, hotelRecommendation, days } = itineraryData;
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto pb-32">
       {/* Modales */}
       <ActivityInfoModal
         activity={selectedActivity}
@@ -94,6 +132,15 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
         onSelectAlternative={handleSelectAlternative}
         isAuthenticated={isAuthenticated}
       />
+
+      <ConfirmationModal
+        itinerary={itineraryData}
+        totalPrice={calculateTotalPrice()}
+        isOpen={showConfirmationModal}
+        onClose={() => setShowConfirmationModal(false)}
+        onConfirmPayment={handleConfirmPayment}
+      />
+      
       {/* Header del Itinerario */}
       <div className="text-center mb-12">
         <h2 className="text-4xl md:text-5xl font-bold mb-3" style={{ color: '#052c4e' }}>
@@ -130,6 +177,13 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
           />
         ))}
       </div>
+
+      {/* Panel de Precio Total */}
+      <TotalPricePanel
+        itinerary={itineraryData}
+        isAuthenticated={isAuthenticated}
+        onConfirm={handleConfirm}
+      />
     </div>
   );
 };

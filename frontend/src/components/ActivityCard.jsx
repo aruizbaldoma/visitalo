@@ -92,7 +92,7 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
               <Trash2 className="w-4 h-4 text-gray-600 hover:text-red-600" />
               {showTooltip === 'delete' && (
                 <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                  Eliminar o intercambiar
+                  Eliminar
                 </div>
               )}
             </button>
@@ -113,22 +113,22 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
                 {activity.price?.toFixed(2)}
               </div>
             ) : (
-              <div className="relative">
+              <div
+                className="relative cursor-help"
+                onMouseEnter={() => setShowTooltip('price')}
+                onMouseLeave={() => setShowTooltip(null)}
+              >
                 <div 
-                  className="blur-sm select-none font-bold text-lg"
+                  className="blur-md select-none font-bold text-lg"
                   style={{ color: '#052c4e' }}
                 >
                   €{activity.price?.toFixed(2) || '00.00'}
                 </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <button
-                    className="text-xs px-3 py-1 rounded-full text-white font-medium shadow-md hover:shadow-lg transition-shadow"
-                    style={{ backgroundColor: '#3ccca4' }}
-                    onClick={() => alert('Redirigir a login/registro')}
-                  >
-                    Inicia sesión
-                  </button>
-                </div>
+                {showTooltip === 'price' && (
+                  <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-3 py-2 rounded whitespace-nowrap z-10">
+                    Se necesita iniciar sesión para ver los precios actualizados
+                  </div>
+                )}
               </div>
             )}
           </div>
