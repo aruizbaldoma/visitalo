@@ -2,7 +2,7 @@ import requests
 import os
 import json
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 class GeminiTravelService:
     def __init__(self):
@@ -12,10 +12,308 @@ class GeminiTravelService:
         # Usar gemini-flash-latest que apunta a la mejor versión de Flash disponible
         self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
         
-    async def generate_travel_recommendations(
-        self, 
-        departure_city: str, 
-        start_date: str, 
+    async def generate_professional_itinerary(
+        self,
+        departure_city: str,
+        destination: str,
+        start_date: str,
+        end_date: str,
+        travel_details: Optional[Dict] = None
+    ) -> Dict:
+        """
+        Genera un itinerario profesional sin precios
+        Solo planificación de actividades por Mañana/Tarde/Noche
+        """
+        # Verificar si está en modo MOCK
+        use_mock = os.environ.get('USE_MOCK_DATA', 'false').lower() == 'true'
+        
+        if use_mock:
+            print(f"\n{'='*60}")
+            print(f"🎭 MODO MOCK - Generando itinerario profesional")
+            print(f"   Destino: {destination}")
+            print(f"   Fechas: {start_date} a {end_date}")
+            if travel_details:
+                print(f"   Con detalles: {travel_details}")
+            print(f"{'='*60}\n")
+            return self._generate_mock_itinerary(departure_city, destination, start_date, end_date, travel_details)
+        
+        # Calcular días
+        from datetime import datetime
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end = datetime.strptime(end_date, '%Y-%m-%d')
+        days = (end - start).days
+        
+        # Construir contexto inteligente
+        context = self._build_intelligent_context(travel_details, days)
+        
+        # Crear prompt profesional
+        prompt = f"""Eres un experto en planificación de viajes y gestión de itinerarios profesionales.
+
+DESTINO: {destination}
+ORIGEN: {departure_city}  
+FECHAS: del {start_date} al {end_date} ({days} días)
+
+{context}
+
+ESTRUCTURA REQUERIDA:
+Genera un itinerario profesional dividido por días, y cada día dividido en MAÑANA, TARDE y NOCHE.
+Incluye nombres REALES de lugares, restaurantes, monumentos y actividades específicas.
+
+IMPORTANTE:
+- NO incluyas precios
+- NO menciones "reservar" o "comprar"
+- Solo actividades, lugares y experiencias
+- Sé específico con nombres reales
+
+Devuelve SOLO JSON con esta estructura EXACTA:
+
+{{
+  "destination": "{destination}",
+  "totalDays": {days},
+  "hotelRecommendation": "Zona Centro histórico cerca de..." o null,
+  "days": [
+    {{
+      "day": 1,
+      "date": "{start_date}",
+      "morning": {{
+        "startTime": "09:00",
+        "activities": [
+          {{
+            "time": "09:00",
+            "title": "Desayuno en Café Real",
+            "description": "Café tradicional en Plaza Mayor",
+            "location": "Plaza Mayor 5",
+            "duration": "1h"
+          }}
+        ]
+      }},
+      "afternoon": {{
+        "startTime": "14:00",
+        "activities": [...]
+      }},
+      "night": {{
+        "startTime": "20:00",
+        "activities": [...]
+      }}
+    }}
+  ]
+}}
+
+JSON:"""
+        
+        try:
+            # Llamar a Gemini
+            headers = {'Content-Type': 'application/json'}
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "topK": 40,
+                    "topP": 0.95,
+                    "maxOutputTokens": 4096
+                }
+            }
+            
+            url = f"{self.base_url}?key={self.api_key}"
+            response = requests.post(url, headers=headers, json=payload, timeout=45)
+            
+            if response.status_code != 200:
+                raise Exception(f"Error {response.status_code} de Gemini")
+            
+            response_data = response.json()
+            response_text = response_data['candidates'][0]['content']['parts'][0]['text'].strip()
+            
+            # Limpiar y parsear JSON
+            response_text = self._clean_json_response(response_text)
+            itinerary = json.loads(response_text)
+            
+            print(f"✅ ITINERARIO GENERADO: {destination}, {days} días")
+            return itinerary
+            
+        except Exception as e:
+            print(f"❌ ERROR generando itinerario: {str(e)}")
+            raise Exception(f"Error en la generación del itinerario: {str(e)}")
+    
+    def _build_intelligent_context(self, travel_details: Optional[Dict], days: int) -> str:
+        """
+        Construye contexto inteligente según detalles del viaje
+        """
+        if not travel_details:
+            return ""
+        
+        context_parts = []
+        
+        # Hora de llegada
+        if travel_details.get('arrivalTime'):
+            context_parts.append(f"- El día 1 comienza a partir de las {travel_details['arrivalTime']}, no antes. Ajusta las actividades de la mañana del día 1 según esta hora de llegada.")
+        
+        # Hora de salida
+        if travel_details.get('departureTime'):
+            context_parts.append(f"- El último día (día {days}) termina antes de las {travel_details['departureTime']}. Planifica actividades que permitan llegar al aeropuerto/estación a tiempo.")
+        
+        # Zona de hotel
+        if travel_details.get('hotelZones'):
+            zones = travel_details['hotelZones']
+            context_parts.append(f"- El viajero se aloja en: {', '.join(set(zones.values()))}. Organiza las actividades principalmente cerca de estas zonas para minimizar traslados.")
+        
+        # Recomendación de zona
+        if travel_details.get('needsHotelRecommendation'):
+            context_parts.append("- El viajero necesita recomendación de zona para alojarse. Incluye en 'hotelRecommendation' la mejor zona basándote en la logística de este itinerario.")
+        
+        return "\n".join(context_parts) if context_parts else ""
+    
+    def _clean_json_response(self, text: str) -> str:
+        """
+        Limpia la respuesta para extraer JSON válido
+        """
+        # Remover markdown
+        if '```json' in text:
+            start = text.find('```json') + 7
+            end = text.find('```', start)
+            text = text[start:end].strip()
+        elif '```' in text:
+            start = text.find('```') + 3
+            end = text.find('```', start)
+            text = text[start:end].strip()
+        
+        # Extraer JSON
+        start_brace = text.find('{')
+        end_brace = text.rfind('}') + 1
+        
+        if start_brace != -1 and end_brace > start_brace:
+            text = text[start_brace:end_brace]
+        
+        return text
+    
+    def _generate_mock_itinerary(
+        self,
+        departure_city: str,
+        destination: str,
+        start_date: str,
+        end_date: str,
+        travel_details: Optional[Dict] = None
+    ) -> Dict:
+        """
+        Genera itinerario MOCK para testing
+        """
+        from datetime import datetime, timedelta
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end = datetime.strptime(end_date, '%Y-%m-%d')
+        days_count = (end - start).days
+        
+        # Ajustar hora de inicio según llegada
+        first_day_start = "09:00"
+        if travel_details and travel_details.get('arrivalTime'):
+            first_day_start = travel_details['arrivalTime']
+        
+        mock_days = []
+        for i in range(days_count):
+            current_date = (start + timedelta(days=i)).strftime('%Y-%m-%d')
+            day_num = i + 1
+            
+            # Primer día con hora de llegada
+            if day_num == 1:
+                morning_start = first_day_start
+                morning_activities = [
+                    {
+                        "time": first_day_start,
+                        "title": f"Llegada a {destination}",
+                        "description": "Check-in y acomodación" if not (travel_details and travel_details.get('hotelZones')) else f"Llegada a zona {list(travel_details['hotelZones'].values())[0]}",
+                        "location": "Hotel",
+                        "duration": "1h"
+                    },
+                    {
+                        "time": self._add_hours(first_day_start, 1),
+                        "title": f"Primer contacto con {destination}",
+                        "description": "Paseo exploratorio por el centro",
+                        "location": "Centro histórico",
+                        "duration": "2h"
+                    }
+                ]
+            else:
+                morning_start = "09:00"
+                morning_activities = [
+                    {
+                        "time": "09:00",
+                        "title": "Desayuno local",
+                        "description": f"Café tradicional de {destination}",
+                        "location": "Café del Centro",
+                        "duration": "1h"
+                    },
+                    {
+                        "time": "10:30",
+                        "title": f"Visita guiada por {destination}",
+                        "description": "Tour por los monumentos principales",
+                        "location": "Plaza principal",
+                        "duration": "2.5h"
+                    }
+                ]
+            
+            mock_days.append({
+                "day": day_num,
+                "date": current_date,
+                "morning": {
+                    "startTime": morning_start,
+                    "activities": morning_activities
+                },
+                "afternoon": {
+                    "startTime": "14:00",
+                    "activities": [
+                        {
+                            "time": "14:00",
+                            "title": "Almuerzo gastronómico",
+                            "description": f"Restaurante típico de {destination}",
+                            "location": "Restaurante La Plaza",
+                            "duration": "1.5h"
+                        },
+                        {
+                            "time": "16:00",
+                            "title": "Experiencia cultural",
+                            "description": "Museo o galería local",
+                            "location": "Museo Nacional",
+                            "duration": "2h"
+                        }
+                    ]
+                },
+                "night": {
+                    "startTime": "20:00",
+                    "activities": [
+                        {
+                            "time": "20:00",
+                            "title": "Cena con vistas",
+                            "description": f"Restaurante panorámico en {destination}",
+                            "location": "Restaurante Mirador",
+                            "duration": "2h"
+                        },
+                        {
+                            "time": "22:30",
+                            "title": "Vida nocturna local",
+                            "description": "Bar o zona de copas típica",
+                            "location": "Barrio de tapas",
+                            "duration": "2h"
+                        }
+                    ]
+                }
+            })
+        
+        hotel_rec = None
+        if travel_details and travel_details.get('needsHotelRecommendation'):
+            hotel_rec = f"Recomendamos alojarse en el Centro histórico de {destination} para estar cerca de todas las actividades principales y minimizar traslados."
+        
+        return {
+            "destination": destination,
+            "totalDays": days_count,
+            "hotelRecommendation": hotel_rec,
+            "days": mock_days
+        }
+    
+    def _add_hours(self, time_str: str, hours: int) -> str:
+        """Suma horas a un tiempo en formato HH:MM"""
+        from datetime import datetime, timedelta
+        time_obj = datetime.strptime(time_str, '%H:%M')
+        new_time = time_obj + timedelta(hours=hours)
+        return new_time.strftime('%H:%M')
+
         end_date: str, 
         budget: int,
         include_flights: bool = True,

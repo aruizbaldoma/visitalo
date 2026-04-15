@@ -7,7 +7,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional
+from typing import Optional, Dict, List
 import uuid
 from datetime import datetime, timezone
 from services.gemini_service import GeminiTravelService
@@ -39,14 +39,19 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+class TravelDetailsRequest(BaseModel):
+    """Detalles opcionales del viaje para contexto inteligente"""
+    arrivalTime: Optional[str] = None  # Hora de llegada día 1 (ej: "14:00")
+    departureTime: Optional[str] = None  # Hora de salida último día (ej: "18:00")
+    hotelZones: Optional[Dict[str, str]] = None  # {"day1": "Centro histórico", "day2": "Centro histórico"}
+    needsHotelRecommendation: bool = False  # ¿Necesita recomendación de zona?
+
 class TravelSearchRequest(BaseModel):
     departureCity: str
+    destination: str  # Ahora el usuario elige destino específico
     startDate: str
     endDate: str
-    budget: int
-    includeFlights: bool = True  # Por defecto incluye vuelos
-    includeHotels: bool = True   # Por defecto incluye hoteles
-    # Itinerario siempre incluido (obligatorio)
+    travelDetails: Optional[TravelDetailsRequest] = None  # Detalles opcionales
 
 class Trip(BaseModel):
     id: int
@@ -110,44 +115,39 @@ async def search_trips(search_request: TravelSearchRequest):
         # Crear servicio de Gemini
         gemini_service = GeminiTravelService()
         
-        # Generar recomendaciones (esto lanzará excepción si falla)
-        trips = await gemini_service.generate_travel_recommendations(
+        # Generar itinerario profesional (sin precios)
+        itinerary = await gemini_service.generate_professional_itinerary(
             departure_city=search_request.departureCity,
+            destination=search_request.destination,
             start_date=search_request.startDate,
             end_date=search_request.endDate,
-            budget=search_request.budget,
-            include_flights=search_request.includeFlights,
-            include_hotels=search_request.includeHotels
+            travel_details=search_request.travelDetails
         )
         
-        if not trips or len(trips) == 0:
+        if not itinerary:
             raise HTTPException(
                 status_code=500, 
-                detail="No se encontraron viajes dentro del presupuesto."
+                detail="No se pudo generar el itinerario."
             )
         
         # Guardar búsqueda en la base de datos
         search_record = {
             "search_id": str(uuid.uuid4()),
             "query": search_request.model_dump(),
-            "results_count": len(trips),
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "is_mock": os.environ.get('USE_MOCK_DATA', 'false').lower() == 'true'
         }
-        await db.travel_searches.insert_one(search_record)
+        await db.itinerary_searches.insert_one(search_record)
         
-        print(f"\n✅ RESPUESTA EXITOSA: {len(trips)} viajes generados\n")
+        print(f"\n✅ ITINERARIO GENERADO EXITOSAMENTE\n")
         
         # Crear respuesta con header indicando si es MOCK
-        response_data = TravelSearchResponse(
-            results=trips,
-            query=search_request
-        )
+        response_data = {"itinerary": itinerary, "query": search_request}
         
         # Retornar con header custom
         is_mock = os.environ.get('USE_MOCK_DATA', 'false').lower() == 'true'
         return JSONResponse(
-            content=response_data.model_dump(),
+            content=response_data,
             headers={"X-Mock-Mode": "true" if is_mock else "false"}
         )
     
