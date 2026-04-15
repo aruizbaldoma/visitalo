@@ -1,4 +1,5 @@
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from google import genai
+from google.genai import types
 import os
 import json
 from datetime import datetime
@@ -6,7 +7,8 @@ from typing import Dict, List, Any
 
 class GeminiTravelService:
     def __init__(self):
-        self.api_key = os.environ.get('EMERGENT_LLM_KEY')
+        self.api_key = os.environ.get('GEMINI_API_KEY')
+        self.client = genai.Client(api_key=self.api_key)
         
     async def generate_travel_recommendations(
         self, 
@@ -16,96 +18,156 @@ class GeminiTravelService:
         budget: int
     ) -> List[Dict[str, Any]]:
         """
-        Genera recomendaciones de viajes personalizadas usando Gemini
+        Genera recomendaciones de viajes personalizadas usando Gemini 1.5 Flash
         """
         # Calcular número de días
         start = datetime.strptime(start_date, '%Y-%m-%d')
         end = datetime.strptime(end_date, '%Y-%m-%d')
         days = (end - start).days
         
-        # Crear el chat con Gemini
-        chat = LlmChat(
-            api_key=self.api_key,
-            session_id=f"travel-search-{datetime.now().timestamp()}",
-            system_message="""Eres un experto en planificación de viajes económicos desde España. 
-Tu trabajo es recomendar viajes asequibles y atractivos a destinos europeos.
-Debes responder SOLO con un JSON válido que contenga una lista de 3-5 viajes recomendados.
-Cada viaje debe incluir: destino, país, días, precio (dentro del presupuesto), imagen_url, itinerario (lista de actividades por día), includes (vuelos, hotel, desayuno), y ciudad de salida."""
-        ).with_model("gemini", "gemini-2.5-pro")
+        # Determinar si es presupuesto alto o bajo
+        budget_level = "económico"
+        if budget > 1000:
+            budget_level = "de lujo"
+        elif budget > 500:
+            budget_level = "medio-alto"
         
-        # Crear el prompt
-        prompt = f"""Genera 3-5 recomendaciones de viajes desde {departure_city} con las siguientes condiciones:
-- Presupuesto máximo: {budget}€ por persona
-- Duración del viaje: {days} días (del {start_date} al {end_date})
-- Destinos: Ciudades europeas accesibles desde {departure_city}
-- Incluye vuelos + hotel como mínimo
+        # Crear el prompt optimizado para JSON válido
+        prompt = f"""Eres un experto planificador de viajes. Genera EXACTAMENTE 4 recomendaciones de viajes {budget_level} desde {departure_city} a destinos europeos.
 
-Por favor devuelve SOLO un JSON válido con este formato exacto:
+RESTRICCIONES IMPORTANTES:
+- Presupuesto máximo por persona: {budget}€
+- Duración: {days} días (del {start_date} al {end_date})
+- Todos los precios DEBEN estar entre 100€ y {budget}€
+- Si el presupuesto es superior a 1000€, incluye opciones de lujo con hoteles 5 estrellas y actividades premium
+
+Devuelve SOLO un objeto JSON válido con este formato EXACTO (sin texto adicional, sin markdown, sin explicaciones):
+
 {{
   "viajes": [
     {{
       "id": 1,
-      "destination": "nombre_ciudad",
-      "country": "país",
+      "destination": "Roma",
+      "country": "Italia",
       "days": {days},
-      "price": precio_en_euros,
-      "image": "https://images.unsplash.com/photo-XXXXX (busca una imagen representativa del destino)",
-      "itinerary": ["Día 1: actividades", "Día 2: actividades", ...],
+      "price": 450,
+      "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5",
+      "itinerary": [
+        "Día 1: Coliseo y Foro Romano",
+        "Día 2: Vaticano y Museos",
+        "Día 3: Fontana di Trevi y compras"
+      ],
       "includes": {{
         "flights": true,
         "hotel": true,
-        "breakfast": true o false
+        "breakfast": true
       }},
       "departure": "{departure_city}"
     }}
   ]
 }}
 
-IMPORTANTE: 
-- Todos los precios deben estar por debajo de {budget}€
-- Sugiere destinos variados y atractivos
-- El itinerario debe ser realista y específico
-- Usa URLs reales de Unsplash para las imágenes
-- Responde SOLO con el JSON, sin texto adicional"""
+REGLAS ESTRICTAS:
+1. Responde SOLO con JSON, sin ```json ni texto adicional
+2. Usa comillas dobles para strings
+3. Los precios deben ser números enteros sin símbolos
+4. El array itinerary debe tener entre 3-5 actividades específicas
+5. Usa URLs reales de Unsplash para cada destino
+6. Sugiere destinos europeos variados y atractivos
+7. Si budget > 1000€: incluye hoteles de lujo, vuelos business class, actividades premium
+8. Si budget < 300€: opciones económicas con hostales y vuelos low-cost
+9. Todos los viajes deben tener id único (1, 2, 3, 4)
 
-        # Enviar mensaje y obtener respuesta
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
-        
-        # Parsear la respuesta JSON
+Genera ahora las 4 recomendaciones en JSON:"""
+
         try:
-            # Limpiar la respuesta si viene con markdown
-            response_text = response.strip()
-            if response_text.startswith('```json'):
-                response_text = response_text[7:]
-            if response_text.startswith('```'):
-                response_text = response_text[3:]
-            if response_text.endswith('```'):
-                response_text = response_text[:-3]
-            response_text = response_text.strip()
+            # Generar contenido con Gemini
+            response = self.client.models.generate_content(
+                model='gemini-1.5-flash',
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.7,
+                    top_p=0.8,
+                    top_k=40,
+                    max_output_tokens=2048,
+                )
+            )
             
+            # Obtener el texto de la respuesta
+            response_text = response.text.strip()
+            
+            # Limpiar la respuesta si viene con markdown o texto extra
+            if '```json' in response_text:
+                start_idx = response_text.find('```json') + 7
+                end_idx = response_text.find('```', start_idx)
+                response_text = response_text[start_idx:end_idx].strip()
+            elif '```' in response_text:
+                start_idx = response_text.find('```') + 3
+                end_idx = response_text.find('```', start_idx)
+                response_text = response_text[start_idx:end_idx].strip()
+            
+            # Buscar el inicio y fin del objeto JSON
+            start_brace = response_text.find('{')
+            end_brace = response_text.rfind('}') + 1
+            
+            if start_brace != -1 and end_brace > start_brace:
+                response_text = response_text[start_brace:end_brace]
+            
+            # Parsear JSON
             data = json.loads(response_text)
-            return data.get('viajes', [])
+            trips = data.get('viajes', [])
+            
+            # Validar que todos los viajes tengan el formato correcto
+            validated_trips = []
+            for trip in trips:
+                if trip.get('price', 0) <= budget:
+                    validated_trips.append(trip)
+            
+            return validated_trips if validated_trips else self._get_fallback_trips(departure_city, days, budget)
+            
         except json.JSONDecodeError as e:
-            # Si falla el parsing, devolver un error estructurado
-            print(f"Error parsing Gemini response: {e}")
-            print(f"Response was: {response}")
-            return []
+            print(f"Error parsing JSON from Gemini: {e}")
+            print(f"Response was: {response_text}")
+            return self._get_fallback_trips(departure_city, days, budget)
+        except Exception as e:
+            print(f"Error calling Gemini API: {e}")
+            return self._get_fallback_trips(departure_city, days, budget)
     
-    async def chat_with_travel_assistant(
-        self,
-        user_message: str,
-        session_id: str
-    ) -> str:
+    def _get_fallback_trips(self, departure_city: str, days: int, budget: int) -> List[Dict[str, Any]]:
         """
-        Chat general con el asistente de viajes
+        Devuelve viajes de respaldo en caso de error con Gemini
         """
-        chat = LlmChat(
-            api_key=self.api_key,
-            session_id=session_id,
-            system_message="Eres un asistente experto en viajes que ayuda a planificar vacaciones económicas desde España."
-        ).with_model("gemini", "gemini-2.5-pro")
+        fallback_trips = [
+            {
+                "id": 1,
+                "destination": "Lisboa",
+                "country": "Portugal",
+                "days": days,
+                "price": min(320, budget - 50) if budget > 370 else 280,
+                "image": "https://images.unsplash.com/photo-1585208798174-6cedd86e019a",
+                "itinerary": [
+                    "Día 1: Alfama y Castillo de San Jorge",
+                    "Día 2: Belém y Torre de Belém",
+                    "Día 3: Barrio Alto y Chiado"
+                ],
+                "includes": {"flights": True, "hotel": True, "breakfast": True},
+                "departure": departure_city
+            },
+            {
+                "id": 2,
+                "destination": "Praga",
+                "country": "República Checa",
+                "days": days,
+                "price": min(380, budget - 30) if budget > 410 else 350,
+                "image": "https://images.unsplash.com/photo-1541849546-216549ae216d",
+                "itinerary": [
+                    "Día 1: Puente de Carlos y Casco Antiguo",
+                    "Día 2: Castillo de Praga",
+                    "Día 3: Barrio Judío"
+                ],
+                "includes": {"flights": True, "hotel": True, "breakfast": False},
+                "departure": departure_city
+            }
+        ]
         
-        message = UserMessage(text=user_message)
-        response = await chat.send_message(message)
-        return response
+        return [trip for trip in fallback_trips if trip['price'] <= budget]
