@@ -19,6 +19,13 @@ class GeminiTravelService:
         """
         Genera recomendaciones de viajes personalizadas usando Gemini 1.5 Flash
         """
+        print(f"\n{'='*60}")
+        print(f"🔍 BÚSQUEDA RECIBIDA:")
+        print(f"   - Origen: {departure_city}")
+        print(f"   - Fechas: {start_date} a {end_date}")
+        print(f"   - Presupuesto: {budget}€")
+        print(f"{'='*60}\n")
+        
         # Calcular número de días
         start = datetime.strptime(start_date, '%Y-%m-%d')
         end = datetime.strptime(end_date, '%Y-%m-%d')
@@ -114,19 +121,20 @@ JSON:"""
             response = requests.post(url, headers=headers, json=payload, timeout=45)
             
             if response.status_code == 503:
-                print("⚠️ Gemini temporalmente sobrecargado, usando fallback")
-                return self._get_fallback_trips(departure_city, days, budget)
+                print(f"⚠️ GEMINI SOBRECARGADO (503) - Presupuesto: {budget}€, Origen: {departure_city}")
+                raise Exception("Gemini temporalmente no disponible (alta demanda)")
             
             if response.status_code != 200:
-                print(f"Error de Gemini API: {response.status_code} - {response.text[:500]}")
-                return self._get_fallback_trips(departure_city, days, budget)
+                print(f"❌ ERROR API {response.status_code} - Presupuesto: {budget}€")
+                print(f"Response: {response.text[:500]}")
+                raise Exception(f"Error {response.status_code} de la API de Gemini")
             
             # Extraer texto de la respuesta
             response_data = response.json()
             
             if 'candidates' not in response_data or len(response_data['candidates']) == 0:
-                print("No candidates in Gemini response")
-                return self._get_fallback_trips(departure_city, days, budget)
+                print("❌ ERROR: No candidates in Gemini response")
+                raise Exception("Gemini no devolvió candidatos válidos")
             
             response_text = response_data['candidates'][0]['content']['parts'][0]['text'].strip()
             
@@ -158,57 +166,17 @@ JSON:"""
                     validated_trips.append(trip)
             
             if len(validated_trips) > 0:
-                print(f"✓ Gemini generó {len(validated_trips)} viajes para {departure_city} con presupuesto {budget}€")
+                print(f"✅ GEMINI ÉXITO: Generó {len(validated_trips)} viajes para {departure_city} (presupuesto: {budget}€)")
+                print(f"Destinos generados: {[trip['destination'] for trip in validated_trips]}")
                 return validated_trips
             else:
-                print("No hay viajes validados dentro del presupuesto")
-                return self._get_fallback_trips(departure_city, days, budget)
+                print(f"❌ GEMINI ERROR: No hay viajes dentro del presupuesto de {budget}€")
+                raise Exception("No se encontraron viajes dentro del presupuesto")
             
         except json.JSONDecodeError as e:
-            print(f"Error parsing JSON: {e}")
-            print(f"Response: {response_text[:500]}")
-            return self._get_fallback_trips(departure_city, days, budget)
+            print(f"❌ JSON ERROR: {e}")
+            print(f"Response recibida: {response_text[:1000]}")
+            raise Exception(f"Error al parsear respuesta de Gemini: {str(e)}")
         except Exception as e:
-            print(f"Error llamando a Gemini: {e}")
-            return self._get_fallback_trips(departure_city, days, budget)
-    
-    def _get_fallback_trips(self, departure_city: str, days: int, budget: int) -> List[Dict[str, Any]]:
-        """
-        Viajes de respaldo SOLO si Gemini falla
-        """
-        print(f"⚠️ Usando viajes de fallback para {departure_city}, {days} días, {budget}€")
-        
-        fallback_trips = [
-            {
-                "id": 1,
-                "destination": "Lisboa",
-                "country": "Portugal",
-                "days": days,
-                "price": min(320, int(budget * 0.8)) if budget > 400 else 280,
-                "image": "https://images.unsplash.com/photo-1585208798174-6cedd86e019a",
-                "itinerary": [
-                    "Día 1: Alfama y Castillo de San Jorge",
-                    "Día 2: Belém y Torre de Belém",
-                    "Día 3: Barrio Alto y Chiado"
-                ],
-                "includes": {"flights": True, "hotel": True, "breakfast": True},
-                "departure": departure_city
-            },
-            {
-                "id": 2,
-                "destination": "Praga",
-                "country": "República Checa",
-                "days": days,
-                "price": min(380, int(budget * 0.9)) if budget > 420 else 350,
-                "image": "https://images.unsplash.com/photo-1541849546-216549ae216d",
-                "itinerary": [
-                    "Día 1: Puente de Carlos y Casco Antiguo",
-                    "Día 2: Castillo de Praga",
-                    "Día 3: Barrio Judío"
-                ],
-                "includes": {"flights": True, "hotel": True, "breakfast": False},
-                "departure": departure_city
-            }
-        ]
-        
-        return [trip for trip in fallback_trips if trip['price'] <= budget]
+            print(f"❌ GEMINI API ERROR: {e}")
+            raise Exception(f"Error en la API de Gemini: {str(e)}")

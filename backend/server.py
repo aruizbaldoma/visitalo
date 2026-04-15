@@ -98,10 +98,15 @@ async def search_trips(search_request: TravelSearchRequest):
         if search_request.budget < 100:
             raise HTTPException(status_code=400, detail="El presupuesto mínimo es 100€")
         
+        print(f"\n📥 REQUEST RECIBIDO:")
+        print(f"   Origen: {search_request.departureCity}")
+        print(f"   Fechas: {search_request.startDate} a {search_request.endDate}")
+        print(f"   Presupuesto: {search_request.budget}€\n")
+        
         # Crear servicio de Gemini
         gemini_service = GeminiTravelService()
         
-        # Generar recomendaciones
+        # Generar recomendaciones (esto lanzará excepción si falla)
         trips = await gemini_service.generate_travel_recommendations(
             departure_city=search_request.departureCity,
             start_date=search_request.startDate,
@@ -109,7 +114,13 @@ async def search_trips(search_request: TravelSearchRequest):
             budget=search_request.budget
         )
         
-        # Guardar búsqueda en la base de datos (opcional)
+        if not trips or len(trips) == 0:
+            raise HTTPException(
+                status_code=500, 
+                detail="Gemini no generó viajes. Por favor intenta con otro presupuesto o destino."
+            )
+        
+        # Guardar búsqueda en la base de datos
         search_record = {
             "search_id": str(uuid.uuid4()),
             "query": search_request.model_dump(),
@@ -118,14 +129,21 @@ async def search_trips(search_request: TravelSearchRequest):
         }
         await db.travel_searches.insert_one(search_record)
         
+        print(f"\n✅ RESPUESTA EXITOSA: {len(trips)} viajes generados\n")
+        
         return TravelSearchResponse(
             results=trips,
             query=search_request
         )
     
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Error en búsqueda de viajes: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error generando recomendaciones: {str(e)}")
+        logger.error(f"❌ ERROR EN BÚSQUEDA: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error generando recomendaciones: {str(e)}"
+        )
 
 # Include the router in the main app
 app.include_router(api_router)

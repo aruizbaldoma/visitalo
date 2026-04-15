@@ -8,7 +8,6 @@ import { Benefits } from "./components/Benefits";
 import { Testimonials } from "./components/Testimonials";
 import { CTA } from "./components/CTA";
 import { Footer } from "./components/Footer";
-import { searchTrips } from "./data/mock";
 import { toast } from "sonner";
 import { Toaster } from "./components/ui/sonner";
 

@@ -1,66 +1,6 @@
-// Mock data for RutaBarata travel planner
-
-export const exampleTrips = [
-  {
-    id: 1,
-    destination: "Roma",
-    country: "Italia",
-    days: 3,
-    price: 280,
-    image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5",
-    itinerary: [
-      "Día 1: Coliseo y Foro Romano",
-      "Día 2: Vaticano y Capilla Sixtina",
-      "Día 3: Fontana di Trevi y Villa Borghese"
-    ],
-    includes: {
-      flights: true,
-      hotel: true,
-      breakfast: true
-    },
-    departure: "Barcelona"
-  },
-  {
-    id: 2,
-    destination: "Lisboa",
-    country: "Portugal",
-    days: 5,
-    price: 320,
-    image: "https://images.unsplash.com/photo-1585208798174-6cedd86e019a",
-    itinerary: [
-      "Día 1-2: Alfama y Castillo de San Jorge",
-      "Día 3: Belém y Torre de Belém",
-      "Día 4: Sintra y Cascais",
-      "Día 5: Barrio Alto y Chiado"
-    ],
-    includes: {
-      flights: true,
-      hotel: true,
-      breakfast: true
-    },
-    departure: "Madrid"
-  },
-  {
-    id: 3,
-    destination: "París",
-    country: "Francia",
-    days: 4,
-    price: 350,
-    image: "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f",
-    itinerary: [
-      "Día 1: Torre Eiffel y Campos Elíseos",
-      "Día 2: Louvre y Notre-Dame",
-      "Día 3: Montmartre y Sacré-Cœur",
-      "Día 4: Versalles"
-    ],
-    includes: {
-      flights: true,
-      hotel: true,
-      breakfast: false
-    },
-    departure: "Barcelona"
-  }
-];
+// Mock data para RutaBarata travel planner
+// NOTA: Este archivo YA NO se usa para mostrar viajes
+// Los viajes se generan dinámicamente con Gemini AI
 
 export const departureCities = [
   "Barcelona",
@@ -113,13 +53,13 @@ export const testimonials = [
     name: "María González",
     city: "Barcelona",
     rating: 5,
-    comment: "Encontré un viaje a Roma por 280€. ¡Increíble! Normalmente me habría costado el doble."
+    comment: "Encontré un viaje increíble por muy buen precio. La IA realmente funciona."
   },
   {
     name: "Carlos Ruiz",
     city: "Madrid",
     rating: 5,
-    comment: "Súper fácil de usar. En 2 minutos tenía mi escapada a Lisboa planificada."
+    comment: "Súper fácil de usar. En minutos tenía mi escapada planificada."
   },
   {
     name: "Laura Martín",
@@ -128,12 +68,3 @@ export const testimonials = [
     comment: "La IA encontró combinaciones que yo nunca habría descubierto. Ahorro garantizado."
   }
 ];
-
-// Mock function to simulate trip search
-export const searchTrips = async (searchData) => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  // Return filtered trips based on budget
-  return exampleTrips.filter(trip => trip.price <= searchData.budget);
-};

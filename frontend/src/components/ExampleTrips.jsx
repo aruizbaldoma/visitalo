@@ -2,27 +2,33 @@ import { MapPin, Calendar, Euro, Plane, Hotel, Coffee } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { exampleTrips } from "../data/mock";
 
 export const ExampleTrips = ({ searchResults = null }) => {
-  const tripsToShow = searchResults || exampleTrips;
+  // Solo mostramos resultados reales de la búsqueda, sin datos mock
+  const tripsToShow = searchResults || [];
 
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            {searchResults ? "Viajes encontrados" : "Viajes de ejemplo"}
+            {searchResults ? "Viajes encontrados" : "Tus viajes aparecerán aquí"}
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             {searchResults 
               ? `Hemos encontrado ${tripsToShow.length} viaje(s) dentro de tu presupuesto`
-              : "Descubre las increíbles escapadas que puedes hacer desde España"
+              : "Utiliza el buscador para encontrar tu próxima aventura"
             }
           </p>
         </div>
 
-        {tripsToShow.length === 0 ? (
+        {!searchResults ? (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600">
+              🔍 Introduce tus datos de viaje arriba para descubrir opciones increíbles
+            </p>
+          </div>
+        ) : tripsToShow.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-xl text-gray-600">
               No encontramos viajes dentro de tu presupuesto. Intenta aumentar un poco el monto.

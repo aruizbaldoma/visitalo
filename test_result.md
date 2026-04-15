@@ -101,3 +101,62 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Plataforma de planificación de viajes con IA (Rutaperfecta.com) que genera recomendaciones de viajes baratos desde España a Europa usando Google Gemini AI. Hero con formulario de búsqueda, integración con API de Gemini para generar viajes dinámicos basados en origen, fechas y presupuesto. Sin datos mock/fallback."
+
+backend:
+  - task: "API POST /api/search-trips - Integración con Gemini AI"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py, /app/backend/services/gemini_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Eliminados todos los datos mock/fallback. API ahora lanza excepción HTTP 500 si Gemini falla. Implementado logging de parámetros recibidos. Requiere prueba completa de integración con Gemini."
+
+frontend:
+  - task: "Formulario de búsqueda Hero - envío de datos a backend"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/Hero.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Formulario envía correctamente departureCity, startDate, endDate, budget a /api/search-trips. Maneja estado isLoading. Requiere prueba E2E."
+
+  - task: "Componente ExampleTrips - mostrar resultados dinámicos"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/ExampleTrips.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Eliminada importación de exampleTrips mock. Componente ahora muestra placeholder cuando no hay búsqueda, y resultados cuando hay searchResults. Requiere prueba visual."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "API POST /api/search-trips - Integración con Gemini AI"
+    - "Formulario de búsqueda Hero - envío de datos a backend"
+    - "Componente ExampleTrips - mostrar resultados dinámicos"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Eliminados TODOS los datos mock (Lisboa/Praga) del frontend y backend. Backend ahora usa solo Gemini dinámicamente. Si Gemini falla, retorna HTTP 500 (sin fallback). Frontend muestra placeholder 'Tus viajes aparecerán aquí' cuando no hay búsqueda. Necesito testing completo de: 1) Backend API con diferentes presupuestos y ciudades, 2) Frontend E2E incluyendo formulario + visualización de resultados, 3) Manejo de errores cuando Gemini falla."
