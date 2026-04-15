@@ -178,10 +178,93 @@ JSON:"""
                 data = json.loads(response_text)
             trips = data.get('viajes', [])
             
-            # Validar precios
+            # Validar precios y agregar imágenes reales
+            # Mapeo de destinos a imágenes bonitas (fallback)
+            default_images = {
+                # Capitales populares
+                "Lisboa": "https://images.unsplash.com/photo-1585208798174-6cedd86e019a",
+                "Lisbon": "https://images.unsplash.com/photo-1585208798174-6cedd86e019a",
+                "Porto": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b",
+                "Oporto": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b",
+                "Praga": "https://images.unsplash.com/photo-1541849546-216549ae216d",
+                "Prague": "https://images.unsplash.com/photo-1541849546-216549ae216d",
+                "Budapest": "https://images.unsplash.com/photo-1541849546-216549ae216d",
+                "Viena": "https://images.unsplash.com/photo-1516550893923-42d28e5677af",
+                "Vienna": "https://images.unsplash.com/photo-1516550893923-42d28e5677af",
+                "Berlín": "https://images.unsplash.com/photo-1560969184-10fe8719e047",
+                "Berlin": "https://images.unsplash.com/photo-1560969184-10fe8719e047",
+                "Ámsterdam": "https://images.unsplash.com/photo-1534351590666-13e3e96b5017",
+                "Amsterdam": "https://images.unsplash.com/photo-1534351590666-13e3e96b5017",
+                "París": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
+                "Paris": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
+                "Roma": "https://images.unsplash.com/photo-1552832230-c0197dd311b5",
+                "Rome": "https://images.unsplash.com/photo-1552832230-c0197dd311b5",
+                "Florencia": "https://images.unsplash.com/photo-1543429258-955bcf73ca8e",
+                "Florence": "https://images.unsplash.com/photo-1543429258-955bcf73ca8e",
+                "Venecia": "https://images.unsplash.com/photo-1514890547357-a9ee288728e0",
+                "Venice": "https://images.unsplash.com/photo-1514890547357-a9ee288728e0",
+                "Barcelona": "https://images.unsplash.com/photo-1583422409516-2895a77efded",
+                "Madrid": "https://images.unsplash.com/photo-1539037116277-4db20889f2d4",
+                "Sevilla": "https://images.unsplash.com/photo-1550882518-a88c25ee1f80",
+                "Seville": "https://images.unsplash.com/photo-1550882518-a88c25ee1f80",
+                "Londres": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad",
+                "London": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad",
+                "Edimburgo": "https://images.unsplash.com/photo-1579003593419-98f949b9398f",
+                "Edinburgh": "https://images.unsplash.com/photo-1579003593419-98f949b9398f",
+                "Dublín": "https://images.unsplash.com/photo-1549918864-48ac978761a4",
+                "Dublin": "https://images.unsplash.com/photo-1549918864-48ac978761a4",
+                "Copenhague": "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc",
+                "Copenhagen": "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc",
+                "Estocolmo": "https://images.unsplash.com/photo-1509356843151-3e7d96241e11",
+                "Stockholm": "https://images.unsplash.com/photo-1509356843151-3e7d96241e11",
+                "Oslo": "https://images.unsplash.com/photo-1514984879728-be0aff75a6e8",
+                "Helsinki": "https://images.unsplash.com/photo-1548630826-2ec01a41f26f",
+                "Bruselas": "https://images.unsplash.com/photo-1559113202-c916b8e44373",
+                "Brussels": "https://images.unsplash.com/photo-1559113202-c916b8e44373",
+                "Zúrich": "https://images.unsplash.com/photo-1543783207-ec64e4d95325",
+                "Zurich": "https://images.unsplash.com/photo-1543783207-ec64e4d95325",
+                "Ginebra": "https://images.unsplash.com/photo-1514565131-fce0801e5785",
+                "Geneva": "https://images.unsplash.com/photo-1514565131-fce0801e5785",
+                "Cracovia": "https://images.unsplash.com/photo-1591974003513-f0fe03ab2a47",
+                "Krakow": "https://images.unsplash.com/photo-1591974003513-f0fe03ab2a47",
+                "Atenas": "https://images.unsplash.com/photo-1555993539-1732b0258235",
+                "Athens": "https://images.unsplash.com/photo-1555993539-1732b0258235",
+                "Niza": "https://images.unsplash.com/photo-1572252009286-268acec5ca0a",
+                "Nice": "https://images.unsplash.com/photo-1572252009286-268acec5ca0a",
+                "Lyon": "https://images.unsplash.com/photo-1574596036562-a5d2e4c15fe1",
+                "Marsella": "https://images.unsplash.com/photo-1613157248068-dcf7672a1c85",
+                "Marseille": "https://images.unsplash.com/photo-1613157248068-dcf7672a1c85",
+                "Toulouse": "https://images.unsplash.com/photo-1542984280-21baf5e0b286",
+                "Milán": "https://images.unsplash.com/photo-1513581166391-887a96ddeafd",
+                "Milan": "https://images.unsplash.com/photo-1513581166391-887a96ddeafd",
+                "Nápoles": "https://images.unsplash.com/photo-1559659421-94e0beee0609",
+                "Naples": "https://images.unsplash.com/photo-1559659421-94e0beee0609",
+                "Bolonia": "https://images.unsplash.com/photo-1592822617505-b0a2e0e2e3be",
+                "Bologna": "https://images.unsplash.com/photo-1592822617505-b0a2e0e2e3be",
+                "Palermo": "https://images.unsplash.com/photo-1583422409516-2895a77efded",
+                "Liubliana": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf",
+                "Ljubljana": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf",
+                "Zagreb": "https://images.unsplash.com/photo-1560840308-0b46ee4e6b38",
+                "Bratislava": "https://images.unsplash.com/photo-1560840309-666176693ee5",
+                "Sofía": "https://images.unsplash.com/photo-1580748526878-2d95afb0e2ca",
+                "Sofia": "https://images.unsplash.com/photo-1580748526878-2d95afb0e2ca",
+                "Bucarest": "https://images.unsplash.com/photo-1562979314-bee7453e911c",
+                "Bucharest": "https://images.unsplash.com/photo-1562979314-bee7453e911c",
+                "Malta": "https://images.unsplash.com/photo-1536514072410-5019a3c69182",
+                "Valeta": "https://images.unsplash.com/photo-1536514072410-5019a3c69182",
+                "Valletta": "https://images.unsplash.com/photo-1536514072410-5019a3c69182",
+                "Luqa": "https://images.unsplash.com/photo-1536514072410-5019a3c69182",
+            }
+            
+            # Imagen por defecto para ciudades no mapeadas
+            default_europe_image = "https://images.unsplash.com/photo-1488646953014-85cb44e25828"
+            
             validated_trips = []
             for trip in trips:
                 if isinstance(trip.get('price'), (int, float)) and trip['price'] <= budget:
+                    # Buscar imagen del destino en el mapeo
+                    destination = trip.get('destination', 'Europe')
+                    trip['image'] = default_images.get(destination, default_europe_image)
                     validated_trips.append(trip)
             
             if len(validated_trips) > 0:
