@@ -1,7 +1,66 @@
 import { Clock, MapPin, Sun, Sunset, Moon } from "lucide-react";
+import { useState } from "react";
+import { ActivityCard } from "./ActivityCard";
+import { ActivityInfoModal } from "./ActivityInfoModal";
+import { AlternativesModal } from "./AlternativesModal";
 
-export const ItineraryTimeline = ({ itinerary }) => {
-  if (!itinerary) {
+export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showAlternativesModal, setShowAlternativesModal] = useState(false);
+  const [itineraryData, setItineraryData] = useState(itinerary);
+
+  // Actualizar cuando cambie el itinerario
+  if (itinerary && itinerary !== itineraryData) {
+    setItineraryData(itinerary);
+  }
+
+  const handleInfo = (activity) => {
+    setSelectedActivity(activity);
+    setShowInfoModal(true);
+  };
+
+  const handleAlternative = (activity) => {
+    setSelectedActivity(activity);
+    setShowAlternativesModal(true);
+  };
+
+  const handleSelectAlternative = (newActivity) => {
+    // Reemplazar actividad en el itinerario
+    const updatedDays = itineraryData.days.map(day => {
+      const updateActivities = (activities) =>
+        activities.map(act =>
+          act.activityId === selectedActivity.activityId ? newActivity : act
+        );
+
+      return {
+        ...day,
+        morning: { activities: updateActivities(day.morning.activities) },
+        afternoon: { activities: updateActivities(day.afternoon.activities) },
+        night: { activities: updateActivities(day.night.activities) }
+      };
+    });
+
+    setItineraryData({ ...itineraryData, days: updatedDays });
+  };
+
+  const handleDelete = (activityId) => {
+    // Eliminar actividad del itinerario
+    const updatedDays = itineraryData.days.map(day => {
+      const filterActivities = (activities) =>
+        activities.filter(act => act.activityId !== activityId);
+
+      return {
+        ...day,
+        morning: { activities: filterActivities(day.morning.activities) },
+        afternoon: { activities: filterActivities(day.afternoon.activities) },
+        night: { activities: filterActivities(day.night.activities) }
+      };
+    });
+
+    setItineraryData({ ...itineraryData, days: updatedDays });
+  };
+  if (!itineraryData) {
     return (
       <div className="text-center py-20">
         <div className="text-gray-400 mb-4">
@@ -17,10 +76,24 @@ export const ItineraryTimeline = ({ itinerary }) => {
     );
   }
 
-  const { destination, totalDays, hotelRecommendation, days } = itinerary;
+  const { destination, totalDays, hotelRecommendation, days } = itineraryData;
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* Modales */}
+      <ActivityInfoModal
+        activity={selectedActivity}
+        isOpen={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+      />
+
+      <AlternativesModal
+        activity={selectedActivity}
+        isOpen={showAlternativesModal}
+        onClose={() => setShowAlternativesModal(false)}
+        onSelectAlternative={handleSelectAlternative}
+        isAuthenticated={isAuthenticated}
+      />
       {/* Header del Itinerario */}
       <div className="text-center mb-12">
         <h2 className="text-4xl md:text-5xl font-bold mb-3" style={{ color: '#052c4e' }}>
@@ -46,14 +119,22 @@ export const ItineraryTimeline = ({ itinerary }) => {
       {/* Timeline de Días */}
       <div className="space-y-8">
         {days.map((day, dayIndex) => (
-          <DayCard key={day.day} day={day} isLast={dayIndex === days.length - 1} />
+          <DayCard
+            key={day.day}
+            day={day}
+            isLast={dayIndex === days.length - 1}
+            isAuthenticated={isAuthenticated}
+            onInfo={handleInfo}
+            onAlternative={handleAlternative}
+            onDelete={handleDelete}
+          />
         ))}
       </div>
     </div>
   );
 };
 
-const DayCard = ({ day, isLast }) => {
+const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete }) => {
   return (
     <div className="relative">
       {/* Línea de conexión */}
@@ -91,6 +172,10 @@ const DayCard = ({ day, isLast }) => {
             title="Mañana"
             activities={day.morning.activities}
             color="#FFA500"
+            isAuthenticated={isAuthenticated}
+            onInfo={onInfo}
+            onAlternative={onAlternative}
+            onDelete={onDelete}
           />
 
           {/* Tarde */}
@@ -99,6 +184,10 @@ const DayCard = ({ day, isLast }) => {
             title="Tarde"
             activities={day.afternoon.activities}
             color="#FF6347"
+            isAuthenticated={isAuthenticated}
+            onInfo={onInfo}
+            onAlternative={onAlternative}
+            onDelete={onDelete}
           />
 
           {/* Noche */}
@@ -107,6 +196,10 @@ const DayCard = ({ day, isLast }) => {
             title="Noche"
             activities={day.night.activities}
             color="#4169E1"
+            isAuthenticated={isAuthenticated}
+            onInfo={onInfo}
+            onAlternative={onAlternative}
+            onDelete={onDelete}
           />
         </div>
       </div>
@@ -114,7 +207,15 @@ const DayCard = ({ day, isLast }) => {
   );
 };
 
-const MomentSection = ({ icon, title, activities, color }) => {
+const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo, onAlternative, onDelete }) => {
+  if (!activities || activities.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-400 text-sm italic">
+        No hay actividades planificadas para este momento
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
@@ -131,47 +232,21 @@ const MomentSection = ({ icon, title, activities, color }) => {
 
       <div className="space-y-3 ml-2">
         {activities.map((activity, index) => (
-          <ActivityCard key={index} activity={activity} />
+          <ActivityCard
+            key={activity.activityId || index}
+            activity={activity}
+            isAuthenticated={isAuthenticated}
+            onInfo={onInfo}
+            onAlternative={onAlternative}
+            onDelete={onDelete}
+          />
         ))}
       </div>
     </div>
   );
 };
 
-const ActivityCard = ({ activity }) => {
-  return (
-    <div className="flex gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-      {/* Hora */}
-      <div className="flex-shrink-0">
-        <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#3ccca4' }}>
-          <Clock className="w-4 h-4" />
-          {activity.time}
-        </div>
-        {activity.duration && (
-          <div className="text-xs text-gray-500 mt-1 ml-6">
-            {activity.duration}
-          </div>
-        )}
-      </div>
-
-      {/* Contenido */}
-      <div className="flex-1">
-        <h5 className="font-semibold text-gray-900 mb-1">
-          {activity.title}
-        </h5>
-        <p className="text-sm text-gray-600 mb-2">
-          {activity.description}
-        </p>
-        {activity.location && (
-          <div className="flex items-center gap-1 text-xs text-gray-500">
-            <MapPin className="w-3 h-3" />
-            {activity.location}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+// Eliminar el componente ActivityCard viejo del final del archivo
 
 const formatDate = (dateString) => {
   const date = new Date(dateString + 'T00:00:00');
