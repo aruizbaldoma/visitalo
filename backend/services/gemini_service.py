@@ -9,7 +9,8 @@ class GeminiTravelService:
         self.api_key = os.environ.get('GEMINI_API_KEY')
         if not self.api_key:
             raise Exception("GEMINI_API_KEY no encontrada en variables de entorno")
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+        # Usar gemini-flash-latest que apunta a la mejor versión de Flash disponible
+        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
         
     async def generate_travel_recommendations(
         self, 
@@ -93,9 +94,10 @@ REGLAS CRÍTICAS:
 2. Responde SOLO JSON puro, sin ```json ni explicaciones
 3. Genera 4 destinos DIFERENTES y variados
 4. Itinerarios específicos con nombres reales de lugares
-5. Para las imágenes, usa URLs formato: https://images.unsplash.com/photo-1234567890123 (cambia los números)
+5. Para las imágenes, usa URLs MUY SIMPLES: "https://images.unsplash.com/photo-1", "https://images.unsplash.com/photo-2", etc
 6. IDs únicos: 1, 2, 3, 4
-7. Las URLs de imagen deben ser CORTAS y COMPLETAS, sin parámetros adicionales
+7. Las URLs de imagen deben ser SIMPLES: solo "https://images.unsplash.com/photo-N" donde N es 1,2,3,4
+8. IMPORTANTE: Genera SOLO JSON válido y completo, sin texto adicional
 
 JSON:"""
 
@@ -115,7 +117,7 @@ JSON:"""
                     "temperature": 0.7,
                     "topK": 40,
                     "topP": 0.95,
-                    "maxOutputTokens": 2048,
+                    "maxOutputTokens": 4096,  # Aumentado para asegurar respuesta completa
                 }
             }
             
