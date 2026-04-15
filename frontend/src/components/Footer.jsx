@@ -11,9 +11,9 @@ export const Footer = () => {
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <img 
-                src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/1k7gc8cn_Gemini_Generated_Image_9h07xd9h07xd9h07.png"
-                alt="RutasViaje"
-                className="h-8 w-auto"
+                src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/6ka0wty1_Logo_fondoblanco.png"
+                alt="Rutaperfecta.com"
+                className="h-10 w-auto"
                 style={{
                   mixBlendMode: 'multiply',
                   filter: 'contrast(1.3) brightness(1.15)',
