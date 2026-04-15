@@ -201,14 +201,20 @@ JSON:"""
                         "title": f"Llegada a {destination}",
                         "description": "Transfer del aeropuerto al alojamiento",
                         "location": "Aeropuerto internacional",
-                        "duration": "1.5h"
+                        "duration": "1.5h",
+                        "price": 25.00,
+                        "activityId": f"act_1_arrival",
+                        "provider": "Viator"
                     },
                     {
                         "time": self._add_time(arrival_time, 2),
                         "title": "Primer recorrido por el centro",
                         "description": f"Paseo introductorio por {destination}",
                         "location": "Centro histórico",
-                        "duration": "2h"
+                        "duration": "2h",
+                        "price": 35.00,
+                        "activityId": f"act_1_walk",
+                        "provider": "GetYourGuide"
                     }
                 ]
             else:
@@ -219,14 +225,20 @@ JSON:"""
                         "title": "Desayuno típico local",
                         "description": f"Café tradicional en {destination}",
                         "location": "Café del Centro",
-                        "duration": "1h"
+                        "duration": "1h",
+                        "price": 15.00,
+                        "activityId": f"act_{day_num}_1",
+                        "provider": "GetYourGuide"
                     },
                     {
                         "time": "10:30",
                         "title": f"Tour cultural por {destination}",
                         "description": "Visita guiada a monumentos principales",
                         "location": "Plaza Mayor",
-                        "duration": "2.5h"
+                        "duration": "2.5h",
+                        "price": 45.00,
+                        "activityId": f"act_{day_num}_2",
+                        "provider": "Civitatis"
                     }
                 ]
             
@@ -238,7 +250,10 @@ JSON:"""
                         "title": "Cena de despedida",
                         "description": f"Última cena en {destination}",
                         "location": "Restaurante panorámico",
-                        "duration": "2h"
+                        "duration": "2h",
+                        "price": 42.00,
+                        "activityId": "act_farewell",
+                        "provider": "Civitatis"
                     },
                     {
                         "time": self._subtract_time(departure_time, 2),
@@ -255,14 +270,20 @@ JSON:"""
                         "title": "Cena local",
                         "description": f"Restaurante típico de {destination}",
                         "location": "Zona gastronómica",
-                        "duration": "2h"
+                        "duration": "2h",
+                        "price": 35.00,
+                        "activityId": "act_dinner",
+                        "provider": "GetYourGuide"
                     },
                     {
                         "time": "22:30",
                         "title": "Vida nocturna",
                         "description": "Bar o zona de ambiente local",
                         "location": "Barrio de ocio",
-                        "duration": "2h"
+                        "duration": "2h",
+                        "price": 20.00,
+                        "activityId": "act_nightlife",
+                        "provider": "Viator"
                     }
                 ]
             
@@ -279,21 +300,39 @@ JSON:"""
                             "title": "Almuerzo",
                             "description": f"Comida local en {destination}",
                             "location": "Restaurante La Plaza",
-                            "duration": "1.5h"
+                            "duration": "1.5h",
+                        "price": 28.00,
+                        "activityId": "act_lunch",
+                        "provider": "GetYourGuide",
+                            "price": 28.00,
+                            "activityId": f"act_{day_num}_lunch",
+                            "provider": "GetYourGuide"
                         },
                         {
                             "time": "16:00",
                             "title": "Museo o atracción principal",
                             "description": "Visita cultural de la tarde",
                             "location": "Museo Nacional",
-                            "duration": "2h"
+                            "duration": "2h",
+                        "price": 18.00,
+                        "activityId": "act_museum",
+                        "provider": "Civitatis",
+                            "price": 18.00,
+                            "activityId": f"act_{day_num}_museum",
+                            "provider": "Civitatis"
                         },
                         {
                             "time": "18:30",
                             "title": "Paseo al atardecer",
                             "description": f"Caminata por zonas pintorescas de {destination}",
                             "location": "Mirador panorámico",
-                            "duration": "1.5h"
+                            "duration": "1.5h",
+                        "price": 12.00,
+                        "activityId": "act_sunset",
+                        "provider": "Viator",
+                            "price": 12.00,
+                            "activityId": f"act_{day_num}_sunset",
+                            "provider": "Viator"
                         }
                     ]
                 },
