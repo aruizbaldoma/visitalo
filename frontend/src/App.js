@@ -16,19 +16,19 @@ function App() {
   const [searchResults, setSearchResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  const handleSearch = async (searchData) => {
+  const handleSearch = async (results) => {
     setIsSearching(true);
-    toast.loading("Buscando los mejores viajes para ti...");
+    toast.loading("Buscando los mejores viajes con IA...");
     
     try {
-      const results = await searchTrips(searchData);
+      // Los resultados ya vienen del backend
       setSearchResults(results);
       toast.dismiss();
       
       if (results.length > 0) {
         toast.success(`¡Encontramos ${results.length} viaje(s) increíble(s)!`);
       } else {
-        toast.info("Intenta aumentar tu presupuesto para ver más opciones");
+        toast.info("No encontramos viajes. Intenta aumentar tu presupuesto.");
       }
       
       // Scroll to results
@@ -39,6 +39,7 @@ function App() {
         }
       }, 500);
     } catch (error) {
+      toast.dismiss();
       toast.error("Hubo un error al buscar viajes. Inténtalo de nuevo.");
     } finally {
       setIsSearching(false);

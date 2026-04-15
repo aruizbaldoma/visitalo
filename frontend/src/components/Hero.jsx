@@ -131,9 +131,10 @@ export const Hero = ({ onSearch }) => {
                 size="lg" 
                 className="w-full h-12 text-base text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 hover:opacity-90"
                 style={{ background: '#3ccca4' }}
+                disabled={isLoading}
               >
                 <Search className="w-5 h-5 mr-2" />
-                Buscar mi viaje
+                {isLoading ? 'Buscando con IA...' : 'Buscar mi viaje'}
               </Button>
             </form>
           </div>

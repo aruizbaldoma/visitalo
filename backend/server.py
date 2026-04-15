@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,9 +6,10 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
+from services.gemini_service import GeminiTravelService
 
 
 ROOT_DIR = Path(__file__).parent
@@ -36,6 +37,27 @@ class StatusCheck(BaseModel):
 
 class StatusCheckCreate(BaseModel):
     client_name: str
+
+class TravelSearchRequest(BaseModel):
+    departureCity: str
+    startDate: str
+    endDate: str
+    budget: int
+
+class Trip(BaseModel):
+    id: int
+    destination: str
+    country: str
+    days: int
+    price: int
+    image: str
+    itinerary: List[str]
+    includes: dict
+    departure: str
+
+class TravelSearchResponse(BaseModel):
+    results: List[Trip]
+    query: TravelSearchRequest
 
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
@@ -65,6 +87,45 @@ async def get_status_checks():
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     
     return status_checks
+
+@api_router.post("/search-trips", response_model=TravelSearchResponse)
+async def search_trips(search_request: TravelSearchRequest):
+    """
+    Endpoint para buscar viajes usando Gemini AI
+    """
+    try:
+        # Validar datos
+        if search_request.budget < 100:
+            raise HTTPException(status_code=400, detail="El presupuesto mínimo es 100€")
+        
+        # Crear servicio de Gemini
+        gemini_service = GeminiTravelService()
+        
+        # Generar recomendaciones
+        trips = await gemini_service.generate_travel_recommendations(
+            departure_city=search_request.departureCity,
+            start_date=search_request.startDate,
+            end_date=search_request.endDate,
+            budget=search_request.budget
+        )
+        
+        # Guardar búsqueda en la base de datos (opcional)
+        search_record = {
+            "search_id": str(uuid.uuid4()),
+            "query": search_request.model_dump(),
+            "results_count": len(trips),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        await db.travel_searches.insert_one(search_record)
+        
+        return TravelSearchResponse(
+            results=trips,
+            query=search_request
+        )
+    
+    except Exception as e:
+        logger.error(f"Error en búsqueda de viajes: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generando recomendaciones: {str(e)}")
 
 # Include the router in the main app
 app.include_router(api_router)
