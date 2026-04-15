@@ -36,7 +36,7 @@ function App() {
         ...travelDetails
       };
 
-      const response = await axios.post(`${API}/api/generate-itinerary`, requestData);
+      const response = await axios.post(`${API}/generate-itinerary`, requestData);
 
       const mockMode = response.headers['x-mock-mode'] === 'true';
       setIsMockMode(mockMode);
