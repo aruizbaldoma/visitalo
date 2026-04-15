@@ -28,3 +28,4 @@ emergentintegrations==0.1.0
 emergentintegrations==0.1.0
 google-generativeai
 google-genai
+emergentintegrations==0.1.0

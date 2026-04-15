@@ -1,13 +1,14 @@
-import requests
 import os
 import json
 from datetime import datetime
 from typing import Dict, List, Any
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 class GeminiTravelService:
     def __init__(self):
-        self.api_key = os.environ.get('GEMINI_API_KEY')
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+        self.api_key = os.environ.get('EMERGENT_LLM_KEY')
+        if not self.api_key:
+            raise Exception("EMERGENT_LLM_KEY no encontrada en variables de entorno")
         
     async def generate_travel_recommendations(
         self, 
@@ -97,46 +98,22 @@ REGLAS CRÍTICAS:
 JSON:"""
 
         try:
-            # Preparar request para Gemini API REST
-            headers = {
-                'Content-Type': 'application/json'
-            }
+            # Inicializar chat con Gemini usando emergentintegrations
+            chat = LlmChat(
+                api_key=self.api_key,
+                session_id=f"travel-search-{departure_city}-{budget}",
+                system_message="Eres un experto en planificación de viajes. Genera recomendaciones en formato JSON estricto."
+            ).with_model("gemini", "gemini-2.5-flash")
             
-            payload = {
-                "contents": [{
-                    "parts": [{
-                        "text": prompt
-                    }]
-                }],
-                "generationConfig": {
-                    "temperature": 0.7,
-                    "topK": 40,
-                    "topP": 0.95,
-                    "maxOutputTokens": 2048,
-                }
-            }
+            # Crear mensaje de usuario
+            user_message = UserMessage(text=prompt)
             
-            # Llamar a Gemini API
-            url = f"{self.base_url}?key={self.api_key}"
-            response = requests.post(url, headers=headers, json=payload, timeout=45)
+            # Enviar mensaje y obtener respuesta
+            response_text = await chat.send_message(user_message)
             
-            if response.status_code == 503:
-                print(f"⚠️ GEMINI SOBRECARGADO (503) - Presupuesto: {budget}€, Origen: {departure_city}")
-                raise Exception("Gemini temporalmente no disponible (alta demanda)")
-            
-            if response.status_code != 200:
-                print(f"❌ ERROR API {response.status_code} - Presupuesto: {budget}€")
-                print(f"Response: {response.text[:500]}")
-                raise Exception(f"Error {response.status_code} de la API de Gemini")
-            
-            # Extraer texto de la respuesta
-            response_data = response.json()
-            
-            if 'candidates' not in response_data or len(response_data['candidates']) == 0:
-                print("❌ ERROR: No candidates in Gemini response")
-                raise Exception("Gemini no devolvió candidatos válidos")
-            
-            response_text = response_data['candidates'][0]['content']['parts'][0]['text'].strip()
+            if not response_text:
+                print("❌ ERROR: Gemini retornó respuesta vacía")
+                raise Exception("Gemini no generó respuesta")
             
             # Limpiar markdown si existe
             if '```json' in response_text:
