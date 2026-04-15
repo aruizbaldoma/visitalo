@@ -10,7 +10,8 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Dict, List
 import uuid
 from datetime import datetime, timezone
-from services.gemini_service import GeminiTravelService
+# from services.gemini_service import GeminiTravelService  # Deprecated - usar itinerary_service
+from routes.itinerary_routes import itinerary_router
 
 
 ROOT_DIR = Path(__file__).parent
@@ -97,71 +98,14 @@ async def get_status_checks():
     
     return status_checks
 
-@api_router.post("/search-trips")
-async def search_trips(search_request: TravelSearchRequest):
-    """
-    Endpoint para buscar viajes usando Gemini AI o Mock Data
-    """
-    try:
-        # Validar datos
-        if search_request.budget < 100:
-            raise HTTPException(status_code=400, detail="El presupuesto mínimo es 100€")
-        
-        print(f"\n📥 REQUEST RECIBIDO:")
-        print(f"   Origen: {search_request.departureCity}")
-        print(f"   Fechas: {search_request.startDate} a {search_request.endDate}")
-        print(f"   Presupuesto: {search_request.budget}€\n")
-        
-        # Crear servicio de Gemini
-        gemini_service = GeminiTravelService()
-        
-        # Generar itinerario profesional (sin precios)
-        itinerary = await gemini_service.generate_professional_itinerary(
-            departure_city=search_request.departureCity,
-            destination=search_request.destination,
-            start_date=search_request.startDate,
-            end_date=search_request.endDate,
-            travel_details=search_request.travelDetails
-        )
-        
-        if not itinerary:
-            raise HTTPException(
-                status_code=500, 
-                detail="No se pudo generar el itinerario."
-            )
-        
-        # Guardar búsqueda en la base de datos
-        search_record = {
-            "search_id": str(uuid.uuid4()),
-            "query": search_request.model_dump(),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "is_mock": os.environ.get('USE_MOCK_DATA', 'false').lower() == 'true'
-        }
-        await db.itinerary_searches.insert_one(search_record)
-        
-        print(f"\n✅ ITINERARIO GENERADO EXITOSAMENTE\n")
-        
-        # Crear respuesta con header indicando si es MOCK
-        response_data = {"itinerary": itinerary, "query": search_request}
-        
-        # Retornar con header custom
-        is_mock = os.environ.get('USE_MOCK_DATA', 'false').lower() == 'true'
-        return JSONResponse(
-            content=response_data,
-            headers={"X-Mock-Mode": "true" if is_mock else "false"}
-        )
-    
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ ERROR EN BÚSQUEDA: {str(e)}")
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Error generando recomendaciones: {str(e)}"
-        )
+# DEPRECATED: Endpoint viejo - usar /api/generate-itinerary en su lugar
+# @api_router.post("/search-trips")
+# async def search_trips(search_request: TravelSearchRequest):
+#     ...endpoint comentado temporalmente...
 
 # Include the router in the main app
 app.include_router(api_router)
+app.include_router(itinerary_router, prefix="/api")  # Nuevo router para itinerarios profesionales
 
 app.add_middleware(
     CORSMiddleware,
