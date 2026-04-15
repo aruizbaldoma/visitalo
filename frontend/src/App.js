@@ -118,7 +118,7 @@ function App() {
               <p className="text-gray-600 text-lg">Generando tu itinerario personalizado...</p>
             </div>
           ) : (
-            <ItineraryTimeline itinerary={itinerary} />
+            <ItineraryTimeline itinerary={itinerary} isAuthenticated={false} />
           )}
         </div>
       </section>
