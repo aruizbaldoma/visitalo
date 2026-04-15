@@ -1,5 +1,4 @@
-from google import genai
-from google.genai import types
+import requests
 import os
 import json
 from datetime import datetime
@@ -8,7 +7,7 @@ from typing import Dict, List, Any
 class GeminiTravelService:
     def __init__(self):
         self.api_key = os.environ.get('GEMINI_API_KEY')
-        self.client = genai.Client(api_key=self.api_key)
+        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
         
     async def generate_travel_recommendations(
         self, 
@@ -27,35 +26,48 @@ class GeminiTravelService:
         
         # Determinar si es presupuesto alto o bajo
         budget_level = "económico"
+        extra_instructions = "Sugiere opciones económicas con vuelos low-cost y hoteles de 2-3 estrellas."
+        
         if budget > 1000:
             budget_level = "de lujo"
+            extra_instructions = "Incluye SOLO opciones de lujo: hoteles 5 estrellas, vuelos en clase business, actividades premium, restaurantes gourmet y experiencias exclusivas."
         elif budget > 500:
             budget_level = "medio-alto"
+            extra_instructions = "Sugiere opciones de calidad con buenos hoteles de 4 estrellas y actividades interesantes."
         
-        # Crear el prompt optimizado para JSON válido
-        prompt = f"""Eres un experto planificador de viajes. Genera EXACTAMENTE 4 recomendaciones de viajes {budget_level} desde {departure_city} a destinos europeos.
+        # Crear el prompt optimizado
+        prompt = f"""Eres un experto en planificación de viajes. Genera EXACTAMENTE 4 recomendaciones de viajes DIFERENTES desde {departure_city} a destinos europeos.
 
-RESTRICCIONES IMPORTANTES:
+INFORMACIÓN DE LA BÚSQUEDA:
+- Ciudad de origen: {departure_city}
+- Fechas: del {start_date} al {end_date} ({days} días)
 - Presupuesto máximo por persona: {budget}€
-- Duración: {days} días (del {start_date} al {end_date})
-- Todos los precios DEBEN estar entre 100€ y {budget}€
-- Si el presupuesto es superior a 1000€, incluye opciones de lujo con hoteles 5 estrellas y actividades premium
+- Nivel de viaje: {budget_level}
 
-Devuelve SOLO un objeto JSON válido con este formato EXACTO (sin texto adicional, sin markdown, sin explicaciones):
+INSTRUCCIONES ESPECIALES:
+{extra_instructions}
+
+DESTINOS IMPORTANTES:
+- Genera destinos VARIADOS: capitales europeas, ciudades costeras, destinos culturales
+- NO repitas siempre los mismos destinos
+- Adapta las recomendaciones al presupuesto: si es bajo, destinos cercanos; si es alto, cualquier destino premium de Europa
+- Considera la época del año (fechas proporcionadas)
+
+Devuelve SOLO un objeto JSON con este formato EXACTO (sin markdown, sin texto adicional):
 
 {{
   "viajes": [
     {{
       "id": 1,
-      "destination": "Roma",
-      "country": "Italia",
+      "destination": "Nombre Ciudad",
+      "country": "País",
       "days": {days},
       "price": 450,
-      "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5",
+      "image": "https://images.unsplash.com/photo-XXXXX",
       "itinerary": [
-        "Día 1: Coliseo y Foro Romano",
-        "Día 2: Vaticano y Museos",
-        "Día 3: Fontana di Trevi y compras"
+        "Día 1: Actividad específica en el destino",
+        "Día 2: Otra actividad interesante",
+        "Día 3: Más actividades"
       ],
       "includes": {{
         "flights": true,
@@ -67,36 +79,58 @@ Devuelve SOLO un objeto JSON válido con este formato EXACTO (sin texto adiciona
   ]
 }}
 
-REGLAS ESTRICTAS:
-1. Responde SOLO con JSON, sin ```json ni texto adicional
-2. Usa comillas dobles para strings
-3. Los precios deben ser números enteros sin símbolos
-4. El array itinerary debe tener entre 3-5 actividades específicas
-5. Usa URLs reales de Unsplash para cada destino
-6. Sugiere destinos europeos variados y atractivos
-7. Si budget > 1000€: incluye hoteles de lujo, vuelos business class, actividades premium
-8. Si budget < 300€: opciones económicas con hostales y vuelos low-cost
-9. Todos los viajes deben tener id único (1, 2, 3, 4)
+REGLAS CRÍTICAS:
+1. TODOS los precios DEBEN estar entre 100€ y {budget}€
+2. Responde SOLO JSON puro, sin ```json ni explicaciones
+3. Genera 4 destinos DIFERENTES y variados
+4. Itinerarios específicos con nombres reales de lugares
+5. URLs válidas de Unsplash para imágenes de cada destino
+6. IDs únicos: 1, 2, 3, 4
 
-Genera ahora las 4 recomendaciones en JSON:"""
+JSON:"""
 
         try:
-            # Generar contenido con Gemini
-            response = self.client.models.generate_content(
-                model='gemini-1.5-flash',
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0.7,
-                    top_p=0.8,
-                    top_k=40,
-                    max_output_tokens=2048,
-                )
-            )
+            # Preparar request para Gemini API REST
+            headers = {
+                'Content-Type': 'application/json'
+            }
             
-            # Obtener el texto de la respuesta
-            response_text = response.text.strip()
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": prompt
+                    }]
+                }],
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "topK": 40,
+                    "topP": 0.95,
+                    "maxOutputTokens": 2048,
+                }
+            }
             
-            # Limpiar la respuesta si viene con markdown o texto extra
+            # Llamar a Gemini API
+            url = f"{self.base_url}?key={self.api_key}"
+            response = requests.post(url, headers=headers, json=payload, timeout=45)
+            
+            if response.status_code == 503:
+                print("⚠️ Gemini temporalmente sobrecargado, usando fallback")
+                return self._get_fallback_trips(departure_city, days, budget)
+            
+            if response.status_code != 200:
+                print(f"Error de Gemini API: {response.status_code} - {response.text[:500]}")
+                return self._get_fallback_trips(departure_city, days, budget)
+            
+            # Extraer texto de la respuesta
+            response_data = response.json()
+            
+            if 'candidates' not in response_data or len(response_data['candidates']) == 0:
+                print("No candidates in Gemini response")
+                return self._get_fallback_trips(departure_city, days, budget)
+            
+            response_text = response_data['candidates'][0]['content']['parts'][0]['text'].strip()
+            
+            # Limpiar markdown si existe
             if '```json' in response_text:
                 start_idx = response_text.find('```json') + 7
                 end_idx = response_text.find('```', start_idx)
@@ -106,7 +140,7 @@ Genera ahora las 4 recomendaciones en JSON:"""
                 end_idx = response_text.find('```', start_idx)
                 response_text = response_text[start_idx:end_idx].strip()
             
-            # Buscar el inicio y fin del objeto JSON
+            # Extraer JSON
             start_brace = response_text.find('{')
             end_brace = response_text.rfind('}') + 1
             
@@ -117,33 +151,40 @@ Genera ahora las 4 recomendaciones en JSON:"""
             data = json.loads(response_text)
             trips = data.get('viajes', [])
             
-            # Validar que todos los viajes tengan el formato correcto
+            # Validar precios
             validated_trips = []
             for trip in trips:
-                if trip.get('price', 0) <= budget:
+                if isinstance(trip.get('price'), (int, float)) and trip['price'] <= budget:
                     validated_trips.append(trip)
             
-            return validated_trips if validated_trips else self._get_fallback_trips(departure_city, days, budget)
+            if len(validated_trips) > 0:
+                print(f"✓ Gemini generó {len(validated_trips)} viajes para {departure_city} con presupuesto {budget}€")
+                return validated_trips
+            else:
+                print("No hay viajes validados dentro del presupuesto")
+                return self._get_fallback_trips(departure_city, days, budget)
             
         except json.JSONDecodeError as e:
-            print(f"Error parsing JSON from Gemini: {e}")
-            print(f"Response was: {response_text}")
+            print(f"Error parsing JSON: {e}")
+            print(f"Response: {response_text[:500]}")
             return self._get_fallback_trips(departure_city, days, budget)
         except Exception as e:
-            print(f"Error calling Gemini API: {e}")
+            print(f"Error llamando a Gemini: {e}")
             return self._get_fallback_trips(departure_city, days, budget)
     
     def _get_fallback_trips(self, departure_city: str, days: int, budget: int) -> List[Dict[str, Any]]:
         """
-        Devuelve viajes de respaldo en caso de error con Gemini
+        Viajes de respaldo SOLO si Gemini falla
         """
+        print(f"⚠️ Usando viajes de fallback para {departure_city}, {days} días, {budget}€")
+        
         fallback_trips = [
             {
                 "id": 1,
                 "destination": "Lisboa",
                 "country": "Portugal",
                 "days": days,
-                "price": min(320, budget - 50) if budget > 370 else 280,
+                "price": min(320, int(budget * 0.8)) if budget > 400 else 280,
                 "image": "https://images.unsplash.com/photo-1585208798174-6cedd86e019a",
                 "itinerary": [
                     "Día 1: Alfama y Castillo de San Jorge",
@@ -158,7 +199,7 @@ Genera ahora las 4 recomendaciones en JSON:"""
                 "destination": "Praga",
                 "country": "República Checa",
                 "days": days,
-                "price": min(380, budget - 30) if budget > 410 else 350,
+                "price": min(380, int(budget * 0.9)) if budget > 420 else 350,
                 "image": "https://images.unsplash.com/photo-1541849546-216549ae216d",
                 "itinerary": [
                     "Día 1: Puente de Carlos y Casco Antiguo",
