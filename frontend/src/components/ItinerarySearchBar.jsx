@@ -146,13 +146,12 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
             className="flex-1 flex items-center justify-center px-5 py-5 font-bold transition-all hover:opacity-90"
             style={{ 
-              backgroundColor: '#3ccca4', 
-              color: '#003580',
+              backgroundColor: '#3ccca4',
               opacity: (!searchData.destination || !searchData.startDate || !searchData.endDate) ? 0.5 : 1,
               cursor: (!searchData.destination || !searchData.startDate || !searchData.endDate) ? 'not-allowed' : 'pointer'
             }}
           >
-            <span className="whitespace-nowrap">Buscar</span>
+            <span className="whitespace-nowrap" style={{ color: '#003580' }}>Buscar</span>
           </button>
         </div>
       </form>
