@@ -41,10 +41,10 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md overflow-hidden" style={{ border: '4px solid #003580' }}>
-        <div className="flex items-stretch">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md overflow-hidden" style={{ border: '4px solid #003580', height: '80px' }}>
+        <div className="flex items-stretch h-full">
           {/* Bloque 1: Destino - Más ancho */}
-          <div className="flex-[1.8] flex items-center gap-3 px-5 py-5">
+          <div className="flex-[1.8] flex items-center gap-3 px-5">
             <MapPin className="w-6 h-6 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -63,7 +63,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
           </div>
 
           {/* Bloque 2: Fechas - Más ancho */}
-          <div className="flex-[1.8] flex items-center gap-2 px-5 py-5">
+          <div className="flex-[1.8] flex items-center gap-2 px-5">
             <Calendar className="w-6 h-6 text-gray-400 flex-shrink-0" />
             
             {/* Fecha de llegada - Click directo abre calendario */}
@@ -126,7 +126,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
           {/* Bloque 3: Personalizar - Más estrecho */}
           <div 
-            className="flex-[0.8] flex items-center justify-center gap-3 px-4 py-5 cursor-pointer hover:bg-gray-50 transition-colors"
+            className="flex-[0.5] flex items-center justify-center gap-2 px-3 cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={onOpenDetails}
           >
             <Sparkles className="w-6 h-6 flex-shrink-0" style={{ color: '#3ccca4' }} />
@@ -140,11 +140,11 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             <div className="absolute inset-y-0 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
           </div>
 
-          {/* Bloque 4: Buscar - Siempre se ve activo */}
+          {/* Bloque 4: Buscar - Mucho más estrecho */}
           <button
             type="submit"
             disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
-            className="flex-1 flex items-center justify-center px-5 py-5 font-bold transition-all hover:opacity-90"
+            className="flex-[0.4] flex items-center justify-center px-4 font-bold transition-all hover:opacity-90"
             style={{ 
               backgroundColor: '#3ccca4',
               cursor: (!searchData.destination || !searchData.startDate || !searchData.endDate) ? 'not-allowed' : 'pointer'

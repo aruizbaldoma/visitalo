@@ -3,8 +3,8 @@ import { ItinerarySearchBar } from "./ItinerarySearchBar";
 export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
   return (
     <div className="relative bg-white py-8 px-4">
-      {/* Contenido con mismo margen que el header */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+      {/* Contenido con márgenes más grandes */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-16">
         {/* Textos alineados a la izquierda */}
         <div className="text-left mb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-3" style={{ 
@@ -28,7 +28,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
       </div>
 
       {/* Sección: ¿Por qué Rutaperfecta.com? */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 mt-16">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-16 mt-16">
         <h2 className="text-3xl font-bold mb-8" style={{ color: '#052c4e' }}>
           ¿Por qué Rutaperfecta.com?
         </h2>
