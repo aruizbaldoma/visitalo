@@ -335,7 +335,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
                     Personaliza tus hobbies e intereses para un itinerario único
                   </p>
                   <p className="text-sm text-gray-500">
-                    Obtén PLUS con tu primer viaje, invitando a un amigo, o por solo 1€/mes
+                    Obtén PLUS con tu primer viaje o por solo 1€/mes
                   </p>
                   <button
                     className="px-8 py-3 font-bold text-black rounded-lg hover:shadow-xl transition-all transform hover:scale-105"

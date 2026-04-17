@@ -43,38 +43,58 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails }) => {
           {/* Grid 2 columnas para fechas en pantallas medianas */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Fecha Inicio */}
-            <div>
+            <div className="relative">
               <Label htmlFor="startDate" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                 <Calendar className="w-4 h-4" style={{ color: '#3ccca4' }} />
-                ¿Cuándo vas?
+                Fecha Ida
               </Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={searchData.startDate}
-                onChange={(e) => setSearchData({...searchData, startDate: e.target.value})}
-                className="w-full border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
-                style={{ colorScheme: 'light' }}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={searchData.startDate}
+                  onChange={(e) => setSearchData({...searchData, startDate: e.target.value})}
+                  className="w-full border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
+                  style={{ colorScheme: 'light' }}
+                  required
+                />
+                {!searchData.startDate && (
+                  <span 
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"
+                    style={{ fontSize: '14px' }}
+                  >
+                    ¿Cuándo vas?
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Fecha Fin */}
-            <div>
+            <div className="relative">
               <Label htmlFor="endDate" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                 <Calendar className="w-4 h-4" style={{ color: '#3ccca4' }} />
-                ¿Cuándo vuelves?
+                Fecha Vuelta
               </Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={searchData.endDate}
-                min={searchData.startDate}
-                onChange={(e) => setSearchData({...searchData, endDate: e.target.value})}
-                className="w-full border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
-                style={{ colorScheme: 'light' }}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={searchData.endDate}
+                  min={searchData.startDate}
+                  onChange={(e) => setSearchData({...searchData, endDate: e.target.value})}
+                  className="w-full border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
+                  style={{ colorScheme: 'light' }}
+                  required
+                />
+                {!searchData.endDate && (
+                  <span 
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"
+                    style={{ fontSize: '14px' }}
+                  >
+                    ¿Cuándo vuelves?
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

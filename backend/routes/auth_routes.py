@@ -78,7 +78,6 @@ async def exchange_session_id(
                 "user_plan": "basic",
                 "first_trip_used": False,
                 "subscription_expires_at": None,
-                "referred_by": None,
                 "created_at": datetime.now(timezone.utc)
             }
             await db.users.insert_one(new_user)
@@ -155,7 +154,6 @@ async def register_with_email(
         "user_plan": "basic",
         "first_trip_used": False,
         "subscription_expires_at": None,
-        "referred_by": None,
         "created_at": datetime.now(timezone.utc)
     }
     

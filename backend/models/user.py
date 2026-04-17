@@ -17,7 +17,6 @@ class User(BaseModel):
     user_plan: str = 'basic'  # 'basic' or 'plus'
     first_trip_used: bool = False  # Para otorgar Plus gratis en primer viaje
     subscription_expires_at: Optional[datetime] = None  # Para suscripción Plus (1€/mes)
-    referred_by: Optional[str] = None  # user_id del referidor (para Plus gratis)
     created_at: datetime
 
 
