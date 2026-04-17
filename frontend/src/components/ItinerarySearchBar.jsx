@@ -90,8 +90,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
               />
             </div>
 
-            {/* Separator */}
-            <div className="text-gray-400 text-sm">-</div>
+            {/* Separator - más largo y en negrita */}
+            <div className="text-gray-600 text-base font-bold px-1">—</div>
 
             {/* Fecha de salida - Click directo abre calendario */}
             <div className="flex-1 relative">
