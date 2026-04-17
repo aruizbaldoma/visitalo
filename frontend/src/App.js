@@ -16,6 +16,9 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [travelDetails, setTravelDetails] = useState(null);
   const [searchParams, setSearchParams] = useState(null);
+  
+  // Mock user plan - cambiar a 'plus' para testear funcionalidad premium
+  const [userPlan, setUserPlan] = useState('basic'); // 'basic' o 'plus'
 
   const calculateDays = (start, end) => {
     const startDate = new Date(start);
@@ -33,6 +36,7 @@ function App() {
         destination: searchData.destination,
         startDate: searchData.startDate,
         endDate: searchData.endDate,
+        userPlan: userPlan,
         ...travelDetails
       };
 
@@ -92,6 +96,40 @@ function App() {
           🎭 MODO DEMO ACTIVO - Itinerario de ejemplo (sin usar API de Gemini)
         </div>
       )}
+      
+      {/* Banner Plan Testing - Solo para desarrollo */}
+      <div
+        style={{
+          background: 'linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%)',
+          color: 'white',
+          padding: '8px 16px',
+          textAlign: 'center',
+          fontSize: '13px',
+          fontWeight: '500',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px'
+        }}
+      >
+        <span>🧪 TEST MODE:</span>
+        <select 
+          value={userPlan} 
+          onChange={(e) => setUserPlan(e.target.value)}
+          style={{
+            padding: '4px 12px',
+            borderRadius: '6px',
+            border: 'none',
+            backgroundColor: 'white',
+            color: '#1f2937',
+            fontWeight: '600',
+            cursor: 'pointer'
+          }}
+        >
+          <option value="basic">👤 Plan BASIC</option>
+          <option value="plus">⭐ Plan PLUS</option>
+        </select>
+      </div>
 
       <Header />
 
@@ -108,6 +146,7 @@ function App() {
         onSave={handleSaveDetails}
         totalDays={totalDays}
         startDate={searchParams?.startDate || ""}
+        userPlan={userPlan}
       />
 
       {/* Timeline de Itinerario */}

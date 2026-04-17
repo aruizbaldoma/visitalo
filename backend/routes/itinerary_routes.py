@@ -13,6 +13,20 @@ from services.itinerary_service import ItineraryService
 itinerary_router = APIRouter()
 
 
+class ActivityPreferences(BaseModel):
+    """Preferencias de actividades (solo Plus)"""
+    adventure: bool = False
+    culture: bool = False
+    gastronomy: bool = False
+    relax: bool = False
+
+
+class UserPreferences(BaseModel):
+    """Preferencias del usuario Plus"""
+    activities: ActivityPreferences
+    pace: str = "balanced"  # intense, balanced, relaxed
+
+
 class ItineraryRequest(BaseModel):
     """Request para generar itinerario profesional"""
     destination: str
@@ -23,7 +37,10 @@ class ItineraryRequest(BaseModel):
     departureTime: Optional[str] = None
     hasHotel: bool = False
     hotelName: Optional[str] = None
+    hotelCategory: Optional[str] = "standard"  # standard, boutique, luxury, hostel, apartment
     needsHotelRecommendation: bool = False
+    userPlan: str = "basic"  # basic or plus
+    preferences: Optional[UserPreferences] = None
 
 
 @itinerary_router.post("/generate-itinerary")
@@ -46,7 +63,10 @@ async def generate_itinerary(request: ItineraryRequest):
             departure_time=request.departureTime,
             has_hotel=request.hasHotel,
             hotel_name=request.hotelName,
-            needs_hotel_recommendation=request.needsHotelRecommendation
+            hotel_category=request.hotelCategory,
+            needs_hotel_recommendation=request.needsHotelRecommendation,
+            user_plan=request.userPlan,
+            preferences=request.preferences.dict() if request.preferences else None
         )
         
         if not itinerary:

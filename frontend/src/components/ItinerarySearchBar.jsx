@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Calendar, Search, Settings } from "lucide-react";
+import { MapPin, Calendar, Search, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -86,10 +86,10 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails }) => {
               onClick={onOpenDetails}
               className="w-full"
               style={{ borderRadius: '8px' }}
-              title="Añadir información adicional del viaje"
+              title="Personaliza tu viaje con preferencias avanzadas"
             >
-              <Settings className="w-4 h-4 mr-2" />
-              <span>Detalles</span>
+              <Sparkles className="w-4 h-4 mr-2" style={{ color: '#3ccca4' }} />
+              <span>Personaliza</span>
             </Button>
 
             <Button
@@ -99,7 +99,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails }) => {
               style={{ backgroundColor: '#3ccca4', color: 'white', borderRadius: '8px' }}
             >
               <Search className="w-4 h-4 mr-2" />
-              Buscar
+              Generar
             </Button>
           </div>
         </div>

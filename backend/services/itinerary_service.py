@@ -30,7 +30,10 @@ class ItineraryService:
         departure_time: Optional[str] = None,
         has_hotel: bool = False,
         hotel_name: Optional[str] = None,
-        needs_hotel_recommendation: bool = False
+        hotel_category: str = "standard",
+        needs_hotel_recommendation: bool = False,
+        user_plan: str = "basic",
+        preferences: Optional[Dict] = None
     ) -> Dict:
         """
         Genera un itinerario profesional estructurado por días y momentos del día
@@ -44,7 +47,10 @@ class ItineraryService:
             departure_time: Hora salida (HH:MM) - solo si has_flights=True
             has_hotel: Si el usuario tiene hotel reservado
             hotel_name: Nombre del hotel - solo si has_hotel=True
+            hotel_category: Categoría de hotel (standard, boutique, luxury, hostel, apartment)
             needs_hotel_recommendation: Si necesita recomendación de hotel - solo si has_hotel=False
+            user_plan: Plan del usuario (basic o plus)
+            preferences: Preferencias Plus (actividades y ritmo)
             
         Returns:
             Dict con estructura de itinerario completo
@@ -52,13 +58,16 @@ class ItineraryService:
         print(f"\n{'='*70}")
         print(f"📋 GENERANDO ITINERARIO PROFESIONAL")
         print(f"   Destino: {destination}")
+        print(f"   Plan: {user_plan.upper()}")
         print(f"   Fechas: {start_date} → {end_date}")
         if has_flights:
             print(f"   Vuelos: Llegada {arrival_time}, Salida {departure_time}")
         if has_hotel and hotel_name:
             print(f"   Hotel: {hotel_name}")
         elif needs_hotel_recommendation:
-            print(f"   Hotel: Solicita recomendación")
+            print(f"   Hotel: Recomendación solicitada (Categoría: {hotel_category})")
+        if preferences and user_plan == 'plus':
+            print(f"   Preferencias PLUS: {preferences}")
         print(f"{'='*70}\n")
         
         # Calcular días
@@ -70,14 +79,16 @@ class ItineraryService:
             return self._generate_mock_itinerary(
                 destination, start_date, end_date, total_days,
                 has_flights, arrival_time, departure_time,
-                has_hotel, hotel_name, needs_hotel_recommendation
+                has_hotel, hotel_name, hotel_category,
+                needs_hotel_recommendation, user_plan, preferences
             )
         
         # Generar con Gemini AI
         return await self._generate_ai_itinerary(
             destination, start_date, end_date, total_days,
             has_flights, arrival_time, departure_time,
-            has_hotel, hotel_name, needs_hotel_recommendation
+            has_hotel, hotel_name, hotel_category,
+            needs_hotel_recommendation, user_plan, preferences
         )
     
     async def _generate_ai_itinerary(
@@ -91,15 +102,19 @@ class ItineraryService:
         departure_time: Optional[str],
         has_hotel: bool,
         hotel_name: Optional[str],
-        needs_hotel_recommendation: bool
+        hotel_category: str,
+        needs_hotel_recommendation: bool,
+        user_plan: str,
+        preferences: Optional[Dict]
     ) -> Dict:
         """
-        Genera itinerario usando Gemini AI con nueva lógica
+        Genera itinerario usando Gemini AI con nueva lógica Plus/Basic
         """
-        # Construir contexto inteligente
+        # Construir contexto inteligente con preferencias
         context = self._build_context(
             total_days, has_flights, arrival_time, departure_time,
-            has_hotel, hotel_name, needs_hotel_recommendation
+            has_hotel, hotel_name, hotel_category,
+            needs_hotel_recommendation, user_plan, preferences
         )
         
         # Prompt profesional optimizado
@@ -199,7 +214,10 @@ JSON:"""
         departure_time: Optional[str],
         has_hotel: bool,
         hotel_name: Optional[str],
-        needs_hotel_recommendation: bool
+        hotel_category: str,
+        needs_hotel_recommendation: bool,
+        user_plan: str,
+        preferences: Optional[Dict]
     ) -> Dict:
         """
         Genera itinerario MOCK para testing con nueva lógica
@@ -207,8 +225,28 @@ JSON:"""
         start = datetime.strptime(start_date, '%Y-%m-%d')
         days_list = []
         
-        # Determinar nombre del hotel para recomendaciones
-        recommended_hotel_name = "Hotel Centro Histórico" if needs_hotel_recommendation else None
+        # Determinar nombre del hotel para recomendaciones (Plus puede tener categorías)
+        if needs_hotel_recommendation:
+            hotel_categories_map = {
+                'standard': 'Hotel Centro Histórico',
+                'boutique': 'Boutique Hotel Art Decó',
+                'luxury': 'Grand Luxury Palace 5★',
+                'hostel': 'Hostal Encanto Local',
+                'apartment': 'Apartamento Moderno Céntrico'
+            }
+            recommended_hotel_name = hotel_categories_map.get(hotel_category, 'Hotel Centro Histórico')
+        else:
+            recommended_hotel_name = None
+        
+        # Extraer pace para Plus
+        pace = preferences.get('pace', 'balanced') if preferences and user_plan == 'plus' else 'balanced'
+        
+        print(f"📝 Mock Itinerary Config:")
+        print(f"   - Plan: {user_plan.upper()}")
+        print(f"   - Hotel Category: {hotel_category}")
+        if preferences:
+            print(f"   - Preferences: {preferences}")
+        print(f"   - Pace: {pace}\n")
         
         for day_num in range(total_days):
             current_date = (start + timedelta(days=day_num)).strftime('%Y-%m-%d')
@@ -304,19 +342,24 @@ JSON:"""
                     }
                 ]
             else:
-                # Días intermedios
-                morning_activities = [
-                    {
-                        "time": "09:00",
-                        "title": "Desayuno típico local",
-                        "description": f"Café tradicional en {destination}",
-                        "location": "Café del Centro",
-                        "duration": "1h",
-                        "price": 15.00,
-                        "activityId": f"act_{day_num+1}_1",
-                        "provider": "GetYourGuide"
-                    }
-                ]
+                # Días intermedios - usar actividades personalizadas si es Plus
+                if user_plan == 'plus' and preferences:
+                    personalized = self._get_personalized_activities(destination, preferences, pace, day_num)
+                    morning_activities = personalized
+                else:
+                    # Basic: actividades estándar
+                    morning_activities = [
+                        {
+                            "time": "09:00",
+                            "title": "Desayuno típico local",
+                            "description": f"Café tradicional en {destination}",
+                            "location": "Café del Centro",
+                            "duration": "1h",
+                            "price": 15.00,
+                            "activityId": f"act_{day_num+1}_1",
+                            "provider": "GetYourGuide"
+                        }
+                    ]
                 afternoon_activities = []
                 night_activities = []
             
@@ -583,3 +626,109 @@ JSON:"""
         time_obj = datetime.strptime(time_str, '%H:%M')
         new_time = time_obj - timedelta(hours=hours)
         return new_time.strftime('%H:%M')
+
+
+    def _get_personalized_activities(self, destination: str, preferences: Optional[Dict], pace: str, day_num: int) -> List[Dict]:
+        """
+        Genera actividades personalizadas según preferencias PLUS
+        """
+        activities = []
+        
+        if not preferences:
+            # Basic: actividades estándar equilibradas
+            return [
+                {
+                    "time": "10:00",
+                    "title": f"Tour panorámico por {destination}",
+                    "description": "Recorrido por los principales puntos de interés",
+                    "location": "Centro histórico",
+                    "duration": "3h",
+                    "price": 45.00,
+                    "activityId": f"act_{day_num+1}_tour",
+                    "provider": "Civitatis"
+                }
+            ]
+        
+        # Plus: actividades personalizadas
+        activity_prefs = preferences.get('activities', {})
+        
+        if activity_prefs.get('adventure'):
+            activities.append({
+                "time": "09:00",
+                "title": f"Aventura: Kayak en {destination}",
+                "description": "Experiencia de kayak en aguas cristalinas con guía experto",
+                "location": "Costa/Río principal",
+                "duration": "4h",
+                "price": 65.00,
+                "activityId": f"act_{day_num+1}_kayak",
+                "provider": "GetYourGuide"
+            })
+        
+        if activity_prefs.get('culture'):
+            activities.append({
+                "time": "11:00",
+                "title": f"Museo de Arte de {destination}",
+                "description": "Visita guiada a la colección permanente y exposiciones temporales",
+                "location": "Distrito cultural",
+                "duration": "2.5h",
+                "price": 25.00,
+                "activityId": f"act_{day_num+1}_museum",
+                "provider": "Civitatis"
+            })
+        
+        if activity_prefs.get('gastronomy'):
+            activities.append({
+                "time": "14:00",
+                "title": f"Cata de vinos y tapas de {destination}",
+                "description": "Experiencia culinaria con maridaje de vinos locales",
+                "location": "Barrio gastronómico",
+                "duration": "3h",
+                "price": 85.00,
+                "activityId": f"act_{day_num+1}_wine_tasting",
+                "provider": "Viator"
+            })
+        
+        if activity_prefs.get('relax'):
+            activities.append({
+                "time": "16:00",
+                "title": f"Spa & Wellness en {destination}",
+                "description": "Sesión de masaje y acceso a spa con circuito termal",
+                "location": "Centro de bienestar",
+                "duration": "2h",
+                "price": 70.00,
+                "activityId": f"act_{day_num+1}_spa",
+                "provider": "GetYourGuide"
+            })
+        
+        # Si no hay preferencias marcadas, usar actividades equilibradas
+        if not activities:
+            activities.append({
+                "time": "10:00",
+                "title": f"Tour personalizado por {destination}",
+                "description": "Recorrido adaptado a tus intereses",
+                "location": "Centro histórico",
+                "duration": "3h",
+                "price": 50.00,
+                "activityId": f"act_{day_num+1}_custom_tour",
+                "provider": "Civitatis"
+            })
+        
+        # Ajustar según ritmo
+        if pace == 'relaxed':
+            # Espaciar más las actividades
+            for i, act in enumerate(activities):
+                if i > 0:
+                    prev_time = activities[i-1]['time']
+                    prev_duration = int(activities[i-1]['duration'].replace('h', '').split('.')[0])
+                    new_time = self._add_time(prev_time, prev_duration + 2)  # +2h de descanso
+                    activities[i]['time'] = new_time
+        elif pace == 'intense':
+            # Actividades más seguidas
+            for i, act in enumerate(activities):
+                if i > 0:
+                    prev_time = activities[i-1]['time']
+                    prev_duration = int(activities[i-1]['duration'].replace('h', '').split('.')[0])
+                    new_time = self._add_time(prev_time, prev_duration + 1)  # +1h
+                    activities[i]['time'] = new_time
+        
+        return activities[:2]  # Máximo 2 actividades por momento del día
