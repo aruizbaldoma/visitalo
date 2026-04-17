@@ -15,7 +15,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
             Viaja más pensando menos
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto" style={{ lineHeight: '1.6' }}>
-            Encuentra itinerarios personalizados con IA en destinos increíbles y mucho más
+            Encuentra itinerarios personalizados en destinos increíbles y mucho más
           </p>
         </div>
 
