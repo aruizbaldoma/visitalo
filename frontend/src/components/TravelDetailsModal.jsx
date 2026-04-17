@@ -1,17 +1,17 @@
-import { X, Plane, Hotel, Sparkles, Lock, Check } from "lucide-react";
+import { X, Plane, Hotel, Sparkles, Plus, Trash2, Crown } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDate, endDate, userPlan = 'basic' }) => {
   // Estado de Vuelos
   const [hasFlights, setHasFlights] = useState(false);
-  const [arrivalDate, setArrivalDate] = useState(startDate || "");
+  const [arrivalDate, setArrivalDate] = useState("");
   const [arrivalTime, setArrivalTime] = useState("09:00");
-  const [departureDate, setDepartureDate] = useState(endDate || "");
+  const [departureDate, setDepartureDate] = useState("");
   const [departureTime, setDepartureTime] = useState("18:00");
   
-  // Estado de Alojamiento
+  // Estado de Alojamiento - ARRAY para múltiples hoteles
   const [hasHotel, setHasHotel] = useState(false);
-  const [hotelName, setHotelName] = useState("");
+  const [hotels, setHotels] = useState([{ name: "", checkIn: "", checkOut: "" }]);
   const [hotelCategory, setHotelCategory] = useState("standard");
   
   // Estado de "Hazlo a tu gusto" (Solo Plus)
@@ -21,36 +21,28 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
     gastronomy: false,
     relax: false
   });
-  const [pace, setPace] = useState("balanced"); // balanced, intense, relaxed
+  const [pace, setPace] = useState("balanced");
 
   const isPlusUser = userPlan === 'plus';
 
-  // Formatear fechas heredadas del buscador
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
-    const options = { weekday: 'long', day: 'numeric', month: 'long' };
-    return date.toLocaleDateString('es-ES', options);
-  };
-
-  // Sincronizar fechas del buscador cuando cambian
+  // Sincronizar fechas del buscador cuando se abre el modal
   useEffect(() => {
-    if (startDate) setArrivalDate(startDate);
-    if (endDate) setDepartureDate(endDate);
-  }, [startDate, endDate]);
+    if (isOpen) {
+      if (startDate) setArrivalDate(startDate);
+      if (endDate) setDepartureDate(endDate);
+    }
+  }, [isOpen, startDate, endDate]);
 
-  // Resetear estados cuando se abra/cierre el modal
+  // Resetear estados cuando cambia hasFlights o hasHotel
   useEffect(() => {
     if (!hasFlights) {
-      setArrivalDate(startDate || "");
       setArrivalTime("09:00");
-      setDepartureDate(endDate || "");
       setDepartureTime("18:00");
     }
     if (!hasHotel) {
-      setHotelName("");
+      setHotels([{ name: "", checkIn: "", checkOut: "" }]);
     }
-  }, [hasFlights, hasHotel, startDate, endDate]);
+  }, [hasFlights, hasHotel]);
 
   const handleActivityPreferenceToggle = (key) => {
     if (!isPlusUser) return;
@@ -58,6 +50,24 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
       ...prev,
       [key]: !prev[key]
     }));
+  };
+
+  // Funciones para múltiples hoteles
+  const handleAddHotel = () => {
+    if (!isPlusUser) return;
+    setHotels([...hotels, { name: "", checkIn: "", checkOut: "" }]);
+  };
+
+  const handleRemoveHotel = (index) => {
+    if (hotels.length > 1) {
+      setHotels(hotels.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleHotelChange = (index, field, value) => {
+    const newHotels = [...hotels];
+    newHotels[index][field] = value;
+    setHotels(newHotels);
   };
 
   const handleSave = () => {
@@ -68,10 +78,9 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
       departureDate: hasFlights ? departureDate : null,
       departureTime: hasFlights ? departureTime : null,
       hasHotel,
-      hotelName: hasHotel ? hotelName : null,
+      hotels: hasHotel ? hotels : null,
       hotelCategory: !hasHotel ? hotelCategory : null,
       needsHotelRecommendation: !hasHotel,
-      // Plus preferences
       userPlan,
       preferences: isPlusUser ? {
         activities: activityPreferences,
@@ -86,12 +95,12 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" style={{ borderRadius: '8px' }}>
+      <div className="bg-white shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" style={{ borderRadius: '12px' }}>
         {/* Header */}
         <div className="sticky top-0 bg-white px-8 py-5 flex items-center justify-between" style={{ borderBottom: '1px solid #E5E7EB' }}>
           <div className="flex items-center gap-3">
             <h3 className="text-2xl font-bold" style={{ color: '#052c4e' }}>
-              Personaliza
+              Personaliza tu viaje
             </h3>
             {isPlusUser && (
               <span className="px-3 py-1 text-xs font-bold rounded-full" style={{ 
@@ -110,22 +119,22 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
           </button>
         </div>
 
-        {/* Content - Mayor padding entre bloques */}
-        <div className="px-8 py-8 space-y-10">
+        {/* Content */}
+        <div className="px-8 py-6 space-y-8">
           
-          {/* BLOQUE 1: VUELOS - Con Fechas y Horas */}
-          <div className="space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
-                <Plane className="w-6 h-6" style={{ color: '#3ccca4' }} />
+          {/* BLOQUE 1: VUELOS - Estilo Profesional Mejorado */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
+                <Plane className="w-5 h-5" style={{ color: '#3ccca4' }} />
               </div>
-              <h4 className="text-xl font-bold" style={{ color: '#052c4e' }}>
+              <h4 className="text-lg font-bold" style={{ color: '#052c4e' }}>
                 Vuelos
               </h4>
             </div>
 
             <label className="flex items-center justify-between cursor-pointer p-4 rounded-lg hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-              <span className="text-gray-700 font-medium">¿Ya tienes vuelos reservados?</span>
+              <span className="text-gray-700 font-medium text-sm">¿Ya tienes vuelos reservados?</span>
               <div className="relative">
                 <input
                   type="checkbox"
@@ -133,113 +142,96 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
                   onChange={(e) => setHasFlights(e.target.checked)}
                   className="sr-only"
                 />
-                <div
-                  className={`w-14 h-7 rounded-full transition-colors ${
-                    hasFlights ? 'bg-[#3ccca4]' : 'bg-gray-300'
-                  }`}
-                >
-                  <div
-                    className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform ${
-                      hasFlights ? 'transform translate-x-7' : ''
-                    }`}
-                  />
+                <div className={`w-12 h-6 rounded-full transition-colors ${hasFlights ? 'bg-[#3ccca4]' : 'bg-gray-300'}`}>
+                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${hasFlights ? 'transform translate-x-6' : ''}`} />
                 </div>
               </div>
             </label>
 
             {hasFlights && (
-              <div className="space-y-6 pl-4">
+              <div className="space-y-4 mt-4">
                 {/* Llegada */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">✈️</span>
-                    <p className="text-sm font-semibold text-gray-700">¿Cuándo aterrizas?</p>
+                <div className="p-5 rounded-xl" style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xl">✈️</span>
+                    <p className="text-sm font-bold text-gray-800">Llegada</p>
                   </div>
                   
-                  <div className="pl-10 grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de llegada</label>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2">¿Cuándo vas?</label>
                       <input
                         type="date"
                         value={arrivalDate}
                         onChange={(e) => setArrivalDate(e.target.value)}
-                        className="w-full px-4 py-3 text-base focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
+                        className="w-full px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                        style={{ border: '1px solid #d1d5db', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Hora de llegada</label>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2">Hora</label>
                       <input
                         type="time"
                         value={arrivalTime}
                         onChange={(e) => setArrivalTime(e.target.value)}
-                        className="w-full px-4 py-3 text-lg font-semibold focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
+                        className="w-full px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                        style={{ border: '1px solid #d1d5db', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
                       />
                     </div>
                   </div>
-                  {arrivalDate && (
-                    <p className="text-xs text-gray-500 pl-10 italic capitalize">{formatDate(arrivalDate)}</p>
-                  )}
                 </div>
 
-                {/* Línea de tiempo visual */}
-                <div className="pl-6 border-l-2 border-dashed border-gray-300 h-8"></div>
-
                 {/* Salida */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🛫</span>
-                    <p className="text-sm font-semibold text-gray-700">¿Cuándo despega tu vuelo de vuelta?</p>
+                <div className="p-5 rounded-xl" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca' }}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xl">🛫</span>
+                    <p className="text-sm font-bold text-gray-800">Salida</p>
                   </div>
                   
-                  <div className="pl-10 grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de salida</label>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2">¿Cuándo vuelves?</label>
                       <input
                         type="date"
                         value={departureDate}
                         onChange={(e) => setDepartureDate(e.target.value)}
                         min={arrivalDate}
-                        className="w-full px-4 py-3 text-base focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
+                        className="w-full px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                        style={{ border: '1px solid #d1d5db', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Hora de salida</label>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2">Hora</label>
                       <input
                         type="time"
                         value={departureTime}
                         onChange={(e) => setDepartureTime(e.target.value)}
-                        className="w-full px-4 py-3 text-lg font-semibold focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
+                        className="w-full px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                        style={{ border: '1px solid #d1d5db', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
                       />
                     </div>
                   </div>
-                  {departureDate && (
-                    <p className="text-xs text-gray-500 pl-10 italic capitalize">{formatDate(departureDate)}</p>
-                  )}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Divider con más espacio */}
+          {/* Divider */}
           <div style={{ borderTop: '1px solid #E5E7EB' }} />
 
-          {/* BLOQUE 2: ALOJAMIENTO */}
-          <div className="space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
-                <Hotel className="w-6 h-6" style={{ color: '#3ccca4' }} />
+          {/* BLOQUE 2: ALOJAMIENTO - Con múltiples hoteles */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
+                <Hotel className="w-5 h-5" style={{ color: '#3ccca4' }} />
               </div>
-              <h4 className="text-xl font-bold" style={{ color: '#052c4e' }}>
+              <h4 className="text-lg font-bold" style={{ color: '#052c4e' }}>
                 Alojamiento
               </h4>
             </div>
 
             <label className="flex items-center justify-between cursor-pointer p-4 rounded-lg hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-              <span className="text-gray-700 font-medium">¿Ya tienes hotel?</span>
+              <span className="text-gray-700 font-medium text-sm">¿Ya tienes hotel?</span>
               <div className="relative">
                 <input
                   type="checkbox"
@@ -247,115 +239,172 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
                   onChange={(e) => setHasHotel(e.target.checked)}
                   className="sr-only"
                 />
-                <div
-                  className={`w-14 h-7 rounded-full transition-colors ${
-                    hasHotel ? 'bg-[#3ccca4]' : 'bg-gray-300'
-                  }`}
-                >
-                  <div
-                    className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform ${
-                      hasHotel ? 'transform translate-x-7' : ''
-                    }`}
-                  />
+                <div className={`w-12 h-6 rounded-full transition-colors ${hasHotel ? 'bg-[#3ccca4]' : 'bg-gray-300'}`}>
+                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${hasHotel ? 'transform translate-x-6' : ''}`} />
                 </div>
               </div>
             </label>
 
             {hasHotel && (
-              <div className="pl-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre del Hotel <span className="text-gray-400 text-xs">(opcional)</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="ej: Hotel Riu Plaza España"
-                  value={hotelName}
-                  onChange={(e) => setHotelName(e.target.value)}
-                  className="w-full px-4 py-3 focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                  style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
-                />
+              <div className="space-y-3">
+                {hotels.map((hotel, index) => (
+                  <div key={index} className="p-4 rounded-lg" style={{ border: '1px solid #E5E7EB', backgroundColor: '#f9fafb' }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-semibold text-gray-600">Hotel {index + 1}</span>
+                      {hotels.length > 1 && (
+                        <button
+                          onClick={() => handleRemoveHotel(index)}
+                          className="p-1 hover:bg-red-50 rounded transition-colors"
+                          title="Eliminar hotel"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        placeholder="Nombre del hotel (opcional)"
+                        value={hotel.name}
+                        onChange={(e) => handleHotelChange(index, 'name', e.target.value)}
+                        className="w-full px-3 py-2 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
+                      />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Check-in</label>
+                          <input
+                            type="date"
+                            value={hotel.checkIn}
+                            onChange={(e) => handleHotelChange(index, 'checkIn', e.target.value)}
+                            className="w-full px-3 py-2 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                            style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Check-out</label>
+                          <input
+                            type="date"
+                            value={hotel.checkOut}
+                            onChange={(e) => handleHotelChange(index, 'checkOut', e.target.value)}
+                            min={hotel.checkIn}
+                            className="w-full px-3 py-2 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                            style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Botón Añadir Hotel */}
+                <div className="relative group">
+                  <button
+                    onClick={handleAddHotel}
+                    disabled={!isPlusUser}
+                    className={`w-full p-3 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                      isPlusUser 
+                        ? 'border-2 border-dashed border-[#3ccca4] text-[#3ccca4] hover:bg-[#e8f7f2] cursor-pointer' 
+                        : 'border-2 border-dashed border-gray-300 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="text-sm font-medium">Añadir otro hotel</span>
+                    {!isPlusUser && (
+                      <span className="ml-2 px-2 py-0.5 text-[10px] font-bold rounded" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000' }}>
+                        PLUS
+                      </span>
+                    )}
+                  </button>
+                  {!isPlusUser && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                      Función exclusiva de Plan PLUS
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
             {!hasHotel && (
-              <div className="pl-4 space-y-3">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+              <div className="space-y-2 mt-3">
+                <label className="block text-xs font-semibold text-gray-600 mb-2">
                   Categoría de Hotel
                 </label>
                 
-                {/* Opción Standard (Basic y Plus) */}
-                <label className="flex items-center justify-between gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="hotelCategory"
-                      value="standard"
-                      checked={hotelCategory === 'standard'}
-                      onChange={(e) => setHotelCategory(e.target.value)}
-                      className="w-4 h-4 accent-[#3ccca4]"
-                    />
-                    <span className="text-gray-700">Estándar (3-4 estrellas)</span>
-                  </div>
-                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center justify-between gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="hotelCategory"
+                        value="standard"
+                        checked={hotelCategory === 'standard'}
+                        onChange={(e) => setHotelCategory(e.target.value)}
+                        className="w-4 h-4 accent-[#3ccca4]"
+                      />
+                      <span className="text-sm text-gray-700">Estándar (3-4 estrellas)</span>
+                    </div>
+                  </label>
 
-                {/* Opciones Plus */}
-                {['boutique', 'luxury', 'hostel', 'apartment'].map((category) => {
-                  const labels = {
-                    boutique: 'Boutique',
-                    luxury: 'Lujo 5★',
-                    hostel: 'Hostal con encanto',
-                    apartment: 'Apartamento'
-                  };
-                  
-                  return (
-                    <label 
-                      key={category}
-                      className={`flex items-center justify-between gap-3 p-4 rounded-lg transition-colors ${isPlusUser ? 'cursor-pointer hover:bg-gray-50' : 'opacity-50 cursor-not-allowed bg-gray-50'}`} 
-                      style={{ border: '1px solid #E5E7EB' }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="hotelCategory"
-                          value={category}
-                          checked={hotelCategory === category}
-                          onChange={(e) => setHotelCategory(e.target.value)}
-                          disabled={!isPlusUser}
-                          className="w-4 h-4 accent-[#3ccca4]"
-                        />
-                        <span className="text-gray-700">{labels[category]}</span>
-                      </div>
-                      {!isPlusUser && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold rounded" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000' }}>
-                          PLUS
-                        </span>
-                      )}
-                    </label>
-                  );
-                })}
+                  {['boutique', 'luxury', 'hostel', 'apartment'].map((category) => {
+                    const labels = {
+                      boutique: 'Boutique',
+                      luxury: 'Lujo 5★',
+                      hostel: 'Hostal con encanto',
+                      apartment: 'Apartamento'
+                    };
+                    
+                    return (
+                      <label 
+                        key={category}
+                        className={`flex items-center justify-between gap-3 p-3 rounded-lg transition-colors ${isPlusUser ? 'cursor-pointer hover:bg-gray-50' : 'opacity-50 cursor-not-allowed bg-gray-50'}`} 
+                        style={{ border: '1px solid #E5E7EB' }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="radio"
+                            name="hotelCategory"
+                            value={category}
+                            checked={hotelCategory === category}
+                            onChange={(e) => setHotelCategory(e.target.value)}
+                            disabled={!isPlusUser}
+                            className="w-4 h-4 accent-[#3ccca4]"
+                          />
+                          <span className="text-sm text-gray-700">{labels[category]}</span>
+                        </div>
+                        {!isPlusUser && (
+                          <span className="px-2 py-0.5 text-[10px] font-semibold rounded" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000' }}>
+                            PLUS
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
 
-          {/* Divider con más espacio */}
+          {/* Divider */}
           <div style={{ borderTop: '1px solid #E5E7EB' }} />
 
-          {/* BLOQUE 3: HAZLO A TU GUSTO - REDISEÑADO PROFESIONAL */}
-          <div className="space-y-5">
+          {/* BLOQUE 3: HAZLO A TU GUSTO - Rediseño Compacto */}
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${isPlusUser ? '' : 'bg-gray-100'}`} style={isPlusUser ? { backgroundColor: '#e8f7f2' } : {}}>
-                  <Sparkles className="w-6 h-6" style={{ color: isPlusUser ? '#3ccca4' : '#9ca3af' }} />
+                <div className={`p-2.5 rounded-lg ${isPlusUser ? '' : 'bg-gray-100'}`} style={isPlusUser ? { backgroundColor: '#e8f7f2' } : {}}>
+                  <Sparkles className="w-5 h-5" style={{ color: isPlusUser ? '#3ccca4' : '#9ca3af' }} />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold" style={{ color: isPlusUser ? '#052c4e' : '#6b7280' }}>
+                  <h4 className="text-lg font-bold" style={{ color: isPlusUser ? '#052c4e' : '#6b7280' }}>
                     Hazlo a tu gusto
                   </h4>
-                  <p className="text-sm text-gray-500">Personaliza actividades y ritmo del viaje</p>
+                  <p className="text-xs text-gray-500">Actividades y ritmo personalizados</p>
                 </div>
               </div>
               {isPlusUser && (
-                <span className="px-3 py-1 text-xs font-bold rounded-full" style={{ 
+                <span className="px-2 py-1 text-[10px] font-bold rounded-full" style={{ 
                   background: 'linear-gradient(135deg, #FFD700, #FFA500)',
                   color: '#000'
                 }}>
@@ -365,134 +414,81 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
             </div>
 
             {!isPlusUser ? (
-              // VERSIÓN BASIC - Diseño Premium Bloqueado
-              <div className="relative overflow-hidden rounded-xl" style={{ border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' }}>
-                {/* Contenido simulado borroso */}
-                <div className="p-6 space-y-6 filter blur-sm pointer-events-none">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-lg" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-5 h-5 rounded bg-gray-300"></div>
-                        <span className="text-sm text-gray-600">🏔️ Aventura</span>
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-lg" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-5 h-5 rounded bg-gray-300"></div>
-                        <span className="text-sm text-gray-600">🏛️ Cultura</span>
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-lg" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-5 h-5 rounded bg-gray-300"></div>
-                        <span className="text-sm text-gray-600">🍷 Gastronomía</span>
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-lg" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-5 h-5 rounded bg-gray-300"></div>
-                        <span className="text-sm text-gray-600">🧘 Relax</span>
-                      </div>
-                    </div>
+              // Banner Compacto para Basic
+              <div className="p-4 rounded-xl flex items-center justify-between gap-4" style={{ backgroundColor: '#fffbeb', border: '1px solid #fde047' }}>
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="p-2 rounded-full" style={{ backgroundColor: '#fef3c7' }}>
+                    <Crown className="w-5 h-5" style={{ color: '#f59e0b' }} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-800">Personalización Completa</p>
+                    <p className="text-xs text-gray-600">Primer viaje gratis • Solo 1€/mes</p>
                   </div>
                 </div>
-
-                {/* Overlay Central */}
-                <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.95)' }}>
-                  <div className="text-center px-6 py-8 max-w-md">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FEF3C7' }}>
-                      <Lock className="w-8 h-8" style={{ color: '#F59E0B' }} />
-                    </div>
-                    <h5 className="text-lg font-bold mb-2" style={{ color: '#052c4e' }}>
-                      Desbloquea la Personalización Completa
-                    </h5>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Elige tus actividades favoritas y ajusta el ritmo del viaje según tus preferencias
-                    </p>
-                    <div className="flex items-center justify-center gap-2 mb-6">
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Check className="w-4 h-4 text-[#3ccca4]" />
-                        <span>Primer viaje gratis</span>
-                      </div>
-                      <span className="text-gray-300">•</span>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Check className="w-4 h-4 text-[#3ccca4]" />
-                        <span>Solo 1€/mes</span>
-                      </div>
-                    </div>
-                    <button
-                      className="w-full px-6 py-3 font-bold text-white rounded-lg hover:shadow-xl transition-all"
-                      style={{ backgroundColor: '#3ccca4' }}
-                      onClick={() => alert('🚀 Próximamente: Activar Plan PLUS')}
-                    >
-                      Activar Plan PLUS
-                    </button>
-                  </div>
-                </div>
+                <button
+                  className="px-4 py-2 font-bold text-sm text-white rounded-lg hover:shadow-lg transition-all whitespace-nowrap"
+                  style={{ backgroundColor: '#3ccca4' }}
+                  onClick={() => alert('🚀 Próximamente: Activar Plan PLUS')}
+                >
+                  Activar PLUS
+                </button>
               </div>
             ) : (
-              // VERSIÓN PLUS - Contenido Desbloqueado Profesional
-              <div className="space-y-6 pl-4">
-                {/* Tipo de Actividades */}
+              // Contenido Plus Compacto
+              <div className="space-y-5">
+                {/* Actividades */}
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold text-gray-700">
+                  <label className="block text-xs font-semibold text-gray-600">
                     Tipo de Actividades
                   </label>
-                  <p className="text-xs text-gray-500 mb-3">Selecciona tus intereses y adaptaremos el itinerario</p>
                   
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2">
                     {[
-                      { key: 'adventure', emoji: '🏔️', label: 'Aventura', desc: 'Rafting, Buceo, Kayak' },
-                      { key: 'culture', emoji: '🏛️', label: 'Cultura', desc: 'Museos, Historia, Arte' },
-                      { key: 'gastronomy', emoji: '🍷', label: 'Gastronomía', desc: 'Catas, Tours Culinarios' },
-                      { key: 'relax', emoji: '🧘', label: 'Relax', desc: 'Spa, Playas, Wellness' }
-                    ].map(({ key, emoji, label, desc }) => (
+                      { key: 'adventure', emoji: '🏔️', label: 'Aventura' },
+                      { key: 'culture', emoji: '🏛️', label: 'Cultura' },
+                      { key: 'gastronomy', emoji: '🍷', label: 'Gastronomía' },
+                      { key: 'relax', emoji: '🧘', label: 'Relax' }
+                    ].map(({ key, emoji, label }) => (
                       <label 
                         key={key}
-                        className={`p-4 rounded-lg cursor-pointer transition-all ${
+                        className={`p-3 rounded-lg cursor-pointer transition-all ${
                           activityPreferences[key] 
-                            ? 'bg-[#e8f7f2] border-2 border-[#3ccca4] shadow-sm' 
+                            ? 'bg-[#e8f7f2] border-2 border-[#3ccca4]' 
                             : 'bg-white hover:bg-gray-50 border border-gray-200'
                         }`}
                       >
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-center gap-2">
                           <input
                             type="checkbox"
                             checked={activityPreferences[key]}
                             onChange={() => handleActivityPreferenceToggle(key)}
-                            className="mt-1 w-5 h-5 accent-[#3ccca4]"
+                            className="w-4 h-4 accent-[#3ccca4]"
                           />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-lg">{emoji}</span>
-                              <span className="text-sm font-semibold text-gray-800">{label}</span>
-                            </div>
-                            <p className="text-xs text-gray-500">{desc}</p>
-                          </div>
+                          <span className="text-base">{emoji}</span>
+                          <span className="text-xs font-semibold text-gray-700">{label}</span>
                         </div>
                       </label>
                     ))}
                   </div>
                 </div>
 
-                {/* Ritmo del Viaje */}
+                {/* Ritmo */}
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold text-gray-700">
+                  <label className="block text-xs font-semibold text-gray-600">
                     Ritmo del Viaje
                   </label>
-                  <p className="text-xs text-gray-500 mb-3">¿Cómo prefieres disfrutar tu viaje?</p>
                   
                   <div className="space-y-2">
                     {[
-                      { value: 'intense', emoji: '⚡', label: 'Intenso', desc: 'Ver todo, actividades encadenadas' },
-                      { value: 'balanced', emoji: '⚖️', label: 'Equilibrado', desc: 'Mezcla de actividades y descanso' },
-                      { value: 'relaxed', emoji: '🌴', label: 'Relajado', desc: 'Sin prisas, tiempo para disfrutar' }
-                    ].map(({ value, emoji, label, desc }) => (
+                      { value: 'intense', emoji: '⚡', label: 'Intenso' },
+                      { value: 'balanced', emoji: '⚖️', label: 'Equilibrado' },
+                      { value: 'relaxed', emoji: '🌴', label: 'Relajado' }
+                    ].map(({ value, emoji, label }) => (
                       <label 
                         key={value}
-                        className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all ${
+                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
                           pace === value 
-                            ? 'bg-[#e8f7f2] border-2 border-[#3ccca4] shadow-sm' 
+                            ? 'bg-[#e8f7f2] border-2 border-[#3ccca4]' 
                             : 'bg-white hover:bg-gray-50 border border-gray-200'
                         }`}
                       >
@@ -502,15 +498,10 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
                           value={value}
                           checked={pace === value}
                           onChange={(e) => setPace(e.target.value)}
-                          className="w-5 h-5 accent-[#3ccca4]"
+                          className="w-4 h-4 accent-[#3ccca4]"
                         />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-lg">{emoji}</span>
-                            <span className="text-sm font-semibold text-gray-800">{label}</span>
-                          </div>
-                          <p className="text-xs text-gray-500">{desc}</p>
-                        </div>
+                        <span className="text-base">{emoji}</span>
+                        <span className="text-sm font-semibold text-gray-700">{label}</span>
                       </label>
                     ))}
                   </div>
@@ -521,7 +512,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white px-8 py-5 flex justify-end gap-3" style={{ borderTop: '1px solid #E5E7EB' }}>
+        <div className="sticky bottom-0 bg-white px-8 py-4 flex justify-end gap-3" style={{ borderTop: '1px solid #E5E7EB' }}>
           <button
             onClick={onClose}
             className="px-6 py-2.5 font-medium text-gray-700 hover:bg-gray-50 transition-colors"
