@@ -207,8 +207,22 @@ JSON:"""
         start = datetime.strptime(start_date, '%Y-%m-%d')
         days_list = []
         
+        # Determinar nombre del hotel para recomendaciones
+        recommended_hotel_name = "Hotel Centro Histórico" if needs_hotel_recommendation else None
+        
         for day_num in range(total_days):
             current_date = (start + timedelta(days=day_num)).strftime('%Y-%m-%d')
+            
+            # Detectar en qué momento del día comienza (si es día 1 con vuelos)
+            start_moment = "morning"  # Por defecto mañana
+            if day_num == 0 and has_flights and arrival_time:
+                hour = int(arrival_time.split(':')[0])
+                if 12 <= hour < 21:
+                    start_moment = "afternoon"  # TARDE
+                elif 21 <= hour or hour < 6:
+                    start_moment = "night"  # NOCHE
+                else:
+                    start_moment = "morning"  # MAÑANA
             
             # LÓGICA: Día 1 con vuelos
             if day_num == 0 and has_flights and arrival_time:
@@ -259,6 +273,30 @@ JSON:"""
                         "provider": "Civitatis"
                     }
                 ]
+                afternoon_activities = [
+                    {
+                        "time": "14:00",
+                        "title": "Almuerzo",
+                        "description": f"Comida local en {destination}",
+                        "location": "Restaurante La Plaza",
+                        "duration": "1.5h",
+                        "price": 28.00,
+                        "activityId": f"act_1_lunch",
+                        "provider": "GetYourGuide"
+                    }
+                ]
+                night_activities = [
+                    {
+                        "time": "20:00",
+                        "title": "Cena local",
+                        "description": f"Restaurante típico de {destination}",
+                        "location": "Zona gastronómica",
+                        "duration": "2h",
+                        "price": 35.00,
+                        "activityId": f"act_1_dinner",
+                        "provider": "GetYourGuide"
+                    }
+                ]
             else:
                 # Días intermedios
                 morning_activities = [
@@ -271,18 +309,10 @@ JSON:"""
                         "price": 15.00,
                         "activityId": f"act_{day_num+1}_1",
                         "provider": "GetYourGuide"
-                    },
-                    {
-                        "time": "10:30",
-                        "title": f"Tour cultural por {destination}",
-                        "description": "Visita guiada a monumentos principales",
-                        "location": "Plaza Mayor",
-                        "duration": "2.5h",
-                        "price": 45.00,
-                        "activityId": f"act_{day_num+1}_2",
-                        "provider": "Civitatis"
                     }
                 ]
+                afternoon_activities = []
+                night_activities = []
             
             # LÓGICA: Último día con vuelos (termina 3h antes de salida)
             if day_num == total_days - 1 and has_flights and departure_time:
@@ -334,6 +364,20 @@ JSON:"""
                     }
                 ]
             
+            # CAMBIO 5: Si NO tiene hotel, agregar recomendación al final de cada NOCHE
+            if needs_hotel_recommendation and recommended_hotel_name:
+                hotel_activity = {
+                    "time": "23:30",
+                    "title": recommended_hotel_name,
+                    "description": f"Alojamiento recomendado en {destination}. Ubicación estratégica para tu itinerario.",
+                    "location": "Centro de la ciudad",
+                    "duration": "8h",
+                    "price": None,  # Hoteles sin precio
+                    "activityId": f"hotel_day_{day_num+1}",
+                    "provider": "Booking.com"
+                }
+                night_activities.append(hotel_activity)
+            
             days_list.append({
                 "day": day_num + 1,
                 "date": current_date,
@@ -341,38 +385,7 @@ JSON:"""
                     "activities": morning_activities
                 },
                 "afternoon": {
-                    "activities": [
-                        {
-                            "time": "14:00",
-                            "title": "Almuerzo",
-                            "description": f"Comida local en {destination}",
-                            "location": "Restaurante La Plaza",
-                            "duration": "1.5h",
-                            "price": 28.00,
-                            "activityId": f"act_{day_num+1}_lunch",
-                            "provider": "GetYourGuide"
-                        },
-                        {
-                            "time": "16:00",
-                            "title": "Museo o atracción principal",
-                            "description": "Visita cultural de la tarde",
-                            "location": "Museo Nacional",
-                            "duration": "2h",
-                            "price": 18.00,
-                            "activityId": f"act_{day_num+1}_museum",
-                            "provider": "Civitatis"
-                        },
-                        {
-                            "time": "18:30",
-                            "title": "Paseo al atardecer",
-                            "description": f"Caminata por zonas pintorescas de {destination}",
-                            "location": "Mirador panorámico",
-                            "duration": "1.5h",
-                            "price": 12.00,
-                            "activityId": f"act_{day_num+1}_sunset",
-                            "provider": "Viator"
-                        }
-                    ]
+                    "activities": afternoon_activities
                 },
                 "night": {
                     "activities": night_activities
@@ -402,6 +415,87 @@ JSON:"""
             "hotelRecommendation": hotel_rec,
             "days": days_list
         }
+    
+    def _build_context(
+        self,
+        total_days: int,
+        has_flights: bool,
+        arrival_time: Optional[str],
+        departure_time: Optional[str],
+        has_hotel: bool,
+        hotel_name: Optional[str],
+        needs_hotel_recommendation: bool
+    ) -> str:
+        """
+        Construye contexto inteligente para el prompt según las nuevas reglas
+        """
+        parts = []
+        
+        # REGLA 1: Sincronización Temporal con Vuelos
+        if has_flights and arrival_time:
+            parts.append(f"VUELOS RESERVADOS:")
+            parts.append(f"- Hora de llegada (Día 1): {arrival_time}")
+            parts.append(f"- El Día 1 debe comenzar DESPUÉS de la llegada. Incluir traslado del aeropuerto (1-1.5h).")
+            parts.append(f"- Primera actividad turística: aproximadamente {self._add_time(arrival_time, 2)}")
+            
+            if departure_time:
+                parts.append(f"- Hora de salida (Día {total_days}): {departure_time}")
+                parts.append(f"- El último día debe finalizar 3 HORAS ANTES de la salida ({self._subtract_time(departure_time, 3)}).")
+                parts.append(f"- Incluir tiempo para traslado al aeropuerto.")
+        else:
+            # Si NO hay vuelos, el itinerario comienza por defecto 09:00-11:00
+            parts.append(f"SIN VUELOS RESERVADOS:")
+            parts.append(f"- El Día 1 debe comenzar entre las 09:00 y 11:00 AM.")
+            parts.append(f"- El último día puede extenderse hasta las 20:00-21:00.")
+        
+        # REGLA 2: Radio de Acción (Hoteles)
+        if has_hotel and hotel_name:
+            parts.append(f"\nHOTEL RESERVADO:")
+            parts.append(f"- Nombre: {hotel_name}")
+            parts.append(f"- PRIORIZAR actividades en un radio geográfico cercano a este hotel.")
+            parts.append(f"- Optimizar rutas para minimizar desplazamientos.")
+        elif needs_hotel_recommendation:
+            parts.append(f"\nRECOMENDACIÓN DE HOTEL SOLICITADA:")
+            if total_days > 20:
+                parts.append(f"- Recomendar 2-3 hoteles estratégicos (el viaje es de {total_days} días).")
+                parts.append(f"- Justificar brevemente la ubicación de cada hotel.")
+            else:
+                parts.append(f"- Recomendar UN ÚNICO hotel estratégico para todo el viaje.")
+                parts.append(f"- Justificar brevemente por qué esa ubicación es la más estratégica.")
+            parts.append(f"- Incluir esta recomendación en el campo 'hotelRecommendation' del JSON.")
+        
+        return "\n".join(parts) if parts else ""
+    
+    def _clean_json(self, text: str) -> str:
+        """Limpia markdown y extrae JSON válido"""
+        if '```json' in text:
+            start = text.find('```json') + 7
+            end = text.find('```', start)
+            text = text[start:end]
+        elif '```' in text:
+            start = text.find('```') + 3
+            end = text.find('```', start)
+            text = text[start:end]
+        
+        start_brace = text.find('{')
+        end_brace = text.rfind('}') + 1
+        
+        if start_brace != -1 and end_brace > start_brace:
+            return text[start_brace:end_brace]
+        
+        return text
+    
+    def _add_time(self, time_str: str, hours: int) -> str:
+        """Suma horas a formato HH:MM"""
+        time_obj = datetime.strptime(time_str, '%H:%M')
+        new_time = time_obj + timedelta(hours=hours)
+        return new_time.strftime('%H:%M')
+    
+    def _subtract_time(self, time_str: str, hours: int) -> str:
+        """Resta horas a formato HH:MM"""
+        time_obj = datetime.strptime(time_str, '%H:%M')
+        new_time = time_obj - timedelta(hours=hours)
+        return new_time.strftime('%H:%M')
     
     def _build_context(
         self,
