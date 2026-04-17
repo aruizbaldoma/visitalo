@@ -59,7 +59,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
           {/* Separador redondeado */}
           <div className="w-1 flex-shrink-0 relative">
-            <div className="absolute inset-y-1 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
+            <div className="absolute inset-y-0 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
           </div>
 
           {/* Bloque 2: Fechas - Más ancho */}
@@ -121,7 +121,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
           {/* Separador redondeado */}
           <div className="w-1 flex-shrink-0 relative">
-            <div className="absolute inset-y-1 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
+            <div className="absolute inset-y-0 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
           </div>
 
           {/* Bloque 3: Personalizar - Más estrecho */}
@@ -137,17 +137,16 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
           {/* Separador redondeado */}
           <div className="w-1 flex-shrink-0 relative">
-            <div className="absolute inset-y-1 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
+            <div className="absolute inset-y-0 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
           </div>
 
-          {/* Bloque 4: Buscar - Texto azul empresa */}
+          {/* Bloque 4: Buscar - Solo texto azul sin icono */}
           <button
             type="submit"
             disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
-            className="flex-1 flex items-center justify-center gap-3 px-5 py-5 font-bold transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center px-5 py-5 font-bold transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: '#3ccca4', color: '#003580' }}
           >
-            <Search className="w-6 h-6" />
             <span className="whitespace-nowrap">Buscar</span>
           </button>
         </div>
