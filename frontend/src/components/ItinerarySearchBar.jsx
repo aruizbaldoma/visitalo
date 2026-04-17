@@ -41,8 +41,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md overflow-hidden" style={{ border: '4px solid #003580', height: '80px' }}>
-        <div className="flex items-stretch h-full">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md overflow-hidden" style={{ border: '4px solid #003580', height: '80px', minHeight: '80px', maxHeight: '80px' }}>
+        <div className="flex items-stretch" style={{ height: '100%' }}>
           {/* Bloque 1: Destino - Más ancho */}
           <div className="flex-[1.8] flex items-center gap-3 px-5">
             <MapPin className="w-6 h-6 text-gray-400 flex-shrink-0" />
