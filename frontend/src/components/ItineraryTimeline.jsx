@@ -221,23 +221,32 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
 const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete, destination, getActivityType }) => {
   return (
     <div className="relative">
-      {/* Línea de conexión */}
+      {/* Línea de Conexión Mejorada */}
       {!isLast && (
-        <div
-          className="absolute left-8 top-20 bottom-0 w-0.5 -mb-8"
-          style={{ backgroundColor: '#3ccca4', opacity: 0.3 }}
+        <div 
+          className="absolute left-8 top-20 bottom-0 w-1 -mb-8"
+          style={{ 
+            background: 'linear-gradient(180deg, #3ccca4 0%, #2ab88a 50%, #3ccca4 100%)',
+            boxShadow: '0 0 10px rgba(60, 204, 164, 0.3)'
+          }}
         />
       )}
 
-      <div className="bg-white shadow-lg overflow-hidden" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+      <div className="bg-white shadow-lg overflow-hidden relative" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
         {/* Header del Día */}
         <div className="p-6" style={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid #E5E7EB' }}>
           <div className="flex items-center gap-4">
+            {/* Círculo del día mejorado */}
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"
-              style={{ backgroundColor: '#052c4e' }}
+              className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl relative"
+              style={{ 
+                background: 'linear-gradient(135deg, #3ccca4 0%, #2ab88a 100%)',
+                boxShadow: '0 4px 15px rgba(60, 204, 164, 0.4), inset 0 -2px 4px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.3)'
+              }}
             >
-              {day.day}
+              <span style={{ textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+                {day.day}
+              </span>
             </div>
             <div>
               <h3 className="text-2xl font-bold" style={{ color: '#052c4e' }}>

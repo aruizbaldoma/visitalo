@@ -215,6 +215,12 @@ JSON:"""
             
             # Detectar en qué momento del día comienza (si es día 1 con vuelos)
             start_moment = "morning"  # Por defecto mañana
+            
+            # Inicializar listas vacías por defecto
+            morning_activities = []
+            afternoon_activities = []
+            night_activities = []
+            
             if day_num == 0 and has_flights and arrival_time:
                 hour = int(arrival_time.split(':')[0])
                 if 12 <= hour < 21:
