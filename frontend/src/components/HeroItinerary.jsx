@@ -2,42 +2,43 @@ import { ItinerarySearchBar } from "./ItinerarySearchBar";
 
 export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
   return (
-    <div className="relative min-h-[60vh] flex items-center justify-center px-4 py-20"
-      style={{
-        background: 'linear-gradient(135deg, #052c4e 0%, #064a7a 100%)'
-      }}
-    >
+    <div className="relative bg-white py-16 px-4">
       {/* Contenido */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-            Planifica tu Viaje Perfecto
+      <div className="relative z-10 w-full max-w-7xl mx-auto">
+        {/* Textos */}
+        <div className="text-center mb-10">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4" style={{ 
+            color: '#052c4e',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            letterSpacing: '-0.02em'
+          }}>
+            Viaja más gastando menos
           </h1>
-          <p className="text-xl md:text-2xl text-gray-200">
-            Itinerarios personalizados generados con IA
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto" style={{ lineHeight: '1.6' }}>
+            Descubre itinerarios personalizados con IA que maximizan tu experiencia mientras cuidan tu presupuesto
           </p>
         </div>
 
-        {/* Buscador */}
+        {/* Buscador Compacto Estilo Booking */}
         <ItinerarySearchBar 
           onSearch={onSearch} 
           onOpenDetails={onOpenDetails}
           onSearchDataChange={onSearchDataChange}
         />
 
-        {/* Info */}
-        <div className="mt-8 text-center text-gray-300 text-sm">
+        {/* Info adicional */}
+        <div className="mt-6 text-center text-sm text-gray-500">
           <p>
-            Genera itinerarios profesionales organizados por días y momentos del día
+            ✨ Itinerarios profesionales • 🎯 Actividades verificadas • 💰 Ahorra tiempo y dinero
           </p>
         </div>
       </div>
 
-      {/* Decoración de fondo */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#3ccca4] rounded-full filter blur-3xl"></div>
-      </div>
+      {/* Decoración sutil de fondo */}
+      <div className="absolute inset-0 opacity-5" style={{ 
+        background: `radial-gradient(circle at 20% 50%, #3ccca4 0%, transparent 50%), 
+                     radial-gradient(circle at 80% 50%, #052c4e 0%, transparent 50%)`
+      }} />
     </div>
   );
 };

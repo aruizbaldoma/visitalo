@@ -1,20 +1,18 @@
 import { useState } from "react";
-import { MapPin, Calendar, Search, Sparkles } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { MapPin, Calendar, Users, Search } from "lucide-react";
 
 export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
   const [searchData, setSearchData] = useState({
     destination: "",
     startDate: "",
-    endDate: ""
+    endDate: "",
+    travelers: 2
   });
 
   const handleChange = (e) => {
-    const newData = { ...searchData, [e.target.name]: e.target.value };
+    const { name, value } = e.target;
+    const newData = { ...searchData, [name]: value };
     setSearchData(newData);
-    // Notificar al padre sobre los cambios
     if (onSearchDataChange) {
       onSearchDataChange(newData);
     }
@@ -28,109 +26,110 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
   };
 
   return (
-    <div className="w-full bg-white shadow-md" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
-      <form onSubmit={handleSubmit} className="p-6">
-        {/* Layout vertical para mejor responsive */}
-        <div className="space-y-4">
+    <div className="w-full max-w-6xl mx-auto">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-2" style={{ border: '1px solid #E5E7EB' }}>
+        <div className="flex items-center gap-2">
           {/* Destino */}
-          <div>
-            <Label htmlFor="destination" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-              <MapPin className="w-4 h-4" style={{ color: '#3ccca4' }} />
-              Destino
-            </Label>
-            <Input
-              id="destination"
-              type="text"
-              placeholder="¿A dónde viajas?"
-              value={searchData.destination}
-              onChange={(e) => setSearchData({...searchData, destination: e.target.value})}
-              className="w-full border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
-              required
-            />
+          <div className="flex-1 flex items-center gap-2 px-4 py-3 border-r border-gray-200">
+            <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Destino
+              </label>
+              <input
+                type="text"
+                name="destination"
+                placeholder="¿A dónde viajas?"
+                value={searchData.destination}
+                onChange={handleChange}
+                className="w-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+                required
+              />
+            </div>
           </div>
 
-          {/* Grid 2 columnas para fechas en pantallas medianas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Fecha Inicio */}
-            <div className="relative">
-              <Label htmlFor="startDate" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                <Calendar className="w-4 h-4" style={{ color: '#3ccca4' }} />
-                Fecha Ida
-              </Label>
-              <div className="relative">
-                <Input
-                  id="startDate"
+          {/* Fechas (Ida y Vuelta) */}
+          <div className="flex-1 flex items-center gap-2 px-4 py-3 border-r border-gray-200">
+            <Calendar className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            <div className="flex-1 grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Ida
+                </label>
+                <input
                   type="date"
+                  name="startDate"
                   value={searchData.startDate}
-                  onChange={(e) => setSearchData({...searchData, startDate: e.target.value})}
-                  className="w-full border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
+                  onChange={handleChange}
+                  className="w-full text-sm text-gray-800 focus:outline-none"
                   style={{ colorScheme: 'light' }}
                   required
                 />
-                {!searchData.startDate && (
-                  <span 
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"
-                    style={{ fontSize: '14px' }}
-                  >
-                    ¿Cuándo vas?
-                  </span>
-                )}
               </div>
-            </div>
-
-            {/* Fecha Fin */}
-            <div className="relative">
-              <Label htmlFor="endDate" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                <Calendar className="w-4 h-4" style={{ color: '#3ccca4' }} />
-                Fecha Vuelta
-              </Label>
-              <div className="relative">
-                <Input
-                  id="endDate"
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Vuelta
+                </label>
+                <input
                   type="date"
+                  name="endDate"
                   value={searchData.endDate}
                   min={searchData.startDate}
-                  onChange={(e) => setSearchData({...searchData, endDate: e.target.value})}
-                  className="w-full border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
+                  onChange={handleChange}
+                  className="w-full text-sm text-gray-800 focus:outline-none"
                   style={{ colorScheme: 'light' }}
                   required
                 />
-                {!searchData.endDate && (
-                  <span 
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"
-                    style={{ fontSize: '14px' }}
-                  >
-                    ¿Cuándo vuelves?
-                  </span>
-                )}
               </div>
             </div>
           </div>
 
-          {/* Botones en grid - 2 columnas */}
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onOpenDetails}
-              className="w-full"
-              style={{ borderRadius: '8px' }}
-              title="Personaliza tu viaje con preferencias avanzadas"
-            >
-              <Sparkles className="w-4 h-4 mr-2" style={{ color: '#3ccca4' }} />
-              <span>Personaliza</span>
-            </Button>
+          {/* Personas */}
+          <div className="flex items-center gap-2 px-4 py-3 border-r border-gray-200">
+            <Users className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Viajeros
+              </label>
+              <select
+                name="travelers"
+                value={searchData.travelers}
+                onChange={handleChange}
+                className="text-sm text-gray-800 focus:outline-none cursor-pointer"
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                  <option key={num} value={num}>
+                    {num} {num === 1 ? 'persona' : 'personas'}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-            <Button
+          {/* Botón Buscar Integrado */}
+          <div className="flex items-center gap-2 pl-2">
+            <button
               type="submit"
               disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
-              className="w-full font-bold"
-              style={{ backgroundColor: '#3ccca4', color: 'white', borderRadius: '8px' }}
+              className="px-8 py-4 font-bold text-white rounded-md transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              style={{ backgroundColor: '#3ccca4' }}
             >
-              <Search className="w-4 h-4 mr-2" />
-              Generar
-            </Button>
+              <Search className="w-5 h-5" />
+              <span className="whitespace-nowrap">Buscar</span>
+            </button>
           </div>
+        </div>
+
+        {/* Link Personalizar */}
+        <div className="mt-3 text-center">
+          <button
+            type="button"
+            onClick={onOpenDetails}
+            className="text-sm font-medium hover:underline"
+            style={{ color: '#3ccca4' }}
+          >
+            + Personalizar mi viaje (vuelos, hotel, preferencias)
+          </button>
         </div>
       </form>
     </div>
