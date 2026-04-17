@@ -12,6 +12,7 @@ import uuid
 from datetime import datetime, timezone
 # from services.gemini_service import GeminiTravelService  # Deprecated - usar itinerary_service
 from routes.itinerary_routes import itinerary_router
+from routes.auth_routes import auth_router
 
 
 ROOT_DIR = Path(__file__).parent
@@ -103,9 +104,15 @@ async def get_status_checks():
 # async def search_trips(search_request: TravelSearchRequest):
 #     ...endpoint comentado temporalmente...
 
-# Include the router in the main app
+# Include the routers in the main app
 app.include_router(api_router)
-app.include_router(itinerary_router, prefix="/api")  # Nuevo router para itinerarios profesionales
+app.include_router(itinerary_router, prefix="/api")
+app.include_router(auth_router, prefix="/api/auth")  # Rutas de autenticación
+
+# Almacenar DB en app.state para acceso en dependencies
+@app.on_event("startup")
+async def startup_db():
+    app.state.db = db
 
 app.add_middleware(
     CORSMiddleware,
