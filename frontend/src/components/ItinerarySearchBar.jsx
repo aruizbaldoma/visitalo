@@ -40,7 +40,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="w-full">
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md overflow-hidden" style={{ border: '4px solid #003580' }}>
         <div className="flex items-stretch">
           {/* Bloque 1: Destino - Más ancho */}
@@ -144,8 +144,13 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
           <button
             type="submit"
             disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
-            className="flex-1 flex items-center justify-center px-5 py-5 font-bold transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: '#3ccca4', color: '#003580' }}
+            className="flex-1 flex items-center justify-center px-5 py-5 font-bold transition-all hover:opacity-90"
+            style={{ 
+              backgroundColor: '#3ccca4', 
+              color: '#003580',
+              opacity: (!searchData.destination || !searchData.startDate || !searchData.endDate) ? 0.5 : 1,
+              cursor: (!searchData.destination || !searchData.startDate || !searchData.endDate) ? 'not-allowed' : 'pointer'
+            }}
           >
             <span className="whitespace-nowrap">Buscar</span>
           </button>
