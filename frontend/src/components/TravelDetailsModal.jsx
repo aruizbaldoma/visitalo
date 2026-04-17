@@ -1,10 +1,12 @@
-import { X, Plane, Hotel, Sparkles, Lock } from "lucide-react";
+import { X, Plane, Hotel, Sparkles, Lock, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDate, endDate, userPlan = 'basic' }) => {
   // Estado de Vuelos
   const [hasFlights, setHasFlights] = useState(false);
+  const [arrivalDate, setArrivalDate] = useState(startDate || "");
   const [arrivalTime, setArrivalTime] = useState("09:00");
+  const [departureDate, setDepartureDate] = useState(endDate || "");
   const [departureTime, setDepartureTime] = useState("18:00");
   
   // Estado de Alojamiento
@@ -31,16 +33,24 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
     return date.toLocaleDateString('es-ES', options);
   };
 
+  // Sincronizar fechas del buscador cuando cambian
+  useEffect(() => {
+    if (startDate) setArrivalDate(startDate);
+    if (endDate) setDepartureDate(endDate);
+  }, [startDate, endDate]);
+
   // Resetear estados cuando se abra/cierre el modal
   useEffect(() => {
     if (!hasFlights) {
+      setArrivalDate(startDate || "");
       setArrivalTime("09:00");
+      setDepartureDate(endDate || "");
       setDepartureTime("18:00");
     }
     if (!hasHotel) {
       setHotelName("");
     }
-  }, [hasFlights, hasHotel]);
+  }, [hasFlights, hasHotel, startDate, endDate]);
 
   const handleActivityPreferenceToggle = (key) => {
     if (!isPlusUser) return;
@@ -53,7 +63,9 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
   const handleSave = () => {
     const details = {
       hasFlights,
+      arrivalDate: hasFlights ? arrivalDate : null,
       arrivalTime: hasFlights ? arrivalTime : null,
+      departureDate: hasFlights ? departureDate : null,
       departureTime: hasFlights ? departureTime : null,
       hasHotel,
       hotelName: hasHotel ? hotelName : null,
@@ -101,7 +113,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
         {/* Content - Mayor padding entre bloques */}
         <div className="px-8 py-8 space-y-10">
           
-          {/* BLOQUE 1: VUELOS - Rediseñado */}
+          {/* BLOQUE 1: VUELOS - Con Fechas y Horas */}
           <div className="space-y-5">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
@@ -137,55 +149,76 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
 
             {hasFlights && (
               <div className="space-y-6 pl-4">
-                {/* Llegada - Diseño Timeline minimalista */}
+                {/* Llegada */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">✈️</span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-700">¿Cuándo aterrizas?</p>
-                      {startDate && (
-                        <p className="text-xs text-gray-500 capitalize">{formatDate(startDate)}</p>
-                      )}
-                    </div>
+                    <p className="text-sm font-semibold text-gray-700">¿Cuándo aterrizas?</p>
                   </div>
                   
-                  <div className="pl-10">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Hora de llegada</label>
-                    <input
-                      type="time"
-                      value={arrivalTime}
-                      onChange={(e) => setArrivalTime(e.target.value)}
-                      className="w-full px-4 py-3 text-lg font-semibold focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                      style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
-                    />
+                  <div className="pl-10 grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de llegada</label>
+                      <input
+                        type="date"
+                        value={arrivalDate}
+                        onChange={(e) => setArrivalDate(e.target.value)}
+                        className="w-full px-4 py-3 text-base focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Hora de llegada</label>
+                      <input
+                        type="time"
+                        value={arrivalTime}
+                        onChange={(e) => setArrivalTime(e.target.value)}
+                        className="w-full px-4 py-3 text-lg font-semibold focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
+                      />
+                    </div>
                   </div>
+                  {arrivalDate && (
+                    <p className="text-xs text-gray-500 pl-10 italic capitalize">{formatDate(arrivalDate)}</p>
+                  )}
                 </div>
 
                 {/* Línea de tiempo visual */}
                 <div className="pl-6 border-l-2 border-dashed border-gray-300 h-8"></div>
 
-                {/* Salida - Diseño Timeline minimalista */}
+                {/* Salida */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">🛫</span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-700">¿Cuándo despega tu vuelo de vuelta?</p>
-                      {endDate && (
-                        <p className="text-xs text-gray-500 capitalize">{formatDate(endDate)}</p>
-                      )}
-                    </div>
+                    <p className="text-sm font-semibold text-gray-700">¿Cuándo despega tu vuelo de vuelta?</p>
                   </div>
                   
-                  <div className="pl-10">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Hora de salida</label>
-                    <input
-                      type="time"
-                      value={departureTime}
-                      onChange={(e) => setDepartureTime(e.target.value)}
-                      className="w-full px-4 py-3 text-lg font-semibold focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                      style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
-                    />
+                  <div className="pl-10 grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de salida</label>
+                      <input
+                        type="date"
+                        value={departureDate}
+                        onChange={(e) => setDepartureDate(e.target.value)}
+                        min={arrivalDate}
+                        className="w-full px-4 py-3 text-base focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Hora de salida</label>
+                      <input
+                        type="time"
+                        value={departureTime}
+                        onChange={(e) => setDepartureTime(e.target.value)}
+                        className="w-full px-4 py-3 text-lg font-semibold focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
+                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}
+                      />
+                    </div>
                   </div>
+                  {departureDate && (
+                    <p className="text-xs text-gray-500 pl-10 italic capitalize">{formatDate(departureDate)}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -194,7 +227,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
           {/* Divider con más espacio */}
           <div style={{ borderTop: '1px solid #E5E7EB' }} />
 
-          {/* BLOQUE 2: ALOJAMIENTO - Simplificado */}
+          {/* BLOQUE 2: ALOJAMIENTO */}
           <div className="space-y-5">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
@@ -265,7 +298,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
                   </div>
                 </label>
 
-                {/* Opciones Plus - Más sutiles */}
+                {/* Opciones Plus */}
                 {['boutique', 'luxury', 'hostel', 'apartment'].map((category) => {
                   const labels = {
                     boutique: 'Boutique',
@@ -307,149 +340,187 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
           {/* Divider con más espacio */}
           <div style={{ borderTop: '1px solid #E5E7EB' }} />
 
-          {/* BLOQUE 3: HAZLO A TU GUSTO (El Factor WOW) */}
-          <div className={`space-y-5 ${!isPlusUser ? 'relative' : ''}`}>
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${isPlusUser ? '' : 'bg-gray-200'}`} style={isPlusUser ? { backgroundColor: '#e8f7f2' } : {}}>
-                <Sparkles className="w-6 h-6" style={{ color: isPlusUser ? '#3ccca4' : '#9ca3af' }} />
+          {/* BLOQUE 3: HAZLO A TU GUSTO - REDISEÑADO PROFESIONAL */}
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${isPlusUser ? '' : 'bg-gray-100'}`} style={isPlusUser ? { backgroundColor: '#e8f7f2' } : {}}>
+                  <Sparkles className="w-6 h-6" style={{ color: isPlusUser ? '#3ccca4' : '#9ca3af' }} />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold" style={{ color: isPlusUser ? '#052c4e' : '#6b7280' }}>
+                    Hazlo a tu gusto
+                  </h4>
+                  <p className="text-sm text-gray-500">Personaliza actividades y ritmo del viaje</p>
+                </div>
               </div>
-              <h4 className="text-xl font-bold flex items-center gap-2" style={{ color: isPlusUser ? '#052c4e' : '#9ca3af' }}>
-                Hazlo a tu gusto
-                {isPlusUser && (
-                  <span className="px-2 py-1 text-xs font-bold rounded-full" style={{ 
-                    background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                    color: '#000'
-                  }}>
-                    PLUS
-                  </span>
-                )}
-              </h4>
+              {isPlusUser && (
+                <span className="px-3 py-1 text-xs font-bold rounded-full" style={{ 
+                  background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                  color: '#000'
+                }}>
+                  PLUS
+                </span>
+              )}
             </div>
 
             {!isPlusUser ? (
-              // Overlay elegante para usuarios Basic
-              <div className="relative p-8 rounded-xl" style={{ border: '2px dashed #d1d5db', backgroundColor: '#f9fafb' }}>
-                <div className="text-center space-y-4">
-                  <Lock className="w-10 h-10 mx-auto text-gray-400" />
-                  <p className="text-base font-semibold text-gray-700">
-                    Personaliza tus hobbies e intereses para un itinerario único
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Obtén PLUS con tu primer viaje o por solo 1€/mes
-                  </p>
-                  <button
-                    className="px-8 py-3 font-bold text-black rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
-                    style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)' }}
-                    onClick={() => alert('🚀 Próximamente: Sistema de suscripción PLUS')}
-                  >
-                    Desbloquear PLUS
-                  </button>
+              // VERSIÓN BASIC - Diseño Premium Bloqueado
+              <div className="relative overflow-hidden rounded-xl" style={{ border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' }}>
+                {/* Contenido simulado borroso */}
+                <div className="p-6 space-y-6 filter blur-sm pointer-events-none">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-5 h-5 rounded bg-gray-300"></div>
+                        <span className="text-sm text-gray-600">🏔️ Aventura</span>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-5 h-5 rounded bg-gray-300"></div>
+                        <span className="text-sm text-gray-600">🏛️ Cultura</span>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-5 h-5 rounded bg-gray-300"></div>
+                        <span className="text-sm text-gray-600">🍷 Gastronomía</span>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-5 h-5 rounded bg-gray-300"></div>
+                        <span className="text-sm text-gray-600">🧘 Relax</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Overlay Central */}
+                <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(255, 255, 255, 0.95)' }}>
+                  <div className="text-center px-6 py-8 max-w-md">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FEF3C7' }}>
+                      <Lock className="w-8 h-8" style={{ color: '#F59E0B' }} />
+                    </div>
+                    <h5 className="text-lg font-bold mb-2" style={{ color: '#052c4e' }}>
+                      Desbloquea la Personalización Completa
+                    </h5>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Elige tus actividades favoritas y ajusta el ritmo del viaje según tus preferencias
+                    </p>
+                    <div className="flex items-center justify-center gap-2 mb-6">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Check className="w-4 h-4 text-[#3ccca4]" />
+                        <span>Primer viaje gratis</span>
+                      </div>
+                      <span className="text-gray-300">•</span>
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Check className="w-4 h-4 text-[#3ccca4]" />
+                        <span>Solo 1€/mes</span>
+                      </div>
+                    </div>
+                    <button
+                      className="w-full px-6 py-3 font-bold text-white rounded-lg hover:shadow-xl transition-all"
+                      style={{ backgroundColor: '#3ccca4' }}
+                      onClick={() => alert('🚀 Próximamente: Activar Plan PLUS')}
+                    >
+                      Activar Plan PLUS
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
-              // Contenido Plus - Rejilla de 2 columnas
+              // VERSIÓN PLUS - Contenido Desbloqueado Profesional
               <div className="space-y-6 pl-4">
-                <p className="text-sm text-gray-600 italic">
-                  Personaliza tus hobbies e intereses para un itinerario único
-                </p>
-                
-                {/* Actividades - Grid 2 columnas */}
+                {/* Tipo de Actividades */}
                 <div className="space-y-3">
                   <label className="block text-sm font-semibold text-gray-700">
                     Tipo de Actividades
                   </label>
+                  <p className="text-xs text-gray-500 mb-3">Selecciona tus intereses y adaptaremos el itinerario</p>
                   
                   <div className="grid grid-cols-2 gap-3">
-                    <label className="flex items-center gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-                      <input
-                        type="checkbox"
-                        checked={activityPreferences.adventure}
-                        onChange={() => handleActivityPreferenceToggle('adventure')}
-                        className="w-5 h-5 accent-[#3ccca4]"
-                      />
-                      <span className="text-gray-700 text-sm">🏔️ Aventura</span>
-                    </label>
-
-                    <label className="flex items-center gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-                      <input
-                        type="checkbox"
-                        checked={activityPreferences.culture}
-                        onChange={() => handleActivityPreferenceToggle('culture')}
-                        className="w-5 h-5 accent-[#3ccca4]"
-                      />
-                      <span className="text-gray-700 text-sm">🏛️ Cultura</span>
-                    </label>
-
-                    <label className="flex items-center gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-                      <input
-                        type="checkbox"
-                        checked={activityPreferences.gastronomy}
-                        onChange={() => handleActivityPreferenceToggle('gastronomy')}
-                        className="w-5 h-5 accent-[#3ccca4]"
-                      />
-                      <span className="text-gray-700 text-sm">🍷 Gastronomía</span>
-                    </label>
-
-                    <label className="flex items-center gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-                      <input
-                        type="checkbox"
-                        checked={activityPreferences.relax}
-                        onChange={() => handleActivityPreferenceToggle('relax')}
-                        className="w-5 h-5 accent-[#3ccca4]"
-                      />
-                      <span className="text-gray-700 text-sm">🧘 Relax</span>
-                    </label>
+                    {[
+                      { key: 'adventure', emoji: '🏔️', label: 'Aventura', desc: 'Rafting, Buceo, Kayak' },
+                      { key: 'culture', emoji: '🏛️', label: 'Cultura', desc: 'Museos, Historia, Arte' },
+                      { key: 'gastronomy', emoji: '🍷', label: 'Gastronomía', desc: 'Catas, Tours Culinarios' },
+                      { key: 'relax', emoji: '🧘', label: 'Relax', desc: 'Spa, Playas, Wellness' }
+                    ].map(({ key, emoji, label, desc }) => (
+                      <label 
+                        key={key}
+                        className={`p-4 rounded-lg cursor-pointer transition-all ${
+                          activityPreferences[key] 
+                            ? 'bg-[#e8f7f2] border-2 border-[#3ccca4] shadow-sm' 
+                            : 'bg-white hover:bg-gray-50 border border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={activityPreferences[key]}
+                            onChange={() => handleActivityPreferenceToggle(key)}
+                            className="mt-1 w-5 h-5 accent-[#3ccca4]"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-lg">{emoji}</span>
+                              <span className="text-sm font-semibold text-gray-800">{label}</span>
+                            </div>
+                            <p className="text-xs text-gray-500">{desc}</p>
+                          </div>
+                        </div>
+                      </label>
+                    ))}
                   </div>
                 </div>
 
-                {/* Ritmo - Lista vertical */}
+                {/* Ritmo del Viaje */}
                 <div className="space-y-3">
                   <label className="block text-sm font-semibold text-gray-700">
                     Ritmo del Viaje
                   </label>
+                  <p className="text-xs text-gray-500 mb-3">¿Cómo prefieres disfrutar tu viaje?</p>
                   
-                  <label className="flex items-center gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-                    <input
-                      type="radio"
-                      name="pace"
-                      value="intense"
-                      checked={pace === 'intense'}
-                      onChange={(e) => setPace(e.target.value)}
-                      className="w-4 h-4 accent-[#3ccca4]"
-                    />
-                    <span className="text-gray-700 text-sm">⚡ Intenso (Ver todo)</span>
-                  </label>
-
-                  <label className="flex items-center gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-                    <input
-                      type="radio"
-                      name="pace"
-                      value="balanced"
-                      checked={pace === 'balanced'}
-                      onChange={(e) => setPace(e.target.value)}
-                      className="w-4 h-4 accent-[#3ccca4]"
-                    />
-                    <span className="text-gray-700 text-sm">⚖️ Equilibrado</span>
-                  </label>
-
-                  <label className="flex items-center gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-                    <input
-                      type="radio"
-                      name="pace"
-                      value="relaxed"
-                      checked={pace === 'relaxed'}
-                      onChange={(e) => setPace(e.target.value)}
-                      className="w-4 h-4 accent-[#3ccca4]"
-                    />
-                    <span className="text-gray-700 text-sm">🌴 Relajado (Sin prisas)</span>
-                  </label>
+                  <div className="space-y-2">
+                    {[
+                      { value: 'intense', emoji: '⚡', label: 'Intenso', desc: 'Ver todo, actividades encadenadas' },
+                      { value: 'balanced', emoji: '⚖️', label: 'Equilibrado', desc: 'Mezcla de actividades y descanso' },
+                      { value: 'relaxed', emoji: '🌴', label: 'Relajado', desc: 'Sin prisas, tiempo para disfrutar' }
+                    ].map(({ value, emoji, label, desc }) => (
+                      <label 
+                        key={value}
+                        className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all ${
+                          pace === value 
+                            ? 'bg-[#e8f7f2] border-2 border-[#3ccca4] shadow-sm' 
+                            : 'bg-white hover:bg-gray-50 border border-gray-200'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="pace"
+                          value={value}
+                          checked={pace === value}
+                          onChange={(e) => setPace(e.target.value)}
+                          className="w-5 h-5 accent-[#3ccca4]"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-lg">{emoji}</span>
+                            <span className="text-sm font-semibold text-gray-800">{label}</span>
+                          </div>
+                          <p className="text-xs text-gray-500">{desc}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Footer - Botones alineados a la derecha */}
+        {/* Footer */}
         <div className="sticky bottom-0 bg-white px-8 py-5 flex justify-end gap-3" style={{ borderTop: '1px solid #E5E7EB' }}>
           <button
             onClick={onClose}
