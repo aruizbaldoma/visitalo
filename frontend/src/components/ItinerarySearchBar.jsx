@@ -140,14 +140,13 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             <div className="absolute inset-y-0 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
           </div>
 
-          {/* Bloque 4: Buscar - Solo texto azul sin icono */}
+          {/* Bloque 4: Buscar - Siempre se ve activo */}
           <button
             type="submit"
             disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
             className="flex-1 flex items-center justify-center px-5 py-5 font-bold transition-all hover:opacity-90"
             style={{ 
               backgroundColor: '#3ccca4',
-              opacity: (!searchData.destination || !searchData.startDate || !searchData.endDate) ? 0.5 : 1,
               cursor: (!searchData.destination || !searchData.startDate || !searchData.endDate) ? 'not-allowed' : 'pointer'
             }}
           >
