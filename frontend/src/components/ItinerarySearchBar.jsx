@@ -30,19 +30,22 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    const date = new Date(dateString);
+    const date = new Date(dateString + 'T00:00:00');
+    const dayOfWeek = date.toLocaleDateString('es-ES', { weekday: 'short' });
     const day = date.getDate();
     const month = date.toLocaleDateString('es-ES', { month: 'short' });
-    return `${day} ${month}`;
+    // Capitalizar primera letra del día
+    const dayCapitalized = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
+    return `${dayCapitalized}, ${day} ${month}`;
   };
 
   return (
     <div className="w-full max-w-7xl mx-auto">
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-3" style={{ border: '3px solid #003580' }}>
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-3" style={{ border: '4px solid #003580' }}>
         <div className="flex items-center gap-0">
-          {/* Destino - Una sola línea */}
-          <div className="flex-1 flex items-center gap-3 px-5 py-4 border-r border-gray-200">
-            <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          {/* Destino - Ligeramente más ancho */}
+          <div className="flex-[1.3] flex items-center gap-3 px-5 py-4 border-r border-gray-200">
+            <MapPin className="w-6 h-6 text-gray-400 flex-shrink-0" />
             <input
               type="text"
               name="destination"
@@ -54,9 +57,9 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             />
           </div>
 
-          {/* Fechas - Una sola línea horizontal (mismo ancho que destino) */}
+          {/* Fechas - Una sola línea horizontal */}
           <div className="flex-1 flex items-center gap-2 px-5 py-4 border-r border-gray-200">
-            <Calendar className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            <Calendar className="w-6 h-6 text-gray-400 flex-shrink-0" />
             
             {/* Llegada - Click directo abre calendario */}
             <div className="flex-1 relative">
@@ -111,29 +114,27 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             </div>
           </div>
 
-          {/* Personalizar (mismo ancho que los otros) */}
+          {/* Personalizar */}
           <div 
             className="flex-1 flex items-center justify-center gap-3 px-5 py-4 border-r border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={onOpenDetails}
           >
-            <Sparkles className="w-5 h-5 flex-shrink-0" style={{ color: '#3ccca4' }} />
+            <Sparkles className="w-6 h-6 flex-shrink-0" style={{ color: '#3ccca4' }} />
             <span className="text-sm font-medium text-gray-800 whitespace-nowrap">
               Personalizar
             </span>
           </div>
 
-          {/* Botón Buscar */}
-          <div className="flex items-center pl-2">
-            <button
-              type="submit"
-              disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
-              className="px-8 py-5 font-bold text-white rounded-md transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              style={{ backgroundColor: '#3ccca4' }}
-            >
-              <Search className="w-5 h-5" />
-              <span className="whitespace-nowrap">Buscar</span>
-            </button>
-          </div>
+          {/* Botón Buscar - Color mint hasta los bordes */}
+          <button
+            type="submit"
+            disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
+            className="px-8 py-5 font-bold text-white rounded-r-md transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            style={{ backgroundColor: '#3ccca4' }}
+          >
+            <Search className="w-6 h-6" />
+            <span className="whitespace-nowrap">Buscar</span>
+          </button>
         </div>
       </form>
     </div>

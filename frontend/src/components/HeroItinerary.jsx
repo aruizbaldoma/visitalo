@@ -12,10 +12,10 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             letterSpacing: '-0.02em'
           }}>
-            Viaja más gastando menos
+            Viaja más pensando menos
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto" style={{ lineHeight: '1.6' }}>
-            Descubre itinerarios personalizados con IA que maximizan tu experiencia mientras cuidan tu presupuesto
+            Encuentra itinerarios personalizados con IA en destinos increíbles y mucho más
           </p>
         </div>
 
