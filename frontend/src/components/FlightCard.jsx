@@ -1,7 +1,7 @@
 import { Plane, ExternalLink } from "lucide-react";
 import { getBookingUrl } from "../config/affiliates";
 
-export const FlightCard = ({ flight, destination }) => {
+export const FlightCard = ({ flight, destination, showButton = true }) => {
   if (!flight) return null;
 
   const bookingUrl = getBookingUrl("Vuelos", destination);
@@ -39,19 +39,21 @@ export const FlightCard = ({ flight, destination }) => {
         )}
       </div>
 
-      {/* Botón de Acción */}
-      <div className="flex items-center">
-        <a
-          href={bookingUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 font-medium text-white hover:shadow-lg transition-all"
-          style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
-        >
-          Ver Disponibilidad
-          <ExternalLink className="w-4 h-4" />
-        </a>
-      </div>
+      {/* Botón de Acción - Solo si showButton es true */}
+      {showButton && (
+        <div className="flex items-center">
+          <a
+            href={bookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 font-medium text-white hover:shadow-lg transition-all"
+            style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
+          >
+            Ver Disponibilidad
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
+      )}
     </div>
   );
 };

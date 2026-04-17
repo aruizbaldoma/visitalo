@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ActivityCard } from "./ActivityCard";
 import { ActivityInfoModal } from "./ActivityInfoModal";
 import { AlternativesModal } from "./AlternativesModal";
-import { TotalPricePanel } from "./TotalPricePanel";
+import { ItinerarySidebar } from "./ItinerarySidebar";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { FlightCard } from "./FlightCard";
 import { HotelCard } from "./HotelCard";
@@ -140,7 +140,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
   const { destination, totalDays, hotelRecommendation, days } = itineraryData;
 
   return (
-    <div className="max-w-6xl mx-auto pb-32">
+    <div className="max-w-7xl mx-auto px-20">
       {/* Modales */}
       <ActivityInfoModal
         activity={selectedActivity}
@@ -191,29 +191,34 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
         )}
       </div>
 
-      {/* Timeline de Días */}
-      <div className="space-y-8">
-        {days.map((day, dayIndex) => (
-          <DayCard
-            key={day.day}
-            day={day}
-            isLast={dayIndex === days.length - 1}
-            isAuthenticated={isAuthenticated}
-            onInfo={handleInfo}
-            onAlternative={handleAlternative}
-            onDelete={handleDelete}
-            destination={destination}
-            getActivityType={getActivityType}
-          />
-        ))}
-      </div>
+      {/* Layout 3/4 + 1/4 */}
+      <div className="grid grid-cols-4 gap-8">
+        {/* Itinerario - 3/4 */}
+        <div className="col-span-3 space-y-8">
+          {days.map((day, dayIndex) => (
+            <DayCard
+              key={day.day}
+              day={day}
+              isLast={dayIndex === days.length - 1}
+              isAuthenticated={isAuthenticated}
+              onInfo={handleInfo}
+              onAlternative={handleAlternative}
+              onDelete={handleDelete}
+              destination={destination}
+              getActivityType={getActivityType}
+              hotelInfo={itineraryData.hotelInfo}
+            />
+          ))}
+        </div>
 
-      {/* Panel de Precio Total */}
-      <TotalPricePanel
-        itinerary={itineraryData}
-        isAuthenticated={isAuthenticated}
-        onConfirm={handleConfirm}
-      />
+        {/* Sidebar - 1/4 */}
+        <div className="col-span-1">
+          <ItinerarySidebar
+            itinerary={itineraryData}
+            isAuthenticated={isAuthenticated}
+          />
+        </div>
+      </div>
     </div>
   );
 };
@@ -306,7 +311,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
   );
 };
 
-const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo, onAlternative, onDelete, destination, getActivityType }) => {
+const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo, onAlternative, onDelete, destination, getActivityType, showHotel, hotelInfo }) => {
   if (!activities || activities.length === 0) {
     return (
       <div className="text-center py-8 text-gray-400 text-sm italic">
@@ -333,7 +338,7 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
         {activities.map((activity, index) => {
           const activityType = getActivityType(activity);
           
-          // Renderizar FlightCard para vuelos
+          // Renderizar FlightCard para vuelos (sin botón Ver Disponibilidad)
           if (activityType === 'flight') {
             return (
               <FlightCard
@@ -344,6 +349,7 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
                   details: activity.description
                 }}
                 destination={destination}
+                showButton={false}
               />
             );
           }
@@ -375,6 +381,15 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
             />
           );
         })}
+
+        {/* Mostrar hotel al final de la noche */}
+        {showHotel && hotelInfo && (
+          <HotelCard
+            hotel={hotelInfo}
+            destination={destination}
+            isNightHotel={true}
+          />
+        )}
       </div>
     </div>
   );
