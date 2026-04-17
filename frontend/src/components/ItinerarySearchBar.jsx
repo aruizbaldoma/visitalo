@@ -84,8 +84,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
                 name="startDate"
                 value={searchData.startDate}
                 onChange={handleChange}
-                className="absolute opacity-0 pointer-events-none"
-                style={{ colorScheme: 'light' }}
+                className="absolute opacity-0 pointer-events-none w-0 h-0"
+                style={{ colorScheme: 'light', position: 'absolute', top: '-9999px', left: '-9999px' }}
                 required
               />
             </div>
@@ -112,8 +112,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
                 value={searchData.endDate}
                 min={searchData.startDate}
                 onChange={handleChange}
-                className="absolute opacity-0 pointer-events-none"
-                style={{ colorScheme: 'light' }}
+                className="absolute opacity-0 pointer-events-none w-0 h-0"
+                style={{ colorScheme: 'light', position: 'absolute', top: '-9999px', left: '-9999px' }}
                 required
               />
             </div>
