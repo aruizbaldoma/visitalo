@@ -5,6 +5,8 @@ import { ActivityInfoModal } from "./ActivityInfoModal";
 import { AlternativesModal } from "./AlternativesModal";
 import { TotalPricePanel } from "./TotalPricePanel";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { FlightCard } from "./FlightCard";
+import { HotelCard } from "./HotelCard";
 
 export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
   const [selectedActivity, setSelectedActivity] = useState(null);
@@ -76,6 +78,27 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
     // Aquí se integrará la pasarela de pago en el futuro
     alert('🎉 ¡Itinerario confirmado! En el futuro aquí se procesará el pago.');
     setShowConfirmationModal(false);
+  };
+
+  // Helper para detectar tipo de actividad
+  const getActivityType = (activity) => {
+    const title = activity.title?.toLowerCase() || '';
+    const provider = activity.provider?.toLowerCase() || '';
+    
+    // Detectar vuelos
+    if (title.includes('llegada') || title.includes('salida') || 
+        title.includes('vuelo') || title.includes('aeropuerto') ||
+        title.includes('flight') || title.includes('arrival') || title.includes('departure')) {
+      return 'flight';
+    }
+    
+    // Detectar hoteles (por ahora solo por provider, pero se puede extender)
+    if (provider === 'booking.com' && !title.includes('vuelo') && !title.includes('aeropuerto')) {
+      return 'hotel';
+    }
+    
+    // Por defecto es actividad turística
+    return 'activity';
   };
 
   // Calcular precio total
@@ -179,6 +202,8 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
             onInfo={handleInfo}
             onAlternative={handleAlternative}
             onDelete={handleDelete}
+            destination={destination}
+            getActivityType={getActivityType}
           />
         ))}
       </div>
@@ -193,7 +218,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
   );
 };
 
-const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete }) => {
+const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete, destination, getActivityType }) => {
   return (
     <div className="relative">
       {/* Línea de conexión */}
@@ -235,6 +260,8 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
             onInfo={onInfo}
             onAlternative={onAlternative}
             onDelete={onDelete}
+            destination={destination}
+            getActivityType={getActivityType}
           />
 
           {/* Tarde */}
@@ -247,6 +274,8 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
             onInfo={onInfo}
             onAlternative={onAlternative}
             onDelete={onDelete}
+            destination={destination}
+            getActivityType={getActivityType}
           />
 
           {/* Noche */}
@@ -259,6 +288,8 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
             onInfo={onInfo}
             onAlternative={onAlternative}
             onDelete={onDelete}
+            destination={destination}
+            getActivityType={getActivityType}
           />
         </div>
       </div>
@@ -266,7 +297,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
   );
 };
 
-const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo, onAlternative, onDelete }) => {
+const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo, onAlternative, onDelete, destination, getActivityType }) => {
   if (!activities || activities.length === 0) {
     return (
       <div className="text-center py-8 text-gray-400 text-sm italic">
@@ -290,16 +321,51 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
       </div>
 
       <div className="space-y-3 ml-2">
-        {activities.map((activity, index) => (
-          <ActivityCard
-            key={activity.activityId || index}
-            activity={activity}
-            isAuthenticated={isAuthenticated}
-            onInfo={onInfo}
-            onAlternative={onAlternative}
-            onDelete={onDelete}
-          />
-        ))}
+        {activities.map((activity, index) => {
+          const activityType = getActivityType(activity);
+          
+          // Renderizar FlightCard para vuelos
+          if (activityType === 'flight') {
+            return (
+              <FlightCard
+                key={activity.activityId || index}
+                flight={{
+                  type: activity.title?.toLowerCase().includes('llegada') || activity.title?.toLowerCase().includes('arrival') ? 'arrival' : 'departure',
+                  time: activity.time,
+                  details: activity.description
+                }}
+                destination={destination}
+              />
+            );
+          }
+          
+          // Renderizar HotelCard para hoteles
+          if (activityType === 'hotel') {
+            return (
+              <HotelCard
+                key={activity.activityId || index}
+                hotel={{
+                  name: activity.title,
+                  zone: activity.location,
+                  recommendation: activity.description
+                }}
+                destination={destination}
+              />
+            );
+          }
+          
+          // Renderizar ActivityCard para actividades turísticas
+          return (
+            <ActivityCard
+              key={activity.activityId || index}
+              activity={activity}
+              isAuthenticated={isAuthenticated}
+              onInfo={onInfo}
+              onAlternative={onAlternative}
+              onDelete={onDelete}
+            />
+          );
+        })}
       </div>
     </div>
   );
