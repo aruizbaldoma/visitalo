@@ -1,18 +1,35 @@
-import { useState } from "react";
-import { X, Clock, MapPin, Check } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { X, Plane, Hotel } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays }) => {
-  const [details, setDetails] = useState({
-    arrivalTime: "",
-    departureTime: "",
-    hotelZones: {},
-    needsHotelRecommendation: false
-  });
+  const [hasFlights, setHasFlights] = useState(false);
+  const [arrivalTime, setArrivalTime] = useState("");
+  const [departureTime, setDepartureTime] = useState("");
+  const [hasHotel, setHasHotel] = useState(false);
+  const [hotelName, setHotelName] = useState("");
+  const [needsHotelRecommendation, setNeedsHotelRecommendation] = useState(false);
+
+  useEffect(() => {
+    if (!hasFlights) {
+      setArrivalTime("");
+      setDepartureTime("");
+    }
+    if (hasHotel) {
+      setNeedsHotelRecommendation(false);
+    } else {
+      setHotelName("");
+    }
+  }, [hasFlights, hasHotel]);
 
   const handleSave = () => {
+    const details = {
+      hasFlights,
+      arrivalTime: hasFlights ? arrivalTime : null,
+      departureTime: hasFlights ? departureTime : null,
+      hasHotel,
+      hotelName: hasHotel ? hotelName : null,
+      needsHotelRecommendation: !hasHotel ? needsHotelRecommendation : false
+    };
     onSave(details);
     onClose();
   };
@@ -20,152 +37,178 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" style={{ borderRadius: '8px' }}>
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold" style={{ color: '#052c4e' }}>
-              Detalles de mi viaje
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Información opcional para personalizar tu itinerario
-            </p>
-          </div>
+        <div className="sticky top-0 bg-white px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #E5E7EB' }}>
+          <h3 className="text-2xl font-bold" style={{ color: '#052c4e' }}>
+            Contexto del Viaje
+          </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 text-gray-600" />
           </button>
         </div>
 
+        {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Bloque Vuelos */}
-          <div className="border border-gray-200 rounded-lg p-5 bg-gray-50">
-            <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-5 h-5" style={{ color: '#3ccca4' }} />
-              <h3 className="text-lg font-semibold" style={{ color: '#052c4e' }}>
-                Horarios de Vuelo
-              </h3>
+          {/* Vuelos */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Plane className="w-6 h-6" style={{ color: '#3ccca4' }} />
+              <h4 className="text-lg font-bold" style={{ color: '#052c4e' }}>
+                Vuelos
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="arrivalTime" className="text-sm font-medium text-gray-700 mb-2">
-                  Hora de llegada (Ida)
-                </Label>
-                <Input
-                  id="arrivalTime"
-                  type="time"
-                  value={details.arrivalTime}
-                  onChange={(e) => setDetails({...details, arrivalTime: e.target.value})}
-                  className="border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
-                  placeholder="14:30"
+            {/* Toggle Vuelos Reservados */}
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-gray-700 font-medium">¿Ya tienes tus vuelos reservados?</span>
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={hasFlights}
+                  onChange={(e) => setHasFlights(e.target.checked)}
+                  className="sr-only"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  El primer día comenzará a partir de esta hora
-                </p>
+                <div
+                  className={`w-14 h-7 rounded-full transition-colors ${
+                    hasFlights ? 'bg-[#3ccca4]' : 'bg-gray-300'
+                  }`}
+                >
+                  <div
+                    className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform ${
+                      hasFlights ? 'transform translate-x-7' : ''
+                    }`}
+                  />
+                </div>
               </div>
+            </label>
 
-              <div>
-                <Label htmlFor="departureTime" className="text-sm font-medium text-gray-700 mb-2">
-                  Hora de salida (Vuelta)
-                </Label>
-                <Input
-                  id="departureTime"
-                  type="time"
-                  value={details.departureTime}
-                  onChange={(e) => setDetails({...details, departureTime: e.target.value})}
-                  className="border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
-                  placeholder="18:00"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  El último día terminará antes de esta hora
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Bloque Hoteles */}
-          <div className="border border-gray-200 rounded-lg p-5 bg-gray-50">
-            <div className="flex items-center gap-2 mb-4">
-              <MapPin className="w-5 h-5" style={{ color: '#3ccca4' }} />
-              <h3 className="text-lg font-semibold" style={{ color: '#052c4e' }}>
-                Zonas de Alojamiento
-              </h3>
-            </div>
-
-            {/* Checkbox para recomendación */}
-            <div className="mb-4 flex items-start space-x-3 p-3 bg-white rounded-lg border border-gray-200">
-              <input
-                type="checkbox"
-                id="needsRecommendation"
-                checked={details.needsHotelRecommendation}
-                onChange={(e) => setDetails({...details, needsHotelRecommendation: e.target.checked})}
-                className="mt-1 w-5 h-5 rounded cursor-pointer"
-                style={{ accentColor: '#3ccca4' }}
-              />
-              <div className="flex-1">
-                <Label htmlFor="needsRecommendation" className="text-sm font-medium text-gray-700 cursor-pointer">
-                  No tengo hotel, recomendarme zona ideal
-                </Label>
-                <p className="text-xs text-gray-500 mt-1">
-                  Te sugeriremos la mejor ubicación según el itinerario
-                </p>
-              </div>
-            </div>
-
-            {/* Input por días (si no necesita recomendación) */}
-            {!details.needsHotelRecommendation && totalDays > 0 && (
-              <div className="space-y-3">
-                <p className="text-sm text-gray-600 mb-2">
-                  Si ya tienes reserva, indica la zona para optimizar las rutas:
-                </p>
-                {[...Array(totalDays)].map((_, index) => (
-                  <div key={index}>
-                    <Label className="text-sm font-medium text-gray-700 mb-1">
-                      Día {index + 1}
-                    </Label>
-                    <Input
-                      type="text"
-                      placeholder="Ej: Centro histórico, Barrio Gótico..."
-                      value={details.hotelZones[`day${index + 1}`] || ""}
-                      onChange={(e) => setDetails({
-                        ...details,
-                        hotelZones: {
-                          ...details.hotelZones,
-                          [`day${index + 1}`]: e.target.value
-                        }
-                      })}
-                      className="border-gray-300 focus:border-[#3ccca4] focus:ring-[#3ccca4]"
-                    />
-                  </div>
-                ))}
+            {/* Campos de Vuelos */}
+            {hasFlights && (
+              <div className="space-y-3 pl-9">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hora de llegada (Ida)
+                  </label>
+                  <input
+                    type="time"
+                    value={arrivalTime}
+                    onChange={(e) => setArrivalTime(e.target.value)}
+                    className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
+                    style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hora de salida (Vuelta)
+                  </label>
+                  <input
+                    type="time"
+                    value={departureTime}
+                    onChange={(e) => setDepartureTime(e.target.value)}
+                    className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
+                    style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                  />
+                </div>
               </div>
             )}
+          </div>
+
+          {/* Hoteles */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Hotel className="w-6 h-6" style={{ color: '#3ccca4' }} />
+              <h4 className="text-lg font-bold" style={{ color: '#052c4e' }}>
+                Alojamiento
+              </h4>
+            </div>
+
+            {/* Toggle Hotel Reservado */}
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-gray-700 font-medium">¿Ya tienes reserva de hotel?</span>
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={hasHotel}
+                  onChange={(e) => setHasHotel(e.target.checked)}
+                  className="sr-only"
+                />
+                <div
+                  className={`w-14 h-7 rounded-full transition-colors ${
+                    hasHotel ? 'bg-[#3ccca4]' : 'bg-gray-300'
+                  }`}
+                >
+                  <div
+                    className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform ${
+                      hasHotel ? 'transform translate-x-7' : ''
+                    }`}
+                  />
+                </div>
+              </div>
+            </label>
+
+            {/* Opciones según estado */}
+            <div className="space-y-4 pl-9">
+              {hasHotel ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre del Hotel (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="ej: Hotel Riu Plaza España"
+                    value={hotelName}
+                    onChange={(e) => setHotelName(e.target.value)}
+                    className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
+                    style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Si proporcionas el nombre, priorizaremos actividades cerca del hotel
+                  </p>
+                </div>
+              ) : (
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={needsHotelRecommendation}
+                    onChange={(e) => setNeedsHotelRecommendation(e.target.checked)}
+                    className="mt-1 w-4 h-4 rounded"
+                    style={{ accentColor: '#3ccca4' }}
+                  />
+                  <div>
+                    <span className="text-sm text-gray-700 font-medium">
+                      Solicitar recomendación de alojamiento a la IA
+                    </span>
+                    <p className="text-xs text-gray-500 mt-1">
+                      La IA te sugerirá el hotel más estratégico para tu itinerario
+                    </p>
+                  </div>
+                </label>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
+        <div className="sticky bottom-0 bg-white px-6 py-4 flex justify-end gap-3" style={{ borderTop: '1px solid #E5E7EB' }}>
+          <button
             onClick={onClose}
-            className="border-gray-300"
+            className="px-6 py-2 font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
           >
             Cancelar
-          </Button>
-          <Button
-            type="button"
+          </button>
+          <button
             onClick={handleSave}
-            className="text-white font-semibold"
-            style={{ backgroundColor: '#3ccca4' }}
+            className="px-6 py-2 font-medium text-white transition-all hover:shadow-lg"
+            style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
           >
-            <Check className="w-4 h-4 mr-2" />
-            Guardar Detalles
-          </Button>
+            Guardar Contexto
+          </button>
         </div>
       </div>
     </div>

@@ -25,9 +25,11 @@ class ItineraryService:
         destination: str,
         start_date: str,
         end_date: str,
+        has_flights: bool = False,
         arrival_time: Optional[str] = None,
         departure_time: Optional[str] = None,
-        hotel_zones: Optional[Dict[str, str]] = None,
+        has_hotel: bool = False,
+        hotel_name: Optional[str] = None,
         needs_hotel_recommendation: bool = False
     ) -> Dict:
         """
@@ -37,10 +39,12 @@ class ItineraryService:
             destination: Ciudad/país destino
             start_date: Fecha inicio (YYYY-MM-DD)
             end_date: Fecha fin (YYYY-MM-DD)
-            arrival_time: Hora llegada primer día (HH:MM) opcional
-            departure_time: Hora salida último día (HH:MM) opcional
-            hotel_zones: Dict con zonas de hotel por día opcional
-            needs_hotel_recommendation: Si necesita recomendación de zona
+            has_flights: Si el usuario tiene vuelos reservados
+            arrival_time: Hora llegada (HH:MM) - solo si has_flights=True
+            departure_time: Hora salida (HH:MM) - solo si has_flights=True
+            has_hotel: Si el usuario tiene hotel reservado
+            hotel_name: Nombre del hotel - solo si has_hotel=True
+            needs_hotel_recommendation: Si necesita recomendación de hotel - solo si has_hotel=False
             
         Returns:
             Dict con estructura de itinerario completo
@@ -49,12 +53,12 @@ class ItineraryService:
         print(f"📋 GENERANDO ITINERARIO PROFESIONAL")
         print(f"   Destino: {destination}")
         print(f"   Fechas: {start_date} → {end_date}")
-        if arrival_time:
-            print(f"   Llegada: {arrival_time}")
-        if departure_time:
-            print(f"   Salida: {departure_time}")
-        if hotel_zones:
-            print(f"   Zonas hotel: {hotel_zones}")
+        if has_flights:
+            print(f"   Vuelos: Llegada {arrival_time}, Salida {departure_time}")
+        if has_hotel and hotel_name:
+            print(f"   Hotel: {hotel_name}")
+        elif needs_hotel_recommendation:
+            print(f"   Hotel: Solicita recomendación")
         print(f"{'='*70}\n")
         
         # Calcular días
@@ -65,13 +69,15 @@ class ItineraryService:
         if self.use_mock:
             return self._generate_mock_itinerary(
                 destination, start_date, end_date, total_days,
-                arrival_time, departure_time, hotel_zones, needs_hotel_recommendation
+                has_flights, arrival_time, departure_time,
+                has_hotel, hotel_name, needs_hotel_recommendation
             )
         
         # Generar con Gemini AI
         return await self._generate_ai_itinerary(
             destination, start_date, end_date, total_days,
-            arrival_time, departure_time, hotel_zones, needs_hotel_recommendation
+            has_flights, arrival_time, departure_time,
+            has_hotel, hotel_name, needs_hotel_recommendation
         )
     
     async def _generate_ai_itinerary(
@@ -80,13 +86,15 @@ class ItineraryService:
         start_date: str,
         end_date: str,
         total_days: int,
+        has_flights: bool,
         arrival_time: Optional[str],
         departure_time: Optional[str],
-        hotel_zones: Optional[Dict[str, str]],
+        has_hotel: bool,
+        hotel_name: Optional[str],
         needs_hotel_recommendation: bool
     ) -> Dict:
         """
-        Genera itinerario usando Gemini AI
+        Genera itinerario usando Gemini AI con nueva lógica
         """
         # Construir contexto inteligente
         context = self._build_context(
@@ -178,9 +186,11 @@ JSON:"""
         start_date: str,
         end_date: str,
         total_days: int,
+        has_flights: bool,
         arrival_time: Optional[str],
         departure_time: Optional[str],
-        hotel_zones: Optional[Dict[str, str]],
+        has_hotel: bool,
+        hotel_name: Optional[str],
         needs_hotel_recommendation: bool
     ) -> Dict:
         """

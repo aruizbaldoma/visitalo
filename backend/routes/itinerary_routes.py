@@ -18,9 +18,11 @@ class ItineraryRequest(BaseModel):
     destination: str
     startDate: str
     endDate: str
+    hasFlights: bool = False
     arrivalTime: Optional[str] = None
     departureTime: Optional[str] = None
-    hotelZones: Optional[Dict[str, str]] = None
+    hasHotel: bool = False
+    hotelName: Optional[str] = None
     needsHotelRecommendation: bool = False
 
 
@@ -39,9 +41,11 @@ async def generate_itinerary(request: ItineraryRequest):
             destination=request.destination,
             start_date=request.startDate,
             end_date=request.endDate,
+            has_flights=request.hasFlights,
             arrival_time=request.arrivalTime,
             departure_time=request.departureTime,
-            hotel_zones=request.hotelZones,
+            has_hotel=request.hasHotel,
+            hotel_name=request.hotelName,
             needs_hotel_recommendation=request.needsHotelRecommendation
         )
         
