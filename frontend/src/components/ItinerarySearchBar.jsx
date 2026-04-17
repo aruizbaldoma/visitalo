@@ -43,8 +43,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
     <div className="w-full">
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md overflow-hidden" style={{ border: '4px solid #003580', height: '80px', minHeight: '80px', maxHeight: '80px' }}>
         <div className="flex items-stretch" style={{ height: '100%' }}>
-          {/* Bloque 1: Destino - Más ancho */}
-          <div className="flex-[1.8] flex items-center gap-3 px-5">
+          {/* Bloque 1: Destino - Más estrecho */}
+          <div className="flex-[1.3] flex items-center gap-3 px-5">
             <MapPin className="w-6 h-6 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -62,8 +62,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             <div className="w-full" style={{ backgroundColor: '#003580', borderRadius: '4px' }}></div>
           </div>
 
-          {/* Bloque 2: Fechas - Más estrecho */}
-          <div className="flex-[1.3] flex items-center gap-2 px-5">
+          {/* Bloque 2: Fechas - Más ancho */}
+          <div className="flex-[1.8] flex items-center gap-2 px-5">
             <Calendar className="w-6 h-6 text-gray-400 flex-shrink-0" />
             
             {/* Fecha de llegada - Click directo abre calendario */}
