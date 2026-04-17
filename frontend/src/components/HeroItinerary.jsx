@@ -1,6 +1,6 @@
 import { ItinerarySearchBar } from "./ItinerarySearchBar";
 
-export const HeroItinerary = ({ onSearch, onOpenDetails }) => {
+export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
   return (
     <div className="relative min-h-[60vh] flex items-center justify-center px-4 py-20"
       style={{
@@ -19,7 +19,11 @@ export const HeroItinerary = ({ onSearch, onOpenDetails }) => {
         </div>
 
         {/* Buscador */}
-        <ItinerarySearchBar onSearch={onSearch} onOpenDetails={onOpenDetails} />
+        <ItinerarySearchBar 
+          onSearch={onSearch} 
+          onOpenDetails={onOpenDetails}
+          onSearchDataChange={onSearchDataChange}
+        />
 
         {/* Info */}
         <div className="mt-8 text-center text-gray-300 text-sm">

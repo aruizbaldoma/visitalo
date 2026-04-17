@@ -16,9 +16,14 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [travelDetails, setTravelDetails] = useState(null);
   const [searchParams, setSearchParams] = useState(null);
+  const [currentSearchData, setCurrentSearchData] = useState({ startDate: "", endDate: "", destination: "" });
   
   // Mock user plan - cambiar a 'plus' para testear funcionalidad premium
   const [userPlan, setUserPlan] = useState('basic'); // 'basic' o 'plus'
+
+  const handleSearchDataChange = (data) => {
+    setCurrentSearchData(data);
+  };
 
   const calculateDays = (start, end) => {
     const startDate = new Date(start);
@@ -137,6 +142,7 @@ function App() {
       <HeroItinerary
         onSearch={handleSearch}
         onOpenDetails={() => setIsModalOpen(true)}
+        onSearchDataChange={handleSearchDataChange}
       />
 
       {/* Modal de Detalles */}
@@ -145,8 +151,8 @@ function App() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveDetails}
         totalDays={totalDays}
-        startDate={searchParams?.startDate || ""}
-        endDate={searchParams?.endDate || ""}
+        startDate={currentSearchData.startDate || searchParams?.startDate || ""}
+        endDate={currentSearchData.endDate || searchParams?.endDate || ""}
         userPlan={userPlan}
       />
 

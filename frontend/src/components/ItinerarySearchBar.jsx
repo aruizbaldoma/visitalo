@@ -4,12 +4,21 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
-export const ItinerarySearchBar = ({ onSearch, onOpenDetails }) => {
+export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
   const [searchData, setSearchData] = useState({
     destination: "",
     startDate: "",
     endDate: ""
   });
+
+  const handleChange = (e) => {
+    const newData = { ...searchData, [e.target.name]: e.target.value };
+    setSearchData(newData);
+    // Notificar al padre sobre los cambios
+    if (onSearchDataChange) {
+      onSearchDataChange(newData);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
