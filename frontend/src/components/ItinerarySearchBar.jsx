@@ -43,8 +43,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
     <div className="w-full max-w-7xl mx-auto">
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md overflow-hidden" style={{ border: '4px solid #003580' }}>
         <div className="flex items-stretch">
-          {/* Destino - Ligeramente más ancho */}
-          <div className="flex-[1.3] flex items-center gap-3 px-5 py-5" style={{ borderRight: '4px solid #003580' }}>
+          {/* Bloque 1: Destino - Más ancho */}
+          <div className="flex-[1.8] flex items-center gap-3 px-5 py-5">
             <MapPin className="w-6 h-6 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -57,11 +57,16 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             />
           </div>
 
-          {/* Fechas - Una sola línea horizontal */}
-          <div className="flex-1 flex items-center gap-2 px-5 py-5" style={{ borderRight: '4px solid #003580' }}>
+          {/* Separador redondeado */}
+          <div className="w-1 flex-shrink-0 relative">
+            <div className="absolute inset-y-1 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
+          </div>
+
+          {/* Bloque 2: Fechas - Más ancho */}
+          <div className="flex-[1.8] flex items-center gap-2 px-5 py-5">
             <Calendar className="w-6 h-6 text-gray-400 flex-shrink-0" />
             
-            {/* Llegada - Click directo abre calendario */}
+            {/* Fecha de llegada - Click directo abre calendario */}
             <div className="flex-1 relative">
               <label 
                 htmlFor="startDate"
@@ -69,7 +74,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
                 onClick={() => startDateRef.current?.showPicker?.()}
               >
                 <div className={`text-sm px-2 py-1 rounded hover:bg-gray-50 transition-colors ${searchData.startDate ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
-                  {searchData.startDate ? formatDate(searchData.startDate) : 'Llegada'}
+                  {searchData.startDate ? formatDate(searchData.startDate) : 'Fecha de llegada'}
                 </div>
               </label>
               <input
@@ -88,7 +93,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             {/* Separator */}
             <div className="text-gray-400 text-sm">-</div>
 
-            {/* Regreso - Click directo abre calendario */}
+            {/* Fecha de salida - Click directo abre calendario */}
             <div className="flex-1 relative">
               <label 
                 htmlFor="endDate"
@@ -96,7 +101,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
                 onClick={() => endDateRef.current?.showPicker?.()}
               >
                 <div className={`text-sm px-2 py-1 rounded hover:bg-gray-50 transition-colors ${searchData.endDate ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
-                  {searchData.endDate ? formatDate(searchData.endDate) : 'Regreso'}
+                  {searchData.endDate ? formatDate(searchData.endDate) : 'Fecha de salida'}
                 </div>
               </label>
               <input
@@ -114,11 +119,15 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             </div>
           </div>
 
-          {/* Personalizar */}
+          {/* Separador redondeado */}
+          <div className="w-1 flex-shrink-0 relative">
+            <div className="absolute inset-y-1 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
+          </div>
+
+          {/* Bloque 3: Personalizar - Más estrecho */}
           <div 
-            className="flex-1 flex items-center justify-center gap-3 px-5 py-5 cursor-pointer hover:bg-gray-50 transition-colors"
+            className="flex-[0.8] flex items-center justify-center gap-3 px-4 py-5 cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={onOpenDetails}
-            style={{ borderRight: '4px solid #003580' }}
           >
             <Sparkles className="w-6 h-6 flex-shrink-0" style={{ color: '#3ccca4' }} />
             <span className="text-sm font-medium text-gray-800 whitespace-nowrap">
@@ -126,12 +135,17 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             </span>
           </div>
 
-          {/* Botón Buscar - Bloque completo mint */}
+          {/* Separador redondeado */}
+          <div className="w-1 flex-shrink-0 relative">
+            <div className="absolute inset-y-1 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
+          </div>
+
+          {/* Bloque 4: Buscar - Texto azul empresa */}
           <button
             type="submit"
             disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
-            className="flex-1 flex items-center justify-center gap-3 px-5 py-5 font-bold text-white transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: '#3ccca4' }}
+            className="flex-1 flex items-center justify-center gap-3 px-5 py-5 font-bold transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: '#3ccca4', color: '#003580' }}
           >
             <Search className="w-6 h-6" />
             <span className="whitespace-nowrap">Buscar</span>
