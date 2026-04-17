@@ -146,6 +146,7 @@ function App() {
         onSave={handleSaveDetails}
         totalDays={totalDays}
         startDate={searchParams?.startDate || ""}
+        endDate={searchParams?.endDate || ""}
         userPlan={userPlan}
       />
 

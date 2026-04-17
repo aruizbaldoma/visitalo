@@ -46,7 +46,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails }) => {
             <div>
               <Label htmlFor="startDate" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                 <Calendar className="w-4 h-4" style={{ color: '#3ccca4' }} />
-                Fecha de Ida
+                ¿Cuándo vas?
               </Label>
               <Input
                 id="startDate"
@@ -63,7 +63,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails }) => {
             <div>
               <Label htmlFor="endDate" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                 <Calendar className="w-4 h-4" style={{ color: '#3ccca4' }} />
-                Fecha de Vuelta
+                ¿Cuándo vuelves?
               </Label>
               <Input
                 id="endDate"
