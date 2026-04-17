@@ -57,13 +57,13 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             />
           </div>
 
-          {/* Separador redondeado */}
-          <div className="w-1 flex-shrink-0 relative">
-            <div className="absolute inset-y-0 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
+          {/* Separador redondeado que toca los bordes */}
+          <div className="w-1 flex-shrink-0 self-stretch flex items-stretch" style={{ margin: '-4px 0' }}>
+            <div className="w-full" style={{ backgroundColor: '#003580', borderRadius: '4px' }}></div>
           </div>
 
-          {/* Bloque 2: Fechas - Más ancho */}
-          <div className="flex-[1.8] flex items-center gap-2 px-5">
+          {/* Bloque 2: Fechas - Más estrecho */}
+          <div className="flex-[1.3] flex items-center gap-2 px-5">
             <Calendar className="w-6 h-6 text-gray-400 flex-shrink-0" />
             
             {/* Fecha de llegada - Click directo abre calendario */}
@@ -119,14 +119,14 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             </div>
           </div>
 
-          {/* Separador redondeado */}
-          <div className="w-1 flex-shrink-0 relative">
-            <div className="absolute inset-y-0 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
+          {/* Separador redondeado que toca los bordes */}
+          <div className="w-1 flex-shrink-0 self-stretch flex items-stretch" style={{ margin: '-4px 0' }}>
+            <div className="w-full" style={{ backgroundColor: '#003580', borderRadius: '4px' }}></div>
           </div>
 
-          {/* Bloque 3: Personalizar - Más estrecho */}
+          {/* Bloque 3: Personalizar - Más ancho */}
           <div 
-            className="flex-[0.5] flex items-center justify-center gap-2 px-3 cursor-pointer hover:bg-gray-50 transition-colors"
+            className="flex-[0.9] flex items-center justify-center gap-2 px-4 cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={onOpenDetails}
           >
             <Sparkles className="w-6 h-6 flex-shrink-0" style={{ color: '#3ccca4' }} />
@@ -135,9 +135,9 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             </span>
           </div>
 
-          {/* Separador redondeado */}
-          <div className="w-1 flex-shrink-0 relative">
-            <div className="absolute inset-y-0 inset-x-0 rounded-full" style={{ backgroundColor: '#003580' }}></div>
+          {/* Separador redondeado que toca los bordes */}
+          <div className="w-1 flex-shrink-0 self-stretch flex items-stretch" style={{ margin: '-4px 0' }}>
+            <div className="w-full" style={{ backgroundColor: '#003580', borderRadius: '4px' }}></div>
           </div>
 
           {/* Bloque 4: Buscar - Mucho más estrecho */}
