@@ -1,14 +1,27 @@
-import { Hotel, ExternalLink, MapPin } from "lucide-react";
+import { Hotel, ExternalLink, MapPin, Info, RefreshCw, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { getBookingUrl } from "../config/affiliates";
 
-export const HotelCard = ({ hotel, destination }) => {
+export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onAlternative, onDelete }) => {
+  const [showTooltip, setShowTooltip] = useState(null);
+
   if (!hotel) return null;
 
   const bookingUrl = getBookingUrl(hotel.name, destination);
 
+  const handleAlternative = () => {
+    if (onAlternative) onAlternative(hotel);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("¿Eliminar este hotel del itinerario?")) {
+      if (onDelete) onDelete(hotel.id);
+    }
+  };
+
   return (
     <div 
-      className="flex gap-4 p-4 bg-white hover:shadow-lg transition-all"
+      className="flex gap-4 p-4 bg-white hover:shadow-lg transition-all group"
       style={{ 
         border: '1px solid #E5E7EB', 
         borderRadius: '8px'
@@ -26,34 +39,95 @@ export const HotelCard = ({ hotel, destination }) => {
 
       {/* Contenido */}
       <div className="flex-1 min-w-0">
-        <h5 className="font-semibold text-gray-900 mb-1">
-          {hotel.name}
-        </h5>
-        {hotel.zone && (
-          <div className="flex items-center gap-1 text-sm text-gray-600 mb-1">
-            <MapPin className="w-3 h-3" />
-            {hotel.zone}
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex-1">
+            <h5 className="font-semibold text-gray-900 mb-1">
+              {hotel.name}
+            </h5>
+            {hotel.zone && (
+              <div className="flex items-center gap-1 text-sm text-gray-600">
+                <MapPin className="w-3 h-3" />
+                {hotel.zone}
+              </div>
+            )}
           </div>
-        )}
-        {hotel.recommendation && (
-          <p className="text-xs text-gray-500 mt-2">
-            🤖 Recomendado por IA: {hotel.recommendation}
-          </p>
-        )}
-      </div>
 
-      {/* Botón de Acción */}
-      <div className="flex items-center">
-        <a
-          href={bookingUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 font-medium text-white hover:shadow-lg transition-all"
-          style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
-        >
-          Ver Disponibilidad
-          <ExternalLink className="w-4 h-4" />
-        </a>
+          {/* Botones de Acción - Solo si NO es hotel del usuario */}
+          {!isUserHotel && (
+            <div className="flex items-start gap-2 flex-shrink-0">
+              {/* Botón Info */}
+              {onInfo && (
+                <button
+                  onClick={() => onInfo(hotel)}
+                  onMouseEnter={() => setShowTooltip('info')}
+                  onMouseLeave={() => setShowTooltip(null)}
+                  className="relative p-2 hover:bg-blue-50 transition-colors"
+                  style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                  title="Ver información completa"
+                >
+                  <Info className="w-4 h-4 text-gray-600 hover:text-blue-600" />
+                  {showTooltip === 'info' && (
+                    <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                      Ver información
+                    </div>
+                  )}
+                </button>
+              )}
+
+              {/* Botón Alternativa */}
+              {onAlternative && (
+                <button
+                  onClick={handleAlternative}
+                  onMouseEnter={() => setShowTooltip('alt')}
+                  onMouseLeave={() => setShowTooltip(null)}
+                  className="relative p-2 hover:bg-green-50 transition-colors"
+                  style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                  title="Buscar alternativa"
+                >
+                  <RefreshCw className="w-4 h-4 text-gray-600 hover:text-[#3ccca4]" />
+                  {showTooltip === 'alt' && (
+                    <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                      Cambiar hotel
+                    </div>
+                  )}
+                </button>
+              )}
+
+              {/* Botón Eliminar */}
+              {onDelete && (
+                <button
+                  onClick={handleDelete}
+                  onMouseEnter={() => setShowTooltip('delete')}
+                  onMouseLeave={() => setShowTooltip(null)}
+                  className="relative p-2 hover:bg-red-50 transition-colors"
+                  style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                  title="Eliminar hotel"
+                >
+                  <Trash2 className="w-4 h-4 text-gray-600 hover:text-red-600" />
+                  {showTooltip === 'delete' && (
+                    <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                      Eliminar
+                    </div>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Botón Ver Disponibilidad */}
+        <div className="mt-3 pt-3" style={{ borderTop: '1px solid #E5E7EB' }}>
+          <a
+            href={bookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:shadow-lg transition-all"
+            style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
+          >
+            Ver Disponibilidad
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
       </div>
     </div>
   );

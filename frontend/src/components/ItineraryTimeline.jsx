@@ -172,23 +172,6 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
         <p className="text-xl text-gray-600">
           Itinerario completo · {totalDays} {totalDays === 1 ? 'día' : 'días'}
         </p>
-        
-        {hotelRecommendation && (
-          <div 
-            className="mt-6 max-w-2xl mx-auto bg-blue-50 p-4"
-            style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-          >
-            <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 flex-shrink-0" style={{ color: '#3ccca4' }} />
-              <div className="text-left">
-                <p className="font-semibold mb-1" style={{ color: '#052c4e' }}>
-                  Recomendación de Alojamiento
-                </p>
-                <p className="text-sm text-gray-700 whitespace-pre-line">{hotelRecommendation}</p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Layout 3/4 + 1/4 */}
@@ -360,11 +343,15 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
               <HotelCard
                 key={activity.activityId || index}
                 hotel={{
+                  id: activity.activityId,
                   name: activity.title,
                   zone: activity.location,
-                  recommendation: activity.description
                 }}
                 destination={destination}
+                isUserHotel={false}
+                onInfo={onInfo}
+                onAlternative={onAlternative}
+                onDelete={onDelete}
               />
             );
           }
@@ -387,7 +374,10 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
           <HotelCard
             hotel={hotelInfo}
             destination={destination}
-            isNightHotel={true}
+            isUserHotel={hotelInfo.isUserHotel || false}
+            onInfo={!hotelInfo.isUserHotel ? onInfo : undefined}
+            onAlternative={!hotelInfo.isUserHotel ? onAlternative : undefined}
+            onDelete={!hotelInfo.isUserHotel ? onDelete : undefined}
           />
         )}
       </div>

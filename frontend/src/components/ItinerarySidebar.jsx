@@ -38,7 +38,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
   if (!itinerary || totalActivities === 0) return null;
 
   return (
-    <div className="sticky top-24 h-fit">
+    <div className="sticky top-24">
       <div 
         className="bg-white shadow-lg p-6"
         style={{ border: '2px solid #3ccca4', borderRadius: '12px' }}
@@ -59,7 +59,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
         {/* Separador */}
         <div className="h-px bg-gray-200 my-6"></div>
 
-        {/* Precio total */}
+        {/* Precio total - SIEMPRE visible */}
         <div>
           <div className="flex items-center gap-2 mb-2">
             <p className="text-sm text-gray-500">Precio total estimado</p>
@@ -90,23 +90,12 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
             </div>
           </div>
 
-          {isAuthenticated ? (
-            <div className="flex items-baseline gap-2">
-              <Euro className="w-6 h-6" style={{ color: '#3ccca4' }} />
-              <p className="text-3xl font-bold" style={{ color: '#052c4e' }}>
-                {totalPrice.toFixed(2)}
-              </p>
-            </div>
-          ) : (
-            <div>
-              <div className="blur-md select-none text-3xl font-bold mb-2" style={{ color: '#052c4e' }}>
-                €{totalPrice.toFixed(2)}
-              </div>
-              <p className="text-xs text-gray-500">
-                Inicia sesión para ver precios
-              </p>
-            </div>
-          )}
+          <div className="flex items-baseline gap-2">
+            <Euro className="w-6 h-6" style={{ color: '#3ccca4' }} />
+            <p className="text-3xl font-bold" style={{ color: '#052c4e' }}>
+              {totalPrice.toFixed(2)}
+            </p>
+          </div>
         </div>
 
         {/* Nota adicional */}

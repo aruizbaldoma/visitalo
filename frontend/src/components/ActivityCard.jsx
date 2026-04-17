@@ -110,31 +110,11 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
           </div>
           
           <div className="flex items-center gap-3">
-            {/* Precio con Blur */}
-            {isAuthenticated ? (
-              <div className="flex items-center gap-1 font-bold text-lg" style={{ color: '#052c4e' }}>
-                <Euro className="w-4 h-4" />
-                {activity.price?.toFixed(2)}
-              </div>
-            ) : (
-              <div
-                className="relative cursor-help"
-                onMouseEnter={() => setShowTooltip('price')}
-                onMouseLeave={() => setShowTooltip(null)}
-              >
-                <div 
-                  className="blur-md select-none font-bold text-lg"
-                  style={{ color: '#052c4e' }}
-                >
-                  €{activity.price?.toFixed(2) || '00.00'}
-                </div>
-                {showTooltip === 'price' && (
-                  <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-3 py-2 rounded whitespace-nowrap z-10">
-                    Se necesita iniciar sesión para ver los precios actualizados
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Precio SIEMPRE visible */}
+            <div className="flex items-center gap-1 font-bold text-lg" style={{ color: '#052c4e' }}>
+              <Euro className="w-4 h-4" />
+              {activity.price?.toFixed(2)}
+            </div>
 
             {/* Botón Reservar Actividad */}
             <a
