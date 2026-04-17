@@ -38,10 +38,10 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
   if (!itinerary || totalActivities === 0) return null;
 
   return (
-    <div className="sticky top-24">
+    <div className="sticky top-24 self-start">
       <div 
         className="bg-white shadow-lg p-6"
-        style={{ border: '2px solid #3ccca4', borderRadius: '12px' }}
+        style={{ border: '2px solid #3ccca4', borderRadius: '12px', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}
       >
         {/* Header */}
         <h3 className="text-xl font-bold mb-6" style={{ color: '#052c4e' }}>
