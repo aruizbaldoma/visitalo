@@ -151,12 +151,17 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
         </p>
         
         {hotelRecommendation && (
-          <div className="mt-6 max-w-2xl mx-auto bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div 
+            className="mt-6 max-w-2xl mx-auto bg-blue-50 p-4"
+            style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+          >
             <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <MapPin className="w-5 h-5 flex-shrink-0" style={{ color: '#3ccca4' }} />
               <div className="text-left">
-                <p className="font-semibold text-blue-900 mb-1">Recomendación de Zona</p>
-                <p className="text-sm text-blue-700">{hotelRecommendation}</p>
+                <p className="font-semibold mb-1" style={{ color: '#052c4e' }}>
+                  Recomendación de Alojamiento
+                </p>
+                <p className="text-sm text-gray-700 whitespace-pre-line">{hotelRecommendation}</p>
               </div>
             </div>
           </div>
@@ -199,9 +204,9 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
         />
       )}
 
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white shadow-lg overflow-hidden" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
         {/* Header del Día */}
-        <div className="p-6 border-b border-gray-200" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="p-6" style={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid #E5E7EB' }}>
           <div className="flex items-center gap-4">
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"

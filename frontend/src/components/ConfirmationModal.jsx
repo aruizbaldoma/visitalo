@@ -12,9 +12,9 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" style={{ borderRadius: '8px' }}>
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-white px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #E5E7EB' }}>
           <h3 className="text-2xl font-bold" style={{ color: '#052c4e' }}>
             Confirmar Itinerario
           </h3>
@@ -63,7 +63,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
                 const dayTotal = dayActivities.reduce((sum, act) => sum + (act.price || 0), 0);
 
                 return (
-                  <div key={day.day} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div key={day.day} className="bg-gray-50 p-4" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
                     <div className="flex items-center justify-between mb-2">
                       <p className="font-semibold text-gray-900">
                         Día {day.day}
@@ -102,7 +102,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
             </div>
 
             {/* Nota Legal */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <div className="bg-yellow-50 p-3 mb-4" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
               <p className="text-xs text-gray-700">
                 <span className="font-semibold">Importante:</span> Los precios mostrados son estimados y pueden variar según disponibilidad. 
                 La confirmación final y el pago se realizarán con cada proveedor de actividades.
@@ -112,8 +112,8 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
             {/* Botón de Confirmación */}
             <button
               onClick={onConfirmPayment}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-lg font-bold text-lg text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-              style={{ backgroundColor: '#3ccca4' }}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 font-bold text-lg text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
             >
               <Check className="w-5 h-5" />
               Proceder a Confirmar y Pagar

@@ -74,7 +74,7 @@ function App() {
     : 0;
 
   return (
-    <div className="App min-h-screen bg-gray-50">
+    <div className="App min-h-screen" style={{ backgroundColor: '#FFFFFF' }}>
       <Toaster position="top-center" richColors />
 
       {/* Banner Modo MOCK */}

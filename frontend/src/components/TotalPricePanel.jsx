@@ -76,13 +76,13 @@ export const TotalPricePanel = ({ itinerary, isAuthenticated, onConfirm }) => {
             onClick={onConfirm}
             disabled={!isAuthenticated}
             className={`
-              flex items-center gap-3 px-8 py-4 rounded-lg font-bold text-lg transition-all
+              flex items-center gap-3 px-8 py-4 font-bold text-lg transition-all
               ${isAuthenticated 
                 ? 'text-white shadow-lg hover:shadow-xl hover:scale-105' 
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }
             `}
-            style={isAuthenticated ? { backgroundColor: '#3ccca4' } : {}}
+            style={isAuthenticated ? { backgroundColor: '#3ccca4', borderRadius: '8px' } : { borderRadius: '8px' }}
           >
             <Check className="w-5 h-5" />
             Confirmar Itinerario

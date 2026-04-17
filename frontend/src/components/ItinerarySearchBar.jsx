@@ -20,7 +20,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails }) => {
   };
 
   return (
-    <div className="w-full bg-white shadow-md rounded-lg border border-gray-200">
+    <div className="w-full bg-white shadow-md" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
       <form onSubmit={handleSubmit} className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           {/* Destino */}
