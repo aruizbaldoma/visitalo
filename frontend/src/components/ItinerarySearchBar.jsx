@@ -93,7 +93,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails }) => {
               }}
             >
               <Search className="w-4 h-4 mr-2" />
-              Generar
+              Buscar
             </Button>
           </div>
         </div>

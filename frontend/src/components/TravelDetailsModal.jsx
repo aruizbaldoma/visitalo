@@ -1,25 +1,40 @@
 import { X, Plane, Hotel } from "lucide-react";
 import { useState, useEffect } from "react";
 
-export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays }) => {
+export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDate }) => {
   const [hasFlights, setHasFlights] = useState(false);
-  const [arrivalTime, setArrivalTime] = useState("");
-  const [departureTime, setDepartureTime] = useState("");
+  
+  // Llegada: fecha + hora
+  const [arrivalDate, setArrivalDate] = useState(startDate || "");
+  const [arrivalTime, setArrivalTime] = useState("00:00");
+  
+  // Salida: fecha + hora
+  const [departureDate, setDepartureDate] = useState("");
+  const [departureTime, setDepartureTime] = useState("00:00");
+  
   const [hasHotel, setHasHotel] = useState(false);
   const [hotelName, setHotelName] = useState("");
-  const [needsHotelRecommendation, setNeedsHotelRecommendation] = useState(false);
+
+  // Actualizar fecha de llegada cuando cambia startDate
+  useEffect(() => {
+    if (startDate) {
+      setArrivalDate(startDate);
+    }
+  }, [startDate]);
 
   useEffect(() => {
     if (!hasFlights) {
-      setArrivalTime("");
-      setDepartureTime("");
+      setArrivalDate(startDate || "");
+      setArrivalTime("00:00");
+      setDepartureDate("");
+      setDepartureTime("00:00");
     }
     if (hasHotel) {
-      setNeedsHotelRecommendation(false);
+      // No hacemos nada adicional
     } else {
       setHotelName("");
     }
-  }, [hasFlights, hasHotel]);
+  }, [hasFlights, hasHotel, startDate]);
 
   const handleSave = () => {
     const details = {
@@ -28,7 +43,8 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays }) => {
       departureTime: hasFlights ? departureTime : null,
       hasHotel,
       hotelName: hasHotel ? hotelName : null,
-      needsHotelRecommendation: !hasHotel ? needsHotelRecommendation : false
+      // Si NO tiene hotel, automáticamente activar recomendación sin mostrarlo
+      needsHotelRecommendation: !hasHotel
     };
     onSave(details);
     onClose();
@@ -63,9 +79,9 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays }) => {
               </h4>
             </div>
 
-            {/* Toggle Vuelos Reservados */}
+            {/* Toggle Vuelos */}
             <label className="flex items-center justify-between cursor-pointer">
-              <span className="text-gray-700 font-medium">¿Ya tienes tus vuelos reservados?</span>
+              <span className="text-gray-700 font-medium">¿Ya conoces los horarios de tus vuelos?</span>
               <div className="relative">
                 <input
                   type="checkbox"
@@ -87,32 +103,69 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays }) => {
               </div>
             </label>
 
-            {/* Campos de Vuelos */}
+            {/* Bloques de Llegada y Salida */}
             {hasFlights && (
-              <div className="space-y-3 pl-9">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hora de llegada (Ida)
-                  </label>
-                  <input
-                    type="time"
-                    value={arrivalTime}
-                    onChange={(e) => setArrivalTime(e.target.value)}
-                    className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
-                    style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-                  />
+              <div className="space-y-4 pl-9">
+                {/* BLOQUE LLEGADA */}
+                <div className="p-4 bg-blue-50" style={{ border: '2px solid #3ccca4', borderRadius: '8px' }}>
+                  <h5 className="font-bold mb-3" style={{ color: '#052c4e' }}>Llegada</h5>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Fecha
+                      </label>
+                      <input
+                        type="date"
+                        value={arrivalDate}
+                        onChange={(e) => setArrivalDate(e.target.value)}
+                        className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
+                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Hora
+                      </label>
+                      <input
+                        type="time"
+                        value={arrivalTime}
+                        onChange={(e) => setArrivalTime(e.target.value)}
+                        className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
+                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hora de salida (Vuelta)
-                  </label>
-                  <input
-                    type="time"
-                    value={departureTime}
-                    onChange={(e) => setDepartureTime(e.target.value)}
-                    className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
-                    style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-                  />
+
+                {/* BLOQUE SALIDA */}
+                <div className="p-4 bg-orange-50" style={{ border: '2px solid #FF6347', borderRadius: '8px' }}>
+                  <h5 className="font-bold mb-3" style={{ color: '#052c4e' }}>Salida</h5>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Fecha
+                      </label>
+                      <input
+                        type="date"
+                        value={departureDate}
+                        onChange={(e) => setDepartureDate(e.target.value)}
+                        className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
+                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Hora
+                      </label>
+                      <input
+                        type="time"
+                        value={departureTime}
+                        onChange={(e) => setDepartureTime(e.target.value)}
+                        className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
+                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -127,7 +180,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays }) => {
               </h4>
             </div>
 
-            {/* Toggle Hotel Reservado */}
+            {/* Toggle Hotel */}
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-gray-700 font-medium">¿Ya tienes reserva de hotel?</span>
               <div className="relative">
@@ -151,45 +204,27 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays }) => {
               </div>
             </label>
 
-            {/* Opciones según estado */}
-            <div className="space-y-4 pl-9">
-              {hasHotel ? (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre del Hotel (opcional)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="ej: Hotel Riu Plaza España"
-                    value={hotelName}
-                    onChange={(e) => setHotelName(e.target.value)}
-                    className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
-                    style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-                  />
-                  <p className="text-xs text-gray-500 mt-2">
-                    Si proporcionas el nombre, priorizaremos actividades cerca del hotel
-                  </p>
-                </div>
-              ) : (
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={needsHotelRecommendation}
-                    onChange={(e) => setNeedsHotelRecommendation(e.target.checked)}
-                    className="mt-1 w-4 h-4 rounded"
-                    style={{ accentColor: '#3ccca4' }}
-                  />
-                  <div>
-                    <span className="text-sm text-gray-700 font-medium">
-                      Solicitar recomendación de alojamiento a la IA
-                    </span>
-                    <p className="text-xs text-gray-500 mt-1">
-                      La IA te sugerirá el hotel más estratégico para tu itinerario
-                    </p>
-                  </div>
+            {/* Input de Hotel (solo si tiene) */}
+            {hasHotel && (
+              <div className="pl-9">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre del Hotel (opcional)
                 </label>
-              )}
-            </div>
+                <input
+                  type="text"
+                  placeholder="ej: Hotel Riu Plaza España"
+                  value={hotelName}
+                  onChange={(e) => setHotelName(e.target.value)}
+                  className="w-full px-4 py-2 focus:ring-2 focus:ring-[#3ccca4] focus:border-transparent"
+                  style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Si proporcionas el nombre, priorizaremos actividades cerca del hotel
+                </p>
+              </div>
+            )}
+            
+            {/* Nota: Si NO tiene hotel, automáticamente se activa needsHotelRecommendation sin mostrarlo */}
           </div>
         </div>
 

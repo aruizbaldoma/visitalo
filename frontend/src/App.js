@@ -107,6 +107,7 @@ function App() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveDetails}
         totalDays={totalDays}
+        startDate={searchParams?.startDate || ""}
       />
 
       {/* Timeline de Itinerario */}
