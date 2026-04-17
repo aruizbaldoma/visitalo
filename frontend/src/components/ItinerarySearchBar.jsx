@@ -42,9 +42,9 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
   return (
     <div className="w-full max-w-7xl mx-auto">
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md overflow-hidden" style={{ border: '4px solid #003580' }}>
-        <div className="flex items-center">
+        <div className="flex items-stretch">
           {/* Destino - Ligeramente más ancho */}
-          <div className="flex-[1.3] flex items-center gap-3 px-5 py-4" style={{ borderRight: '2px solid #003580' }}>
+          <div className="flex-[1.3] flex items-center gap-3 px-5 py-5" style={{ borderRight: '4px solid #003580' }}>
             <MapPin className="w-6 h-6 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -58,7 +58,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
           </div>
 
           {/* Fechas - Una sola línea horizontal */}
-          <div className="flex-1 flex items-center gap-2 px-5 py-4" style={{ borderRight: '2px solid #003580' }}>
+          <div className="flex-1 flex items-center gap-2 px-5 py-5" style={{ borderRight: '4px solid #003580' }}>
             <Calendar className="w-6 h-6 text-gray-400 flex-shrink-0" />
             
             {/* Llegada - Click directo abre calendario */}
@@ -116,9 +116,9 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
           {/* Personalizar */}
           <div 
-            className="flex-1 flex items-center justify-center gap-3 px-5 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
+            className="flex-1 flex items-center justify-center gap-3 px-5 py-5 cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={onOpenDetails}
-            style={{ borderRight: '2px solid #003580' }}
+            style={{ borderRight: '4px solid #003580' }}
           >
             <Sparkles className="w-6 h-6 flex-shrink-0" style={{ color: '#3ccca4' }} />
             <span className="text-sm font-medium text-gray-800 whitespace-nowrap">
@@ -130,7 +130,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
           <button
             type="submit"
             disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
-            className="flex-1 flex items-center justify-center gap-3 px-5 py-6 font-bold text-white transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-3 px-5 py-5 font-bold text-white transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: '#3ccca4' }}
           >
             <Search className="w-6 h-6" />
