@@ -12,7 +12,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             letterSpacing: '-0.02em'
           }}>
-            Viaja más pensando menos
+            Tu viaje perfecto, en segundos.
           </h1>
           <p className="text-base md:text-lg text-gray-600 max-w-2xl" style={{ lineHeight: '1.6' }}>
             Encuentra itinerarios personalizados en destinos increíbles y mucho más
