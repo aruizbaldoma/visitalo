@@ -21,11 +21,16 @@ export const Header = () => {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-20 py-4 flex items-center justify-between">
-        {/* Logo - Más grande y destacado */}
+        {/* Logo - Visitalo.es */}
         <div className="flex items-center">
-          <h1 className="text-3xl font-bold" style={{ color: '#052c4e' }}>
-            Rutaperfecta<span style={{ color: '#3ccca4' }}>.com</span>
-          </h1>
+          <a href="/" className="flex items-center" data-testid="header-logo-link">
+            <img
+              src="/visitalo-logo.png"
+              alt="Visitalo.es"
+              className="h-10 w-auto"
+              data-testid="header-logo-img"
+            />
+          </a>
         </div>
 
         {/* Selector de Idioma + Perfil de Usuario */}

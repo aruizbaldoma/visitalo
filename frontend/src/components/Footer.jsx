@@ -11,14 +11,10 @@ export const Footer = () => {
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <img 
-                src="https://customer-assets.emergentagent.com/job_barato-planner/artifacts/6ka0wty1_Logo_fondoblanco.png"
-                alt="Rutaperfecta.com"
-                className="h-10 w-auto"
-                style={{
-                  mixBlendMode: 'multiply',
-                  filter: 'contrast(1.3) brightness(1.15)',
-                  isolation: 'isolate'
-                }}
+                src="/visitalo-logo.png"
+                alt="Visitalo.es"
+                className="h-10 w-auto bg-white rounded px-2 py-1"
+                data-testid="footer-logo-img"
               />
             </div>
             <p className="text-gray-400 mb-4 max-w-md">
