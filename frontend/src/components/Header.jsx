@@ -27,7 +27,7 @@ export const Header = () => {
             <img
               src="/visitalo-logo.png"
               alt="Visitalo.es"
-              className="h-10 w-auto"
+              className="h-14 w-auto"
               data-testid="header-logo-img"
             />
           </a>
