@@ -473,7 +473,10 @@ JSON:"""
         departure_time: Optional[str],
         has_hotel: bool,
         hotel_name: Optional[str],
-        needs_hotel_recommendation: bool
+        hotel_category: Optional[str],
+        needs_hotel_recommendation: bool,
+        user_plan: str,
+        preferences: Optional[Dict]
     ) -> str:
         """
         Construye contexto inteligente para el prompt según las nuevas reglas
@@ -501,6 +504,8 @@ JSON:"""
         if has_hotel and hotel_name:
             parts.append(f"\nHOTEL RESERVADO:")
             parts.append(f"- Nombre: {hotel_name}")
+            if hotel_category:
+                parts.append(f"- Categoría: {hotel_category}")
             parts.append(f"- PRIORIZAR actividades en un radio geográfico cercano a este hotel.")
             parts.append(f"- Optimizar rutas para minimizar desplazamientos.")
         elif needs_hotel_recommendation:
@@ -512,121 +517,47 @@ JSON:"""
                 parts.append(f"- Recomendar UN ÚNICO hotel estratégico para todo el viaje.")
                 parts.append(f"- Justificar brevemente por qué esa ubicación es la más estratégica.")
             parts.append(f"- Incluir esta recomendación en el campo 'hotelRecommendation' del JSON.")
-        
-        return "\n".join(parts) if parts else ""
-    
-    def _clean_json(self, text: str) -> str:
-        """Limpia markdown y extrae JSON válido"""
-        if '```json' in text:
-            start = text.find('```json') + 7
-            end = text.find('```', start)
-            text = text[start:end]
-        elif '```' in text:
-            start = text.find('```') + 3
-            end = text.find('```', start)
-            text = text[start:end]
-        
-        start_brace = text.find('{')
-        end_brace = text.rfind('}') + 1
-        
-        if start_brace != -1 and end_brace > start_brace:
-            return text[start_brace:end_brace]
-        
-        return text
-    
-    def _add_time(self, time_str: str, hours: int) -> str:
-        """Suma horas a formato HH:MM"""
-        time_obj = datetime.strptime(time_str, '%H:%M')
-        new_time = time_obj + timedelta(hours=hours)
-        return new_time.strftime('%H:%M')
-    
-    def _subtract_time(self, time_str: str, hours: int) -> str:
-        """Resta horas a formato HH:MM"""
-        time_obj = datetime.strptime(time_str, '%H:%M')
-        new_time = time_obj - timedelta(hours=hours)
-        return new_time.strftime('%H:%M')
-    
-    def _build_context(
-        self,
-        total_days: int,
-        has_flights: bool,
-        arrival_time: Optional[str],
-        departure_time: Optional[str],
-        has_hotel: bool,
-        hotel_name: Optional[str],
-        needs_hotel_recommendation: bool
-    ) -> str:
-        """
-        Construye contexto inteligente para el prompt según las nuevas reglas
-        """
-        parts = []
-        
-        # REGLA 1: Sincronización Temporal con Vuelos
-        if has_flights and arrival_time:
-            parts.append(f"VUELOS RESERVADOS:")
-            parts.append(f"- Hora de llegada (Día 1): {arrival_time}")
-            parts.append(f"- El Día 1 debe comenzar DESPUÉS de la llegada. Incluir traslado del aeropuerto (1-1.5h).")
-            parts.append(f"- Primera actividad turística: aproximadamente {self._add_time(arrival_time, 2)}")
-            
-            if departure_time:
-                parts.append(f"- Hora de salida (Día {total_days}): {departure_time}")
-                parts.append(f"- El último día debe finalizar 3 HORAS ANTES de la salida ({self._subtract_time(departure_time, 3)}).")
-                parts.append(f"- Incluir tiempo para traslado al aeropuerto.")
-        else:
-            # Si NO hay vuelos, el itinerario comienza por defecto 09:00-11:00
-            parts.append(f"SIN VUELOS RESERVADOS:")
-            parts.append(f"- El Día 1 debe comenzar entre las 09:00 y 11:00 AM.")
-            parts.append(f"- El último día puede extenderse hasta las 20:00-21:00.")
-        
-        # REGLA 2: Radio de Acción (Hoteles)
-        if has_hotel and hotel_name:
-            parts.append(f"\nHOTEL RESERVADO:")
-            parts.append(f"- Nombre: {hotel_name}")
-            parts.append(f"- PRIORIZAR actividades en un radio geográfico cercano a este hotel.")
-            parts.append(f"- Optimizar rutas para minimizar desplazamientos.")
-        elif needs_hotel_recommendation:
-            parts.append(f"\nRECOMENDACIÓN DE HOTEL SOLICITADA:")
-            if total_days > 20:
-                parts.append(f"- Recomendar 2-3 hoteles estratégicos (el viaje es de {total_days} días).")
-                parts.append(f"- Justificar brevemente la ubicación de cada hotel.")
-            else:
-                parts.append(f"- Recomendar UN ÚNICO hotel estratégico para todo el viaje.")
-                parts.append(f"- Justificar brevemente por qué esa ubicación es la más estratégica.")
-            parts.append(f"- Incluir esta recomendación en el campo 'hotelRecommendation' del JSON.")
-        
-        return "\n".join(parts) if parts else ""
-    
-    def _clean_json(self, text: str) -> str:
-        """Limpia markdown y extrae JSON válido"""
-        if '```json' in text:
-            start = text.find('```json') + 7
-            end = text.find('```', start)
-            text = text[start:end]
-        elif '```' in text:
-            start = text.find('```') + 3
-            end = text.find('```', start)
-            text = text[start:end]
-        
-        start_brace = text.find('{')
-        end_brace = text.rfind('}') + 1
-        
-        if start_brace != -1 and end_brace > start_brace:
-            return text[start_brace:end_brace]
-        
-        return text
-    
-    def _add_time(self, time_str: str, hours: int) -> str:
-        """Suma horas a formato HH:MM"""
-        time_obj = datetime.strptime(time_str, '%H:%M')
-        new_time = time_obj + timedelta(hours=hours)
-        return new_time.strftime('%H:%M')
-    
-    def _subtract_time(self, time_str: str, hours: int) -> str:
-        """Resta horas a formato HH:MM"""
-        time_obj = datetime.strptime(time_str, '%H:%M')
-        new_time = time_obj - timedelta(hours=hours)
-        return new_time.strftime('%H:%M')
 
+        # REGLA 3: Personalización según plan
+        if user_plan == "plus" and preferences:
+            parts.append(f"\nPREFERENCIAS DEL USUARIO (PLAN PLUS):")
+            for key, value in preferences.items():
+                if value:
+                    parts.append(f"- {key}: {value}")
+            parts.append(f"- Adaptar el itinerario al máximo a estas preferencias.")
+        
+        return "\n".join(parts) if parts else ""
+    
+    def _clean_json(self, text: str) -> str:
+        """Limpia markdown y extrae JSON válido"""
+        if '```json' in text:
+            start = text.find('```json') + 7
+            end = text.find('```', start)
+            text = text[start:end]
+        elif '```' in text:
+            start = text.find('```') + 3
+            end = text.find('```', start)
+            text = text[start:end]
+        
+        start_brace = text.find('{')
+        end_brace = text.rfind('}') + 1
+        
+        if start_brace != -1 and end_brace > start_brace:
+            return text[start_brace:end_brace]
+        
+        return text
+    
+    def _add_time(self, time_str: str, hours: int) -> str:
+        """Suma horas a formato HH:MM"""
+        time_obj = datetime.strptime(time_str, '%H:%M')
+        new_time = time_obj + timedelta(hours=hours)
+        return new_time.strftime('%H:%M')
+    
+    def _subtract_time(self, time_str: str, hours: int) -> str:
+        """Resta horas a formato HH:MM"""
+        time_obj = datetime.strptime(time_str, '%H:%M')
+        new_time = time_obj - timedelta(hours=hours)
+        return new_time.strftime('%H:%M')
 
     def _get_personalized_activities(self, destination: str, preferences: Optional[Dict], pace: str, day_num: int) -> List[Dict]:
         """
