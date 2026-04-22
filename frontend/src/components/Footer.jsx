@@ -39,13 +39,13 @@ export const Footer = () => {
             <h3 className="text-white font-semibold mb-4">Enlaces</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#inicio" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Inicio</a>
+                <a href="/" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Inicio</a>
+              </li>
+              <li>
+                <a href="/blog" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Blog</a>
               </li>
               <li>
                 <a href="#como-funciona" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Cómo funciona</a>
-              </li>
-              <li>
-                <a href="#viajes" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Viajes</a>
               </li>
               <li>
                 <a href="#contacto" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = '#2ED3B7'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>Contacto</a>

@@ -22,6 +22,58 @@ code {
         source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+/* Blog content typography */
+.blog-content {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: #374151;
+}
+.blog-content h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: #031834;
+    margin-top: 2.25rem;
+    margin-bottom: 1rem;
+    letter-spacing: -0.015em;
+}
+.blog-content h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    color: #031834;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+}
+.blog-content p {
+    margin-bottom: 1.1rem;
+}
+.blog-content ul, .blog-content ol {
+    margin-bottom: 1.1rem;
+    padding-left: 1.5rem;
+}
+.blog-content ul { list-style: disc; }
+.blog-content ol { list-style: decimal; }
+.blog-content li {
+    margin-bottom: 0.4rem;
+}
+.blog-content a {
+    color: #031834;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.blog-content a:hover { opacity: 0.75; }
+.blog-content strong { color: #031834; font-weight: 700; }
+.blog-content hr {
+    margin: 2rem 0;
+    border-color: #e5e7eb;
+}
+.blog-content img {
+    border-radius: 0.5rem;
+    margin: 1.5rem 0;
+}
+
 @layer base {
     :root {
         --background: 0 0% 100%;

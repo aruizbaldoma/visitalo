@@ -1,12 +1,16 @@
 import { useState } from "react";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { Header } from "./components/Header";
 import { HeroItinerary } from "./components/HeroItinerary";
 import { TravelDetailsModal } from "./components/TravelDetailsModal";
 import { ItineraryTimeline } from "./components/ItineraryTimeline";
 import { Footer } from "./components/Footer";
 import { AuthCallback } from "./components/AuthCallback";
+import BlogList from "./pages/BlogList";
+import BlogPost from "./pages/BlogPost";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -17,7 +21,18 @@ function App() {
     return <AuthCallback />;
   }
 
-  return <MainApp />;
+  return (
+    <HelmetProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<MainApp />} />
+          <Route path="/blog" element={<BlogList />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="*" element={<MainApp />} />
+        </Routes>
+      </BrowserRouter>
+    </HelmetProvider>
+  );
 }
 
 function MainApp() {
