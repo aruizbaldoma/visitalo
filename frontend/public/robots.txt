@@ -1,4 +1,21 @@
+# Archivo robots.txt de Visitalo.es
+# Este archivo le dice a los buscadores (Google, Bing, etc.) qué pueden indexar.
+
+# Permitimos TODOS los rastreadores por defecto
 User-agent: *
 Allow: /
 
+# Bloqueamos rutas que no queremos indexar (API interna, auth, preview)
+Disallow: /api/
+Disallow: /auth/callback
+
+# URL del sitemap (actualízalo cuando añadas posts al blog o nuevos itinerarios)
 Sitemap: https://visitalo.es/sitemap.xml
+
+# Opcional: reglas específicas por bot (ejemplos comentados)
+# User-agent: Googlebot
+# Allow: /
+# Crawl-delay: 1
+#
+# User-agent: GPTBot
+# Disallow: /       # descomenta si no quieres que ChatGPT/OpenAI entrene con tu web

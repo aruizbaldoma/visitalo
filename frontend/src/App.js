@@ -11,6 +11,7 @@ import { Footer } from "./components/Footer";
 import { AuthCallback } from "./components/AuthCallback";
 import BlogList from "./pages/BlogList";
 import BlogPost from "./pages/BlogPost";
+import { buildItineraryUrl } from "./lib/url";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -28,6 +29,8 @@ function App() {
           <Route path="/" element={<MainApp />} />
           <Route path="/blog" element={<BlogList />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          {/* URLs SEO-friendly de itinerarios: /madrid/que-ver-en-el-retiro */}
+          <Route path="/:city/:summary" element={<MainApp />} />
           <Route path="*" element={<MainApp />} />
         </Routes>
       </BrowserRouter>
@@ -78,6 +81,17 @@ function MainApp() {
 
       setItinerary(response.data.itinerary);
       toast.dismiss();
+
+      // Actualizar URL con slug SEO amigable: /madrid/que-ver-5-dias
+      try {
+        const days = calculateDays(searchData.startDate, searchData.endDate);
+        const summary = `que-ver-${days}-dias`;
+        const url = buildItineraryUrl(searchData.destination, summary);
+        window.history.pushState({ destination: searchData.destination }, "", url);
+        document.title = `${searchData.destination} — Itinerario ${days} días | Visitalo.es`;
+      } catch (urlErr) {
+        console.warn("Could not update URL:", urlErr);
+      }
 
       if (mockMode) {
         toast.info("🎭 Modo Demo: Itinerario de ejemplo generado");
