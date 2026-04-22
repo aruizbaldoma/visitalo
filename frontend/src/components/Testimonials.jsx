@@ -46,7 +46,7 @@ export const Testimonials = () => {
         {/* Stats */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
           <div className="text-center">
-            <div className="text-4xl font-bold mb-2" style={{ color: '#052c4e' }}>12,000+</div>
+            <div className="text-4xl font-bold mb-2" style={{ color: '#031834' }}>12,000+</div>
             <div className="text-gray-600">Viajes creados</div>
           </div>
           <div className="text-center">
@@ -54,7 +54,7 @@ export const Testimonials = () => {
             <div className="text-gray-600">Ahorro promedio</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold mb-2" style={{ color: '#052c4e' }}>4.9/5</div>
+            <div className="text-4xl font-bold mb-2" style={{ color: '#031834' }}>4.9/5</div>
             <div className="text-gray-600">Valoración</div>
           </div>
           <div className="text-center">

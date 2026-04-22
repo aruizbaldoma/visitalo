@@ -20,7 +20,7 @@ export const FlightCard = ({ flight, destination, showButton = true }) => {
           className="w-12 h-12 rounded-full flex items-center justify-center"
           style={{ backgroundColor: '#f0f9ff' }}
         >
-          <Plane className="w-6 h-6" style={{ color: '#052c4e' }} />
+          <Plane className="w-6 h-6" style={{ color: '#031834' }} />
         </div>
       </div>
 

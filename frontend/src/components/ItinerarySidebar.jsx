@@ -38,20 +38,20 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
   if (!itinerary || totalActivities === 0) return null;
 
   return (
-    <div className="sticky top-24 self-start">
+    <div className="lg:sticky lg:top-24 self-start">
       <div 
         className="bg-white shadow-lg p-6"
         style={{ border: '2px solid #3ccca4', borderRadius: '12px', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}
       >
         {/* Header */}
-        <h3 className="text-xl font-bold mb-6" style={{ color: '#052c4e' }}>
+        <h3 className="text-xl font-bold mb-6" style={{ color: '#031834' }}>
           Resumen del viaje
         </h3>
 
         {/* Total de actividades */}
         <div className="mb-6">
           <p className="text-sm text-gray-500 mb-1">Total de actividades</p>
-          <p className="text-2xl font-bold" style={{ color: '#052c4e' }}>
+          <p className="text-2xl font-bold" style={{ color: '#031834' }}>
             {totalActivities}
           </p>
         </div>
@@ -92,7 +92,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
 
           <div className="flex items-baseline gap-2">
             <Euro className="w-6 h-6" style={{ color: '#3ccca4' }} />
-            <p className="text-3xl font-bold" style={{ color: '#052c4e' }}>
+            <p className="text-3xl font-bold" style={{ color: '#031834' }}>
               {totalPrice.toFixed(2)}
             </p>
           </div>

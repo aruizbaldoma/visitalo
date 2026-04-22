@@ -140,7 +140,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
   const { destination, totalDays, hotelRecommendation, days } = itineraryData;
 
   return (
-    <div className="max-w-7xl mx-auto px-20">
+    <div className="max-w-7xl mx-auto px-4 md:px-10 lg:px-20">
       {/* Modales */}
       <ActivityInfoModal
         activity={selectedActivity}
@@ -166,7 +166,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
       
       {/* Header del Itinerario */}
       <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-bold mb-3" style={{ color: '#052c4e' }}>
+        <h2 className="text-4xl md:text-5xl font-bold mb-3" style={{ color: '#031834' }}>
           {destination}
         </h2>
         <p className="text-xl text-gray-600">
@@ -174,10 +174,10 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
         </p>
       </div>
 
-      {/* Layout 3/4 + 1/4 */}
-      <div className="grid grid-cols-4 gap-8">
-        {/* Itinerario - 3/4 */}
-        <div className="col-span-3 space-y-8">
+      {/* Layout 3/4 + 1/4 en desktop, apilado en móvil/tablet */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Itinerario - 3/4 en desktop */}
+        <div className="lg:col-span-3 space-y-8">
           {days.map((day, dayIndex) => (
             <DayCard
               key={day.day}
@@ -194,8 +194,8 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
           ))}
         </div>
 
-        {/* Sidebar - 1/4 */}
-        <div className="col-span-1">
+        {/* Sidebar - 1/4 en desktop, debajo en móvil/tablet */}
+        <div className="lg:col-span-1">
           <ItinerarySidebar
             itinerary={itineraryData}
             isAuthenticated={isAuthenticated}
@@ -237,7 +237,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
               </span>
             </div>
             <div>
-              <h3 className="text-2xl font-bold" style={{ color: '#052c4e' }}>
+              <h3 className="text-2xl font-bold" style={{ color: '#031834' }}>
                 Día {day.day}
               </h3>
               <p className="text-gray-600">{formatDate(day.date)}</p>
@@ -312,7 +312,7 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
         >
           {icon}
         </div>
-        <h4 className="text-xl font-bold" style={{ color: '#052c4e' }}>
+        <h4 className="text-xl font-bold" style={{ color: '#031834' }}>
           {title}
         </h4>
       </div>

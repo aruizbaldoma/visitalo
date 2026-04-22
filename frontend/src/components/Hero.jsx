@@ -88,7 +88,7 @@ export const Hero = ({ onSearch }) => {
                 {/* Departure city */}
                 <div className="text-left">
                   <Label htmlFor="departure" className="text-gray-700 font-medium mb-2 flex items-center gap-2 text-sm">
-                    <MapPin className="w-4 h-4" style={{ color: '#052c4e' }} />
+                    <MapPin className="w-4 h-4" style={{ color: '#031834' }} />
                     Ciudad de origen
                   </Label>
                   <Select 
@@ -127,7 +127,7 @@ export const Hero = ({ onSearch }) => {
                 {/* Start date */}
                 <div className="text-left">
                   <Label htmlFor="startDate" className="text-gray-700 font-medium mb-2 flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4" style={{ color: '#052c4e' }} />
+                    <Calendar className="w-4 h-4" style={{ color: '#031834' }} />
                     Fecha de ida
                   </Label>
                   <Input
@@ -142,7 +142,7 @@ export const Hero = ({ onSearch }) => {
                 {/* End date */}
                 <div className="text-left">
                   <Label htmlFor="endDate" className="text-gray-700 font-medium mb-2 flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4" style={{ color: '#052c4e' }} />
+                    <Calendar className="w-4 h-4" style={{ color: '#031834' }} />
                     Fecha de vuelta
                   </Label>
                   <Input

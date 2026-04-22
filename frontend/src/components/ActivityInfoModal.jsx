@@ -31,7 +31,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-[#052c4e] to-[#064a7a] text-white p-6 flex items-start justify-between rounded-t-xl">
+        <div className="sticky top-0 bg-gradient-to-r from-[#031834] to-[#064a7a] text-white p-6 flex items-start justify-between rounded-t-xl">
           <div className="flex-1 pr-4">
             <h2 className="text-2xl font-bold mb-2">
               {activity.title}
@@ -59,7 +59,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
         <div className="p-6 space-y-6">
           {/* Descripción */}
           <div>
-            <h3 className="text-lg font-bold mb-3" style={{ color: '#052c4e' }}>
+            <h3 className="text-lg font-bold mb-3" style={{ color: '#031834' }}>
               Descripción Completa
             </h3>
             <p className="text-gray-700 leading-relaxed">
@@ -69,7 +69,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
 
           {/* Highlights */}
           <div>
-            <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: '#052c4e' }}>
+            <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: '#031834' }}>
               <Info className="w-5 h-5" style={{ color: '#3ccca4' }} />
               Puntos Destacados
             </h3>
@@ -86,7 +86,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
           {/* Incluye / No Incluye */}
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-bold mb-3" style={{ color: '#052c4e' }}>
+              <h3 className="text-lg font-bold mb-3" style={{ color: '#031834' }}>
                 ✓ Incluye
               </h3>
               <ul className="space-y-2">
@@ -100,7 +100,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
             </div>
 
             <div>
-              <h3 className="text-lg font-bold mb-3" style={{ color: '#052c4e' }}>
+              <h3 className="text-lg font-bold mb-3" style={{ color: '#031834' }}>
                 ✗ No Incluye
               </h3>
               <ul className="space-y-2">
@@ -116,7 +116,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
 
           {/* Punto de Encuentro */}
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <h3 className="text-sm font-bold mb-2" style={{ color: '#052c4e' }}>
+            <h3 className="text-sm font-bold mb-2" style={{ color: '#031834' }}>
               Punto de Encuentro
             </h3>
             <div className="flex items-start gap-2 text-sm text-gray-700">
@@ -143,7 +143,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
           <Button
             onClick={onClose}
             className="text-white font-semibold px-6"
-            style={{ backgroundColor: '#052c4e' }}
+            style={{ backgroundColor: '#031834' }}
           >
             Cerrar
           </Button>

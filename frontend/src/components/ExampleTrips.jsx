@@ -64,7 +64,7 @@ export const ExampleTrips = ({ searchResults = null }) => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="text-3xl font-bold" style={{ color: '#052c4e' }}>
+                      <div className="text-3xl font-bold" style={{ color: '#031834' }}>
                         {trip.price}€
                       </div>
                       <p className="text-sm text-gray-500">persona</p>
@@ -98,7 +98,7 @@ export const ExampleTrips = ({ searchResults = null }) => {
                   {/* Itinerary */}
                   <div>
                     <p className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      <Calendar className="w-4 h-4" style={{ color: '#052c4e' }} />
+                      <Calendar className="w-4 h-4" style={{ color: '#031834' }} />
                       Itinerario
                     </p>
                     <ul className="space-y-1 text-sm text-gray-600">

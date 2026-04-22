@@ -35,7 +35,7 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
             className="w-12 h-12 rounded-full flex items-center justify-center"
             style={{ backgroundColor: '#f0fdf4' }}
           >
-            <Hotel className="w-6 h-6" style={{ color: '#052c4e' }} />
+            <Hotel className="w-6 h-6" style={{ color: '#031834' }} />
           </div>
         </div>
 
@@ -75,7 +75,7 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
           className="w-12 h-12 rounded-full flex items-center justify-center"
           style={{ backgroundColor: '#f0fdf4' }}
         >
-          <Hotel className="w-6 h-6" style={{ color: '#052c4e' }} />
+          <Hotel className="w-6 h-6" style={{ color: '#031834' }} />
         </div>
       </div>
 

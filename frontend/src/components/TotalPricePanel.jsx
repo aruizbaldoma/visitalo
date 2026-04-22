@@ -42,7 +42,7 @@ export const TotalPricePanel = ({ itinerary, isAuthenticated, onConfirm }) => {
           <div className="flex items-center gap-6">
             <div>
               <p className="text-sm text-gray-500">Total de actividades</p>
-              <p className="text-lg font-bold" style={{ color: '#052c4e' }}>
+              <p className="text-lg font-bold" style={{ color: '#031834' }}>
                 {totalActivities} {totalActivities === 1 ? 'actividad' : 'actividades'}
               </p>
             </div>
@@ -53,14 +53,14 @@ export const TotalPricePanel = ({ itinerary, isAuthenticated, onConfirm }) => {
               <p className="text-sm text-gray-500">Precio total estimado</p>
               {isAuthenticated ? (
                 <div className="flex items-center gap-2">
-                  <Euro className="w-5 h-5" style={{ color: '#052c4e' }} />
-                  <p className="text-2xl font-bold" style={{ color: '#052c4e' }}>
+                  <Euro className="w-5 h-5" style={{ color: '#031834' }} />
+                  <p className="text-2xl font-bold" style={{ color: '#031834' }}>
                     {totalPrice.toFixed(2)}
                   </p>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <div className="blur-md select-none text-2xl font-bold" style={{ color: '#052c4e' }}>
+                  <div className="blur-md select-none text-2xl font-bold" style={{ color: '#031834' }}>
                     €{totalPrice.toFixed(2)}
                   </div>
                   <p className="text-xs text-gray-500 ml-2">

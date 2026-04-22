@@ -99,7 +99,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
         {/* Header */}
         <div className="sticky top-0 bg-white px-8 py-5 flex items-center justify-between" style={{ borderBottom: '1px solid #E5E7EB' }}>
           <div className="flex items-center gap-3">
-            <h3 className="text-2xl font-bold" style={{ color: '#052c4e' }}>
+            <h3 className="text-2xl font-bold" style={{ color: '#031834' }}>
               Personaliza tu viaje
             </h3>
             {isPlusUser && (
@@ -128,7 +128,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
               <div className="p-2.5 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
                 <Plane className="w-5 h-5" style={{ color: '#3ccca4' }} />
               </div>
-              <h4 className="text-lg font-bold" style={{ color: '#052c4e' }}>
+              <h4 className="text-lg font-bold" style={{ color: '#031834' }}>
                 Vuelos
               </h4>
             </div>
@@ -225,7 +225,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
               <div className="p-2.5 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
                 <Hotel className="w-5 h-5" style={{ color: '#3ccca4' }} />
               </div>
-              <h4 className="text-lg font-bold" style={{ color: '#052c4e' }}>
+              <h4 className="text-lg font-bold" style={{ color: '#031834' }}>
                 Alojamiento
               </h4>
             </div>
@@ -397,7 +397,7 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
                   <Sparkles className="w-5 h-5" style={{ color: isPlusUser ? '#3ccca4' : '#9ca3af' }} />
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold" style={{ color: isPlusUser ? '#052c4e' : '#6b7280' }}>
+                  <h4 className="text-lg font-bold" style={{ color: isPlusUser ? '#031834' : '#6b7280' }}>
                     Hazlo a tu gusto
                   </h4>
                   <p className="text-xs text-gray-500">Actividades y ritmo personalizados</p>

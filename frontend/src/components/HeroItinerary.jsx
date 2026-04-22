@@ -26,7 +26,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
         <div className="text-left mb-8">
           <h1
             className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 font-heading"
-            style={{ color: "#052c4e", letterSpacing: "-0.02em" }}
+            style={{ color: "#031834", letterSpacing: "-0.02em" }}
           >
             Tu viaje perfecto, en segundos.
           </h1>
@@ -45,9 +45,9 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-10 lg:px-20 mt-12 md:mt-16">
         <h2
           className="text-3xl font-bold mb-8 font-heading"
-          style={{ color: "#052c4e", letterSpacing: "-0.02em" }}
+          style={{ color: "#031834", letterSpacing: "-0.02em" }}
         >
-          ¿Por qué Visitalo.es?
+          ¿Por qué Visítalo.es?
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -63,7 +63,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
               >
                 <Icon className="w-7 h-7" style={{ color: "#3ccca4" }} strokeWidth={2} />
               </div>
-              <h3 className="text-xl font-bold mb-3 font-heading" style={{ color: "#052c4e" }}>
+              <h3 className="text-xl font-bold mb-3 font-heading" style={{ color: "#031834" }}>
                 {title}
               </h3>
               <p className="text-gray-600 text-sm">{text}</p>
@@ -76,7 +76,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
         className="absolute inset-0 opacity-5"
         style={{
           background: `radial-gradient(circle at 20% 50%, #3ccca4 0%, transparent 50%),
-                       radial-gradient(circle at 80% 50%, #052c4e 0%, transparent 50%)`,
+                       radial-gradient(circle at 80% 50%, #031834 0%, transparent 50%)`,
         }}
       />
     </div>

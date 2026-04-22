@@ -48,7 +48,7 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-xl">
           <div>
-            <h2 className="text-2xl font-bold" style={{ color: '#052c4e' }}>
+            <h2 className="text-2xl font-bold" style={{ color: '#031834' }}>
               Buscar Alternativa
             </h2>
             <p className="text-sm text-gray-600 mt-1">
@@ -85,7 +85,7 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
                   </div>
                 </div>
                 {isAuthenticated && (
-                  <div className="font-bold text-lg" style={{ color: '#052c4e' }}>
+                  <div className="font-bold text-lg" style={{ color: '#031834' }}>
                     €{activity.price?.toFixed(2)}
                   </div>
                 )}
@@ -148,11 +148,11 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
                           </div>
                         </div>
                         {isAuthenticated ? (
-                          <div className="font-bold text-xl" style={{ color: '#052c4e' }}>
+                          <div className="font-bold text-xl" style={{ color: '#031834' }}>
                             €{alt.price?.toFixed(2)}
                           </div>
                         ) : (
-                          <div className="blur-sm font-bold text-xl" style={{ color: '#052c4e' }}>
+                          <div className="blur-sm font-bold text-xl" style={{ color: '#031834' }}>
                             €{alt.price?.toFixed(2)}
                           </div>
                         )}

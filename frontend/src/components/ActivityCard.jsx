@@ -111,7 +111,7 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
           
           <div className="flex items-center gap-3">
             {/* Precio SIEMPRE visible */}
-            <div className="flex items-center gap-1 font-bold text-lg" style={{ color: '#052c4e' }}>
+            <div className="flex items-center gap-1 font-bold text-lg" style={{ color: '#031834' }}>
               <Euro className="w-4 h-4" />
               {activity.price?.toFixed(2)}
             </div>

@@ -25,7 +25,7 @@ export const Benefits = () => {
                 className="bg-white rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 border border-gray-100 group"
               >
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 group-hover:scale-110 transition-transform duration-300" style={{ background: 'linear-gradient(to bottom right, rgba(5, 44, 78, 0.1), rgba(60, 204, 164, 0.2))' }}>
-                  <Icon className="w-8 h-8" style={{ color: '#052c4e' }} />
+                  <Icon className="w-8 h-8" style={{ color: '#031834' }} />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">
                   {benefit.title}

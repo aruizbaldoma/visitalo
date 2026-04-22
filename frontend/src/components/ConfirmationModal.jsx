@@ -15,7 +15,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
       <div className="bg-white shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" style={{ borderRadius: '8px' }}>
         {/* Header */}
         <div className="sticky top-0 bg-white px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #E5E7EB' }}>
-          <h3 className="text-2xl font-bold" style={{ color: '#052c4e' }}>
+          <h3 className="text-2xl font-bold" style={{ color: '#031834' }}>
             Confirmar Itinerario
           </h3>
           <button
@@ -31,8 +31,8 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
           {/* Resumen del Destino */}
           <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center gap-3 mb-3">
-              <MapPin className="w-6 h-6" style={{ color: '#052c4e' }} />
-              <h4 className="text-xl font-bold" style={{ color: '#052c4e' }}>
+              <MapPin className="w-6 h-6" style={{ color: '#031834' }} />
+              <h4 className="text-xl font-bold" style={{ color: '#031834' }}>
                 {itinerary.destination}
               </h4>
             </div>
@@ -50,7 +50,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
 
           {/* Resumen de Actividades por Día */}
           <div>
-            <h5 className="font-bold text-lg mb-3" style={{ color: '#052c4e' }}>
+            <h5 className="font-bold text-lg mb-3" style={{ color: '#031834' }}>
               Resumen de Actividades
             </h5>
             <div className="space-y-3">
@@ -68,7 +68,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
                       <p className="font-semibold text-gray-900">
                         Día {day.day}
                       </p>
-                      <p className="text-sm font-bold" style={{ color: '#052c4e' }}>
+                      <p className="text-sm font-bold" style={{ color: '#031834' }}>
                         €{dayTotal.toFixed(2)}
                       </p>
                     </div>
@@ -86,7 +86,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-sm text-gray-500">Total de actividades</p>
-                <p className="text-lg font-bold" style={{ color: '#052c4e' }}>
+                <p className="text-lg font-bold" style={{ color: '#031834' }}>
                   {totalActivities} {totalActivities === 1 ? 'actividad' : 'actividades'}
                 </p>
               </div>
@@ -94,7 +94,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
                 <p className="text-sm text-gray-500">Precio Total</p>
                 <div className="flex items-center gap-2">
                   <Euro className="w-6 h-6" style={{ color: '#3ccca4' }} />
-                  <p className="text-3xl font-bold" style={{ color: '#052c4e' }}>
+                  <p className="text-3xl font-bold" style={{ color: '#031834' }}>
                     {totalPrice.toFixed(2)}
                   </p>
                 </div>
