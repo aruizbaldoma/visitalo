@@ -22,10 +22,10 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
 
   return (
     <div className="relative bg-white py-8 px-4">
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-20">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-10 lg:px-20">
         <div className="text-left mb-8">
           <h1
-            className="text-4xl md:text-5xl font-bold mb-3 font-heading"
+            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 font-heading"
             style={{ color: "#052c4e", letterSpacing: "-0.02em" }}
           >
             Tu viaje perfecto, en segundos.
@@ -42,7 +42,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-20 mt-16">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-10 lg:px-20 mt-12 md:mt-16">
         <h2
           className="text-3xl font-bold mb-8 font-heading"
           style={{ color: "#052c4e", letterSpacing: "-0.02em" }}

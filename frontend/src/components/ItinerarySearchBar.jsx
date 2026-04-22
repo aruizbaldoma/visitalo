@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Calendar as CalendarIcon, Search, Sparkles } from "lucide-react";
+import { MapPin, Calendar as CalendarIcon, Sparkles, Search } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { es } from "date-fns/locale";
@@ -31,8 +31,9 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
   };
 
   const toISO = (date) =>
-    date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : "";
-
+    date
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+      : "";
   const parseISO = (iso) => (iso ? new Date(iso + "T00:00:00") : undefined);
 
   const formatDate = (iso) => {
@@ -48,17 +49,40 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const invalid =
+    !searchData.destination || !searchData.startDate || !searchData.endDate;
+
+  // Separador horizontal (desktop) / horizontal divisor (mobile)
+  const VerticalDivider = () => (
+    <div
+      className="hidden md:flex w-1 flex-shrink-0 self-stretch items-stretch"
+      style={{ margin: "-4px 0" }}
+    >
+      <div
+        className="w-full"
+        style={{ backgroundColor: "#003580", borderRadius: "4px" }}
+      ></div>
+    </div>
+  );
+
+  const HorizontalDivider = () => (
+    <div
+      className="md:hidden h-1 w-full flex-shrink-0"
+      style={{ backgroundColor: "#003580" }}
+    ></div>
+  );
+
   return (
     <div className="w-full">
       <form
         onSubmit={handleSubmit}
         className="bg-white rounded-lg shadow-md overflow-hidden"
-        style={{ border: "4px solid #003580", height: "80px", minHeight: "80px", maxHeight: "80px" }}
+        style={{ border: "4px solid #003580" }}
         data-testid="itinerary-search-form"
       >
-        <div className="flex items-stretch" style={{ height: "100%" }}>
+        <div className="flex flex-col md:flex-row md:items-stretch md:h-20">
           {/* Bloque 1: Destino */}
-          <div className="flex-[1.3] flex items-center gap-3 px-5">
+          <div className="flex-[1.3] flex items-center gap-3 px-5 py-4 md:py-0 min-h-[60px]">
             <MapPin className="w-6 h-6 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -66,29 +90,31 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
               placeholder="¿A dónde vas a viajar?"
               value={searchData.destination}
               onChange={handleDestination}
-              className="w-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none font-medium"
+              className="w-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none font-medium bg-transparent"
               required
               data-testid="search-destination-input"
             />
           </div>
 
-          <div className="w-1 flex-shrink-0 self-stretch flex items-stretch" style={{ margin: "-4px 0" }}>
-            <div className="w-full" style={{ backgroundColor: "#003580", borderRadius: "4px" }}></div>
-          </div>
+          <HorizontalDivider />
+          <VerticalDivider />
 
           {/* Bloque 2: Fechas */}
-          <div className="flex-[1.8] flex items-center gap-2 px-5">
+          <div className="flex-[1.8] flex items-center gap-2 px-5 py-4 md:py-0 min-h-[60px]">
             <CalendarIcon className="w-6 h-6 text-gray-400 flex-shrink-0" />
 
-            {/* Fecha de llegada */}
             <Popover open={startOpen} onOpenChange={setStartOpen}>
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex-1 text-left text-sm px-2 py-1 rounded hover:bg-gray-50 transition-colors focus:outline-none"
+                  className="flex-1 text-left text-sm px-2 py-1 rounded hover:bg-gray-50 transition-colors focus:outline-none truncate"
                   data-testid="search-start-date-button"
                 >
-                  <span className={searchData.startDate ? "text-gray-800 font-medium" : "text-gray-500"}>
+                  <span
+                    className={`block truncate ${
+                      searchData.startDate ? "text-gray-800 font-medium" : "text-gray-500"
+                    }`}
+                  >
                     {searchData.startDate ? formatDate(searchData.startDate) : "Fecha de llegada"}
                   </span>
                 </button>
@@ -103,7 +129,9 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
                     if (!d) return;
                     const iso = toISO(d);
                     const endIso =
-                      searchData.endDate && new Date(searchData.endDate) < d ? "" : searchData.endDate;
+                      searchData.endDate && new Date(searchData.endDate) < d
+                        ? ""
+                        : searchData.endDate;
                     update({ startDate: iso, endDate: endIso });
                     setStartOpen(false);
                     setTimeout(() => setEndOpen(true), 150);
@@ -116,15 +144,18 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
             <div className="text-gray-600 text-base font-bold px-1">—</div>
 
-            {/* Fecha de salida */}
             <Popover open={endOpen} onOpenChange={setEndOpen}>
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex-1 text-left text-sm px-2 py-1 rounded hover:bg-gray-50 transition-colors focus:outline-none"
+                  className="flex-1 text-left text-sm px-2 py-1 rounded hover:bg-gray-50 transition-colors focus:outline-none truncate"
                   data-testid="search-end-date-button"
                 >
-                  <span className={searchData.endDate ? "text-gray-800 font-medium" : "text-gray-500"}>
+                  <span
+                    className={`block truncate ${
+                      searchData.endDate ? "text-gray-800 font-medium" : "text-gray-500"
+                    }`}
+                  >
                     {searchData.endDate ? formatDate(searchData.endDate) : "Fecha de salida"}
                   </span>
                 </button>
@@ -153,38 +184,38 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             </Popover>
           </div>
 
-          <div className="w-1 flex-shrink-0 self-stretch flex items-stretch" style={{ margin: "-4px 0" }}>
-            <div className="w-full" style={{ backgroundColor: "#003580", borderRadius: "4px" }}></div>
-          </div>
+          <HorizontalDivider />
+          <VerticalDivider />
 
           {/* Bloque 3: Personalizar */}
-          <div
-            className="flex-[0.9] flex items-center justify-center gap-2 px-4 cursor-pointer hover:bg-gray-50 transition-colors"
+          <button
+            type="button"
             onClick={onOpenDetails}
+            className="flex-[0.9] flex items-center justify-center gap-2 px-4 py-4 md:py-0 min-h-[60px] cursor-pointer hover:bg-gray-50 transition-colors"
             data-testid="search-personalize-button"
           >
             <Sparkles className="w-6 h-6 flex-shrink-0" style={{ color: "#3ccca4" }} />
-            <span className="text-sm font-medium text-gray-800 whitespace-nowrap">Personalizar</span>
-          </div>
+            <span className="text-sm font-medium text-gray-800 whitespace-nowrap">
+              Personalizar
+            </span>
+          </button>
 
-          <div className="w-1 flex-shrink-0 self-stretch flex items-stretch" style={{ margin: "-4px 0" }}>
-            <div className="w-full" style={{ backgroundColor: "#003580", borderRadius: "4px" }}></div>
-          </div>
+          <HorizontalDivider />
+          <VerticalDivider />
 
           {/* Bloque 4: Buscar */}
           <button
             type="submit"
-            disabled={!searchData.destination || !searchData.startDate || !searchData.endDate}
-            className="flex-[0.4] flex items-center justify-center px-4 font-bold transition-all hover:opacity-90"
+            disabled={invalid}
+            className="flex-[0.4] flex items-center justify-center gap-2 px-4 py-4 md:py-0 min-h-[56px] font-bold transition-all hover:opacity-90"
             style={{
               backgroundColor: "#3ccca4",
-              cursor:
-                !searchData.destination || !searchData.startDate || !searchData.endDate
-                  ? "not-allowed"
-                  : "pointer",
+              cursor: invalid ? "not-allowed" : "pointer",
+              opacity: invalid ? 0.7 : 1,
             }}
             data-testid="search-submit-button"
           >
+            <Search className="w-5 h-5 md:hidden" style={{ color: "#003580" }} />
             <span className="whitespace-nowrap" style={{ color: "#003580" }}>
               Buscar
             </span>
