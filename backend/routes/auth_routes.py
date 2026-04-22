@@ -9,6 +9,10 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 import os
 
+from pydantic import BaseModel
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
 from models.user import (
     User, UserPublic, LoginRequest, RegisterRequest, 
     SessionExchangeRequest, UserSession
@@ -21,9 +25,89 @@ from utils.auth import (
 auth_router = APIRouter()
 
 
+class GoogleTokenRequest(BaseModel):
+    credential: str
+
+
 def get_db(request: Request) -> AsyncIOMotorDatabase:
     """Dependency para obtener DB"""
     return request.app.state.db
+
+
+async def _create_session_for_user(db, user_doc):
+    """Crea una nueva sesión de 7 días y devuelve (session_token, expires_at)."""
+    session_token = generate_session_token()
+    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+    await db.user_sessions.insert_one({
+        "session_token": session_token,
+        "user_id": user_doc["user_id"],
+        "expires_at": expires_at,
+        "created_at": datetime.now(timezone.utc)
+    })
+    return session_token, expires_at
+
+
+@auth_router.post("/google")
+async def auth_google(request: GoogleTokenRequest, req: Request):
+    """Verifica el ID token de Google Identity Services y crea/actualiza usuario."""
+    db = req.app.state.db
+    client_id = os.environ.get("GOOGLE_CLIENT_ID")
+    if not client_id:
+        raise HTTPException(status_code=500, detail="GOOGLE_CLIENT_ID no configurado")
+
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            request.credential,
+            google_requests.Request(),
+            client_id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=f"Token de Google inválido: {e}")
+
+    email = idinfo.get("email")
+    if not email or not idinfo.get("email_verified", False):
+        raise HTTPException(status_code=400, detail="Email de Google no verificado")
+
+    name = idinfo.get("name") or email.split("@")[0]
+    picture = idinfo.get("picture")
+
+    user_doc = await db.users.find_one({"email": email}, {"_id": 0})
+    if not user_doc:
+        user_id = f"user_{uuid4().hex[:12]}"
+        user_doc = {
+            "user_id": user_id,
+            "email": email,
+            "name": name,
+            "picture": picture,
+            "auth_provider": "google",
+            "password_hash": None,
+            "user_plan": "basic",
+            "first_trip_used": False,
+            "subscription_expires_at": None,
+            "created_at": datetime.now(timezone.utc),
+        }
+        await db.users.insert_one(user_doc)
+    else:
+        await db.users.update_one(
+            {"user_id": user_doc["user_id"]},
+            {"$set": {"name": name, "picture": picture}},
+        )
+        user_doc["name"] = name
+        user_doc["picture"] = picture
+
+    session_token, _ = await _create_session_for_user(db, user_doc)
+
+    return {
+        "user": UserPublic(
+            user_id=user_doc["user_id"],
+            email=user_doc["email"],
+            name=user_doc["name"],
+            picture=user_doc.get("picture"),
+            user_plan=user_doc["user_plan"],
+            first_trip_used=user_doc["first_trip_used"],
+        ).dict(),
+        "session_token": session_token,
+    }
 
 
 @auth_router.post("/session")

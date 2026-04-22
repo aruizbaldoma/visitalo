@@ -67,12 +67,13 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
-  const loginWithGoogle = () => {
-    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
-    const redirectUrl = window.location.origin + "/";
-    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(
-      redirectUrl,
-    )}`;
+  const loginWithGoogle = async (credential) => {
+    const { data } = await axios.post(`${API}/api/auth/google`, {
+      credential,
+    });
+    localStorage.setItem("session_token", data.session_token);
+    setUser(data.user);
+    return data.user;
   };
 
   const logout = async () => {
