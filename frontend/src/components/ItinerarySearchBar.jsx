@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { MapPin, Calendar as CalendarIcon, Sparkles, Search } from "lucide-react";
+import { MapPin, Calendar as CalendarIcon, Search } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { es } from "date-fns/locale";
+
+const BRAND_BLUE = "#031834";
 
 export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
   const [searchData, setSearchData] = useState({
@@ -52,7 +54,6 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
   const invalid =
     !searchData.destination || !searchData.startDate || !searchData.endDate;
 
-  // Separador horizontal (desktop) / horizontal divisor (mobile)
   const VerticalDivider = () => (
     <div
       className="hidden md:flex w-1 flex-shrink-0 self-stretch items-stretch"
@@ -60,7 +61,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
     >
       <div
         className="w-full"
-        style={{ backgroundColor: "#003580", borderRadius: "4px" }}
+        style={{ backgroundColor: BRAND_BLUE, borderRadius: "4px" }}
       ></div>
     </div>
   );
@@ -68,7 +69,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
   const HorizontalDivider = () => (
     <div
       className="md:hidden h-1 w-full flex-shrink-0"
-      style={{ backgroundColor: "#003580" }}
+      style={{ backgroundColor: BRAND_BLUE }}
     ></div>
   );
 
@@ -77,7 +78,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
       <form
         onSubmit={handleSubmit}
         className="bg-white rounded-lg shadow-md overflow-hidden"
-        style={{ border: "4px solid #003580" }}
+        style={{ border: `4px solid ${BRAND_BLUE}` }}
         data-testid="itinerary-search-form"
       >
         <div className="flex flex-col md:flex-row md:items-stretch md:h-20">
@@ -194,8 +195,13 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             className="flex-[0.9] flex items-center justify-center gap-2 px-4 py-4 md:py-0 min-h-[60px] cursor-pointer hover:bg-gray-50 transition-colors"
             data-testid="search-personalize-button"
           >
-            <Sparkles className="w-6 h-6 flex-shrink-0" style={{ color: "#3ccca4" }} />
-            <span className="text-sm font-medium text-gray-800 whitespace-nowrap">
+            <img
+              src="/favicon.png"
+              alt=""
+              aria-hidden="true"
+              className="w-6 h-6 flex-shrink-0"
+            />
+            <span className="text-sm font-bold whitespace-nowrap" style={{ color: BRAND_BLUE }}>
               Personalizar
             </span>
           </button>
@@ -215,8 +221,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             }}
             data-testid="search-submit-button"
           >
-            <Search className="w-5 h-5 md:hidden" style={{ color: "#003580" }} />
-            <span className="whitespace-nowrap" style={{ color: "#003580" }}>
+            <Search className="w-5 h-5 md:hidden" style={{ color: BRAND_BLUE }} />
+            <span className="whitespace-nowrap" style={{ color: BRAND_BLUE }}>
               Buscar
             </span>
           </button>
