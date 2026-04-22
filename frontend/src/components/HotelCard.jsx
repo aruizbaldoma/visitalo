@@ -1,13 +1,10 @@
-import { Hotel, ExternalLink, MapPin, Info, RefreshCw, Trash2 } from "lucide-react";
+import { Hotel, MapPin, Info, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { getBookingUrl } from "../config/affiliates";
 
 export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onAlternative, onDelete }) => {
   const [showTooltip, setShowTooltip] = useState(null);
 
   if (!hotel) return null;
-
-  const bookingUrl = getBookingUrl(hotel.name, destination);
 
   const handleAlternative = () => {
     if (onAlternative) onAlternative(hotel);
@@ -60,10 +57,10 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
     );
   }
 
-  // Si NO es hotel del usuario, mostrar con botones y acción "Reservar"
+  // Si NO es hotel del usuario, mostrar con botones (sin Reservar - pendiente)
   return (
     <div 
-      className="flex gap-4 p-4 bg-white hover:shadow-lg transition-all group"
+      className="flex flex-col sm:flex-row gap-4 p-4 bg-white hover:shadow-lg transition-all group"
       style={{ 
         border: '1px solid #E5E7EB', 
         borderRadius: '8px'
@@ -81,21 +78,21 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
 
       {/* Contenido */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <div className="flex-1">
+        <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
+          <div className="flex-1 min-w-0">
             <h5 className="font-semibold text-gray-900 mb-1">
               {hotel.name}
             </h5>
             {hotel.zone && (
               <div className="flex items-center gap-1 text-sm text-gray-600">
-                <MapPin className="w-3 h-3" />
-                {hotel.zone}
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{hotel.zone}</span>
               </div>
             )}
           </div>
 
           {/* Botones de Acción */}
-          <div className="flex items-start gap-2 flex-shrink-0">
+          <div className="flex items-start gap-2 flex-shrink-0 self-end sm:self-start">
             {/* Botón Info */}
             {onInfo && (
               <button
@@ -153,20 +150,6 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
               </button>
             )}
           </div>
-        </div>
-
-        {/* Botón Reservar (igual que en actividades) */}
-        <div className="mt-3 pt-3" style={{ borderTop: '1px solid #E5E7EB' }}>
-          <a
-            href={bookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:shadow-lg transition-all"
-            style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
-          >
-            Reservar
-            <ExternalLink className="w-3 h-3" />
-          </a>
         </div>
       </div>
     </div>

@@ -16,15 +16,15 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
   };
 
   return (
-    <div className="flex gap-4 p-4 bg-white hover:shadow-lg transition-all group" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+    <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white hover:shadow-lg transition-all group" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
       {/* Hora */}
-      <div className="flex-shrink-0 w-20">
+      <div className="flex-shrink-0 sm:w-20 flex sm:block items-center gap-3">
         <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#3ccca4' }}>
           <Clock className="w-4 h-4" />
           {activity.time}
         </div>
         {activity.duration && (
-          <div className="text-xs text-gray-500 mt-1 ml-6">
+          <div className="text-xs text-gray-500 sm:mt-1 sm:ml-6">
             {activity.duration}
           </div>
         )}
@@ -32,8 +32,8 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
 
       {/* Contenido */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <div className="flex-1">
+        <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 mb-2">
+          <div className="flex-1 min-w-0">
             <h5 className="font-semibold text-gray-900 mb-1 text-base">
               {activity.title}
             </h5>
@@ -42,14 +42,14 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
             </p>
             {activity.location && (
               <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
-                <MapPin className="w-3 h-3" />
-                {activity.location}
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{activity.location}</span>
               </div>
             )}
           </div>
 
           {/* Botones de Acción */}
-          <div className="flex items-start gap-2 flex-shrink-0">
+          <div className="flex items-start gap-2 flex-shrink-0 self-end sm:self-start">
             {/* Botón Info */}
             <button
               onClick={() => onInfo(activity)}
@@ -104,12 +104,10 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
         </div>
 
         {/* Precio y Provider */}
-        <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid #E5E7EB' }}>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">Por {activity.provider}</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 mt-3 pt-3" style={{ borderTop: '1px solid #E5E7EB' }}>
+          <span className="text-xs text-gray-500">Por {activity.provider}</span>
+
+          <div className="flex items-center gap-3 flex-wrap">
             {/* Precio SIEMPRE visible */}
             <div className="flex items-center gap-1 font-bold text-lg" style={{ color: '#031834' }}>
               <Euro className="w-4 h-4" />
