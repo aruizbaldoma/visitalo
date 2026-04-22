@@ -6,10 +6,21 @@ import { HeroItinerary } from "./components/HeroItinerary";
 import { TravelDetailsModal } from "./components/TravelDetailsModal";
 import { ItineraryTimeline } from "./components/ItineraryTimeline";
 import { Footer } from "./components/Footer";
+import { AuthCallback } from "./components/AuthCallback";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
+  // CRITICAL: Detect session_id synchronously BEFORE any other logic runs.
+  // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+  if (typeof window !== "undefined" && window.location.hash?.includes("session_id=")) {
+    return <AuthCallback />;
+  }
+
+  return <MainApp />;
+}
+
+function MainApp() {
   const [itinerary, setItinerary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isMockMode, setIsMockMode] = useState(false);
