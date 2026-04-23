@@ -14,9 +14,9 @@ class User(BaseModel):
     picture: Optional[str] = None
     auth_provider: str  # 'google' or 'email'
     password_hash: Optional[str] = None  # Solo para auth_provider='email'
-    user_plan: str = 'basic'  # 'basic' or 'plus'
-    first_trip_used: bool = False  # Para otorgar Plus gratis en primer viaje
-    subscription_expires_at: Optional[datetime] = None  # Para suscripción Plus (1€/mes)
+    user_plan: str = 'plus'  # 'basic' or 'plus'
+    plus_searches_remaining: int = 5  # búsquedas PLUS gratis restantes
+    subscription_expires_at: Optional[datetime] = None  # Suscripción PLUS de pago (renueva cada mes)
     created_at: datetime
 
 
@@ -35,7 +35,9 @@ class UserPublic(BaseModel):
     name: str
     picture: Optional[str] = None
     user_plan: str
-    first_trip_used: bool
+    plus_searches_remaining: int = 0
+    subscription_active: bool = False
+    subscription_expires_at: Optional[datetime] = None
 
 
 class LoginRequest(BaseModel):

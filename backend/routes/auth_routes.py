@@ -21,6 +21,7 @@ from utils.auth import (
     hash_password, verify_password, generate_session_token,
     get_current_user, get_current_user_optional
 )
+from services.user_service import build_user_public, consume_plus_search
 
 auth_router = APIRouter()
 
@@ -81,8 +82,8 @@ async def auth_google(request: GoogleTokenRequest, req: Request):
             "picture": picture,
             "auth_provider": "google",
             "password_hash": None,
-            "user_plan": "basic",
-            "first_trip_used": False,
+            "user_plan": "plus",
+            "plus_searches_remaining": 5,
             "subscription_expires_at": None,
             "created_at": datetime.now(timezone.utc),
         }
@@ -98,14 +99,7 @@ async def auth_google(request: GoogleTokenRequest, req: Request):
     session_token, _ = await _create_session_for_user(db, user_doc)
 
     return {
-        "user": UserPublic(
-            user_id=user_doc["user_id"],
-            email=user_doc["email"],
-            name=user_doc["name"],
-            picture=user_doc.get("picture"),
-            user_plan=user_doc["user_plan"],
-            first_trip_used=user_doc["first_trip_used"],
-        ).dict(),
+        "user": build_user_public(user_doc),
         "session_token": session_token,
     }
 
@@ -159,8 +153,8 @@ async def exchange_session_id(
                 "picture": picture,
                 "auth_provider": "google",
                 "password_hash": None,
-                "user_plan": "basic",
-                "first_trip_used": False,
+                "user_plan": "plus",
+                "plus_searches_remaining": 5,
                 "subscription_expires_at": None,
                 "created_at": datetime.now(timezone.utc)
             }
@@ -190,18 +184,8 @@ async def exchange_session_id(
         }
         await db.user_sessions.insert_one(session)
         
-        # Retornar usuario y session_token
-        user_public = UserPublic(
-            user_id=user_doc["user_id"],
-            email=user_doc["email"],
-            name=user_doc["name"],
-            picture=user_doc.get("picture"),
-            user_plan=user_doc["user_plan"],
-            first_trip_used=user_doc["first_trip_used"]
-        )
-        
         return {
-            "user": user_public.dict(),
+            "user": build_user_public(user_doc),
             "session_token": session_token
         }
         
@@ -235,8 +219,8 @@ async def register_with_email(
         "picture": None,
         "auth_provider": "email",
         "password_hash": password_hashed,
-        "user_plan": "basic",
-        "first_trip_used": False,
+        "user_plan": "plus",
+        "plus_searches_remaining": 5,
         "subscription_expires_at": None,
         "created_at": datetime.now(timezone.utc)
     }
@@ -255,18 +239,8 @@ async def register_with_email(
     }
     await db.user_sessions.insert_one(session)
     
-    # Retornar usuario y session_token
-    user_public = UserPublic(
-        user_id=user_id,
-        email=request.email,
-        name=request.name,
-        picture=None,
-        user_plan="basic",
-        first_trip_used=False
-    )
-    
     return {
-        "user": user_public.dict(),
+        "user": build_user_public(new_user),
         "session_token": session_token
     }
 
@@ -307,18 +281,8 @@ async def login_with_email(
     }
     await db.user_sessions.insert_one(session)
     
-    # Retornar usuario y session_token
-    user_public = UserPublic(
-        user_id=user_doc["user_id"],
-        email=user_doc["email"],
-        name=user_doc["name"],
-        picture=user_doc.get("picture"),
-        user_plan=user_doc["user_plan"],
-        first_trip_used=user_doc["first_trip_used"]
-    )
-    
     return {
-        "user": user_public.dict(),
+        "user": build_user_public(user_doc),
         "session_token": session_token
     }
 
@@ -328,11 +292,21 @@ async def get_current_user_info(
     req: Request,
     user: dict = Depends(get_current_user)
 ):
+    """Obtener información del usuario actual — calcula plan efectivo."""
+    return build_user_public(user)
+
+
+@auth_router.post("/consume-plus-search")
+async def consume_plus_search_endpoint(
+    req: Request,
+    user: dict = Depends(get_current_user)
+):
+    """Consume 1 búsqueda PLUS gratis (o devuelve plus si la suscripción está activa).
+
+    Respuesta: { effective_plan, plus_searches_remaining, subscription_active }
     """
-    Obtener información del usuario actual
-    Endpoint para verificar sesión
-    """
-    return UserPublic(**user).dict()
+    db = req.app.state.db
+    return await consume_plus_search(db, user["user_id"])
 
 
 @auth_router.post("/logout")

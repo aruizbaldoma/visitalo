@@ -45,7 +45,7 @@ function App() {
 }
 
 function MainApp() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, refresh } = useAuth();
   const [itinerary, setItinerary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isMockMode, setIsMockMode] = useState(false);
@@ -55,8 +55,8 @@ function MainApp() {
   const [currentSearchData, setCurrentSearchData] = useState({ startDate: "", endDate: "", destination: "" });
   const [savingTrip, setSavingTrip] = useState(false);
 
-  // Mock user plan - cambiar a 'plus' para testear funcionalidad premium
-  const [userPlan, setUserPlan] = useState('basic'); // 'basic' o 'plus'
+  // Plan efectivo: derivado del usuario autenticado (basic por defecto).
+  const userPlan = isAuthenticated && user?.user_plan === "plus" ? "plus" : "basic";
 
   const handleSearchDataChange = (data) => {
     setCurrentSearchData(data);
@@ -99,34 +99,58 @@ function MainApp() {
     setSearchParams(searchData);
     toast.loading("Generando tu itinerario personalizado...");
 
+    let effectivePlan = userPlan;
     try {
+      // Si el usuario está autenticado, consumimos una búsqueda PLUS (o usa la suscripción activa).
+      if (isAuthenticated) {
+        const token = localStorage.getItem("session_token");
+        const { data: consumeResp } = await axios.post(
+          `${API}/api/auth/consume-plus-search`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        effectivePlan = consumeResp.effective_plan || "basic";
+        if (
+          effectivePlan === "plus" &&
+          !consumeResp.subscription_active &&
+          typeof consumeResp.plus_searches_remaining === "number"
+        ) {
+          const left = consumeResp.plus_searches_remaining;
+          if (left > 0) {
+            toast.info(`Modo PLUS activado · te quedan ${left} búsquedas gratis`);
+          } else {
+            toast.info("Esta es tu última búsqueda PLUS gratis. Después pasarás a Basic.");
+          }
+        }
+        // Refrescar el usuario para que la UI reaccione al nuevo plan.
+        refresh && refresh();
+      }
+
       const requestData = {
         destination: searchData.destination,
         startDate: searchData.startDate,
         endDate: searchData.endDate,
-        userPlan: userPlan,
-        ...travelDetails
+        userPlan: effectivePlan,
+        ...travelDetails,
       };
 
       const response = await axios.post(`${API}/api/generate-itinerary`, requestData);
 
-      const mockMode = response.headers['x-mock-mode'] === 'true';
+      const mockMode = response.headers["x-mock-mode"] === "true";
       setIsMockMode(mockMode);
 
       setItinerary(response.data.itinerary);
       toast.dismiss();
 
       if (mockMode) {
-        toast.info("🎭 Modo Demo: Itinerario de ejemplo generado");
+        toast.info("Modo Demo: itinerario de ejemplo generado");
       } else {
         toast.success("¡Itinerario generado exitosamente!");
       }
 
-      // Scroll al itinerario
       setTimeout(() => {
-        document.getElementById('itinerary')?.scrollIntoView({ behavior: 'smooth' });
+        document.getElementById("itinerary")?.scrollIntoView({ behavior: "smooth" });
       }, 500);
-
     } catch (error) {
       toast.dismiss();
       console.error("Error:", error);
@@ -161,43 +185,9 @@ function MainApp() {
             fontWeight: '500'
           }}
         >
-          🎭 MODO DEMO ACTIVO - Itinerario de ejemplo (sin usar API de Gemini)
+          MODO DEMO ACTIVO — itinerario de ejemplo
         </div>
       )}
-      
-      {/* Banner Plan Testing - Solo para desarrollo */}
-      <div
-        style={{
-          background: 'linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%)',
-          color: 'white',
-          padding: '8px 16px',
-          textAlign: 'center',
-          fontSize: '13px',
-          fontWeight: '500',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px'
-        }}
-      >
-        <span>🧪 TEST MODE:</span>
-        <select 
-          value={userPlan} 
-          onChange={(e) => setUserPlan(e.target.value)}
-          style={{
-            padding: '4px 12px',
-            borderRadius: '6px',
-            border: 'none',
-            backgroundColor: 'white',
-            color: '#1f2937',
-            fontWeight: '600',
-            cursor: 'pointer'
-          }}
-        >
-          <option value="basic">👤 Plan BASIC</option>
-          <option value="plus">⭐ Plan PLUS</option>
-        </select>
-      </div>
 
       <Header />
 

@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from routes.itinerary_routes import itinerary_router
 from routes.auth_routes import auth_router
 from routes.trips_routes import trips_router
+from routes.subscription_routes import subscription_router
 
 
 ROOT_DIR = Path(__file__).parent
@@ -110,6 +111,7 @@ app.include_router(api_router)
 app.include_router(itinerary_router, prefix="/api")
 app.include_router(auth_router, prefix="/api/auth")  # Rutas de autenticación
 app.include_router(trips_router, prefix="/api/trips")  # Viajes guardados
+app.include_router(subscription_router, prefix="/api/subscription")  # Suscripción PLUS (Stripe-ready)
 
 # Almacenar DB en app.state para acceso en dependencies
 @app.on_event("startup")
