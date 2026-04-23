@@ -613,13 +613,13 @@ const PlusCustomizer = ({
         Tus sitios &quot;Sí o Sí&quot;
       </p>
       <p className="text-xs text-gray-500 mb-2">
-        Pega aquí los sitios que has visto en TikTok o Instagram, o cualquier lugar que quieras
-        visitar obligatoriamente. Si lo tienes en el radar, lo encajamos en el plan.
+        ¿Tienes algún sitio fichado que no puede faltar? Pégalo aquí — si lo tienes en el radar,
+        lo encajamos en el plan.
       </p>
       <textarea
         value={mustVisit}
         onChange={(e) => setMustVisit(e.target.value)}
-        placeholder="Ej: cenar en La Terraza del Casino, atardecer en el Templo de Debod, café en @spot_de_tiktok…"
+        placeholder="Ej: cenar en La Terraza del Casino, atardecer en el Templo de Debod, ese café que viste el otro día…"
         rows={3}
         className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#3ccca4] resize-none"
         data-testid="must-visit-textarea"

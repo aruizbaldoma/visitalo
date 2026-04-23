@@ -148,13 +148,13 @@ export const CookieBanner = () => {
               />
               <CookieCategory
                 title="Analíticas"
-                description="Nos ayudan a entender cómo usas la web (Google Analytics) para mejorar el servicio. Los datos son anónimos."
+                description="Nos ayudan a entender cómo usas la web con herramientas de analítica, para mejorar el servicio. Los datos son anónimos."
                 enabled={prefs.analytics}
                 onChange={(v) => setPrefs({ ...prefs, analytics: v })}
               />
               <CookieCategory
                 title="Marketing y afiliados"
-                description="Usadas para mostrarte destinos y ofertas relevantes, y medir reservas por enlaces de afiliados (Booking, Civitatis)."
+                description="Usadas para mostrarte destinos y ofertas relevantes, y medir reservas a través de nuestros partners de alojamiento y actividades."
                 enabled={prefs.marketing}
                 onChange={(v) => setPrefs({ ...prefs, marketing: v })}
               />

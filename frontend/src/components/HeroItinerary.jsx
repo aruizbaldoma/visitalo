@@ -179,7 +179,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 className="text-base md:text-lg mb-7"
                 style={{ color: "rgba(255,255,255,0.78)", lineHeight: "1.65" }}
               >
-                Hoteles boutique que no salen en Booking. Casas rurales mágicas.
+                Hoteles boutique que no encuentras en las webs de siempre. Casas rurales mágicas.
                 Restaurantes con alma. Actividades secretas. Todo lo bueno, solo para los que van en serio.
               </p>
 
@@ -238,7 +238,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 {[
                   { title: "Casa rural en la Alpujarra", meta: "Única · Sin masificación" },
                   { title: "Cena privada en Lisboa", meta: "Solo PLUS" },
-                  { title: "Hotel boutique · Cinque Terre", meta: "Hand-picked" },
+                  { title: "Hotel boutique · Cinque Terre", meta: "Selección única" },
                 ].map((row) => (
                   <div
                     key={row.title}
@@ -305,7 +305,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 {[
                   { Icon: Landmark, tag: "Top 1%", title: "Tour secreto por la Alhambra" },
                   { Icon: Wine, tag: "Solo PLUS", title: "Cena maridada en La Rioja" },
-                  { Icon: Waves, tag: "Hand-picked", title: "Kayak al atardecer · Ibiza" },
+                  { Icon: Waves, tag: "Solo aquí", title: "Kayak al atardecer · Ibiza" },
                   { Icon: UtensilsCrossed, tag: "Tendencia", title: "Street food tour · Nápoles" },
                 ].map((act, idx) => {
                   const { Icon } = act;
