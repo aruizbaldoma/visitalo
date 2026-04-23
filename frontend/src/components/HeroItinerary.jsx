@@ -25,7 +25,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
     },
     {
       Icon: Eye,
-      eyebrow: "Curación PRO",
+      eyebrow: "Descubrimiento",
       title: "Rutas sin puntos ciegos.",
       text: "Cruzamos los spots virales con los rincones que solo conocen los locales. Visitas lo imprescindible y descubres lo que casi nadie encuentra.",
     },
