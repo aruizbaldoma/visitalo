@@ -14,6 +14,7 @@ import { Bookmark } from "lucide-react";
 import BlogList from "./pages/BlogList";
 import BlogPost from "./pages/BlogPost";
 import MyTrips from "./pages/MyTrips";
+import Legal from "./pages/Legal";
 import { CookieBanner } from "./components/CookieBanner";
 
 const API = process.env.REACT_APP_BACKEND_URL;
@@ -33,6 +34,8 @@ function App() {
           <Route path="/blog" element={<BlogList />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/misviajes" element={<MyTrips />} />
+          <Route path="/legal" element={<Legal />} />
+          <Route path="/legal/:slug" element={<Legal />} />
           <Route path="*" element={<MainApp />} />
         </Routes>
         <CookieBanner />

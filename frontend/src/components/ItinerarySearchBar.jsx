@@ -222,7 +222,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
           >
             <Search className="w-5 h-5 md:hidden" style={{ color: BRAND_BLUE }} />
             <span className="whitespace-nowrap" style={{ color: BRAND_BLUE }}>
-              Buscar
+              ¡Montar mi plan!
             </span>
           </button>
         </div>
