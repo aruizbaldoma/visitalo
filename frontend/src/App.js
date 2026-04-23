@@ -9,8 +9,11 @@ import { TravelDetailsModal } from "./components/TravelDetailsModal";
 import { ItineraryTimeline } from "./components/ItineraryTimeline";
 import { Footer } from "./components/Footer";
 import { AuthCallback } from "./components/AuthCallback";
+import { useAuth } from "./contexts/AuthContext";
+import { Bookmark } from "lucide-react";
 import BlogList from "./pages/BlogList";
 import BlogPost from "./pages/BlogPost";
+import MyTrips from "./pages/MyTrips";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -28,6 +31,7 @@ function App() {
           <Route path="/" element={<MainApp />} />
           <Route path="/blog" element={<BlogList />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/misviajes" element={<MyTrips />} />
           <Route path="*" element={<MainApp />} />
         </Routes>
       </BrowserRouter>
@@ -36,6 +40,7 @@ function App() {
 }
 
 function MainApp() {
+  const { isAuthenticated } = useAuth();
   const [itinerary, setItinerary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isMockMode, setIsMockMode] = useState(false);
@@ -43,12 +48,39 @@ function MainApp() {
   const [travelDetails, setTravelDetails] = useState(null);
   const [searchParams, setSearchParams] = useState(null);
   const [currentSearchData, setCurrentSearchData] = useState({ startDate: "", endDate: "", destination: "" });
-  
+  const [savingTrip, setSavingTrip] = useState(false);
+
   // Mock user plan - cambiar a 'plus' para testear funcionalidad premium
   const [userPlan, setUserPlan] = useState('basic'); // 'basic' o 'plus'
 
   const handleSearchDataChange = (data) => {
     setCurrentSearchData(data);
+  };
+
+  const handleSaveTrip = async () => {
+    if (!itinerary || !searchParams) return;
+    setSavingTrip(true);
+    try {
+      const token = localStorage.getItem("session_token");
+      const days = calculateDays(searchParams.startDate, searchParams.endDate);
+      await axios.post(
+        `${API}/api/trips/save`,
+        {
+          destination: searchParams.destination,
+          startDate: searchParams.startDate,
+          endDate: searchParams.endDate,
+          title: `${searchParams.destination} · ${days} días`,
+          itinerary,
+        },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      toast.success("¡Viaje guardado en Mis Viajes!");
+    } catch (err) {
+      console.error("save trip error", err);
+      toast.error("No se pudo guardar el viaje");
+    } finally {
+      setSavingTrip(false);
+    }
   };
 
   const calculateDays = (start, end) => {
@@ -180,6 +212,8 @@ function MainApp() {
         startDate={currentSearchData.startDate || searchParams?.startDate || ""}
         endDate={currentSearchData.endDate || searchParams?.endDate || ""}
         userPlan={userPlan}
+        isAuthenticated={isAuthenticated}
+        onOpenAuth={() => window.dispatchEvent(new Event("visitalo:open-auth"))}
       />
 
       {/* Timeline de Itinerario */}
@@ -191,7 +225,23 @@ function MainApp() {
               <p className="text-gray-600 text-lg">Generando tu itinerario personalizado...</p>
             </div>
           ) : (
-            <ItineraryTimeline itinerary={itinerary} isAuthenticated={false} />
+            <>
+              {itinerary && isAuthenticated && (
+                <div className="max-w-7xl mx-auto px-4 md:px-10 lg:px-20 mb-4 flex justify-end">
+                  <button
+                    onClick={handleSaveTrip}
+                    disabled={savingTrip}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all hover:opacity-90 disabled:opacity-60"
+                    style={{ backgroundColor: '#3ccca4', color: '#031834' }}
+                    data-testid="save-trip-button"
+                  >
+                    <Bookmark className="w-4 h-4" />
+                    {savingTrip ? "Guardando..." : "Guardar en Mis Viajes"}
+                  </button>
+                </div>
+              )}
+              <ItineraryTimeline itinerary={itinerary} isAuthenticated={isAuthenticated} />
+            </>
           )}
         </div>
       </section>

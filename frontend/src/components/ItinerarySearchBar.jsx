@@ -217,7 +217,6 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             style={{
               backgroundColor: "#3ccca4",
               cursor: invalid ? "not-allowed" : "pointer",
-              opacity: invalid ? 0.7 : 1,
             }}
             data-testid="search-submit-button"
           >

@@ -1,7 +1,7 @@
 import { X, Plane, Hotel, Sparkles, Plus, Trash2, Crown } from "lucide-react";
 import { useState, useEffect } from "react";
 
-export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDate, endDate, userPlan = 'basic' }) => {
+export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDate, endDate, userPlan = 'basic', isAuthenticated = false, onOpenAuth }) => {
   // Estado de Vuelos
   const [hasFlights, setHasFlights] = useState(false);
   const [arrivalDate, setArrivalDate] = useState("");
@@ -121,6 +121,43 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
 
         {/* Content */}
         <div className="px-8 py-6 space-y-8">
+
+          {/* Banner PLUS gratis para usuarios NO autenticados */}
+          {!isAuthenticated && (
+            <div
+              className="rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center gap-4"
+              style={{
+                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+              }}
+              data-testid="plus-promo-banner"
+            >
+              <div className="flex items-center gap-3 flex-1">
+                <div className="p-2 bg-white/30 rounded-lg">
+                  <Crown className="w-6 h-6" style={{ color: '#031834' }} />
+                </div>
+                <div>
+                  <p className="font-bold text-lg" style={{ color: '#031834' }}>
+                    Disfruta de una cuenta PLUS en cuanto te registres 🎁
+                  </p>
+                  <p className="text-sm" style={{ color: '#031834' }}>
+                    Personaliza cada detalle de tu viaje y desbloquea las recomendaciones inteligentes.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenAuth && onOpenAuth();
+                }}
+                className="px-5 py-2.5 rounded-lg font-bold text-sm transition-all hover:opacity-90 whitespace-nowrap"
+                style={{ backgroundColor: '#031834', color: '#fff' }}
+                data-testid="plus-promo-auth-button"
+              >
+                Registrarme gratis
+              </button>
+            </div>
+          )}
           
           {/* BLOQUE 1: VUELOS - Estilo Profesional Mejorado */}
           <div className="space-y-4">

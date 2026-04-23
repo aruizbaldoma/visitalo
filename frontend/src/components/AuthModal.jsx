@@ -19,8 +19,14 @@ export const AuthModal = ({ isOpen, onClose }) => {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      await loginWithGoogle(credentialResponse.credential);
-      toast.success("¡Bienvenido!");
+      const userBefore = localStorage.getItem("session_token");
+      const newUser = await loginWithGoogle(credentialResponse.credential);
+      // Es nuevo si no había token antes y el usuario no tiene first_trip_used
+      if (!userBefore && newUser && newUser.first_trip_used === false) {
+        window.dispatchEvent(new Event("visitalo:welcome"));
+      } else {
+        toast.success("¡Bienvenido!");
+      }
       onClose();
     } catch (err) {
       const msg = err?.response?.data?.detail || "Error al iniciar sesión con Google";
@@ -41,7 +47,8 @@ export const AuthModal = ({ isOpen, onClose }) => {
         toast.success("¡Bienvenido de nuevo!");
       } else {
         await registerWithEmail(email, password, name);
-        toast.success("Cuenta creada correctamente");
+        // Al registrarse por primera vez, disparar welcome modal
+        window.dispatchEvent(new Event("visitalo:welcome"));
       }
       onClose();
     } catch (err) {

@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 # from services.gemini_service import GeminiTravelService  # Deprecated - usar itinerary_service
 from routes.itinerary_routes import itinerary_router
 from routes.auth_routes import auth_router
+from routes.trips_routes import trips_router
 
 
 ROOT_DIR = Path(__file__).parent
@@ -108,6 +109,7 @@ async def get_status_checks():
 app.include_router(api_router)
 app.include_router(itinerary_router, prefix="/api")
 app.include_router(auth_router, prefix="/api/auth")  # Rutas de autenticación
+app.include_router(trips_router, prefix="/api/trips")  # Viajes guardados
 
 # Almacenar DB en app.state para acceso en dependencies
 @app.on_event("startup")

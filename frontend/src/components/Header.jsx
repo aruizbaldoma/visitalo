@@ -1,7 +1,8 @@
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Luggage } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "./AuthModal";
+import { WelcomeModal } from "./WelcomeModal";
 
 const LANGUAGES = [
   { code: "ES", name: "Español", cc: "es" },
@@ -37,6 +38,7 @@ export const Header = () => {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [currentLang, setCurrentLang] = useState("ES");
 
   const langRef = useRef(null);
@@ -55,6 +57,18 @@ export const Header = () => {
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Escuchar eventos globales para abrir el modal desde otros componentes
+  useEffect(() => {
+    const openHandler = () => setShowAuthModal(true);
+    const welcomeHandler = () => setShowWelcome(true);
+    window.addEventListener("visitalo:open-auth", openHandler);
+    window.addEventListener("visitalo:welcome", welcomeHandler);
+    return () => {
+      window.removeEventListener("visitalo:open-auth", openHandler);
+      window.removeEventListener("visitalo:welcome", welcomeHandler);
+    };
   }, []);
 
   const handleLangChange = (code) => {
@@ -157,7 +171,7 @@ export const Header = () => {
 
               {isAuthenticated && showUserMenu && (
                 <div
-                  className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+                  className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
                   style={{ zIndex: 100 }}
                   data-testid="user-menu"
                 >
@@ -165,11 +179,18 @@ export const Header = () => {
                     <p className="text-sm font-semibold text-gray-800 truncate">
                       {user?.name || "Usuario"}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                   </div>
+                  <a
+                    href="/misviajes"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    data-testid="user-mytrips-link"
+                  >
+                    <Luggage className="w-4 h-4" style={{ color: "#031834" }} />
+                    Mis Viajes
+                  </a>
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-100"
                     data-testid="user-logout-button"
                   >
                     <LogOut className="w-4 h-4" />
@@ -185,6 +206,11 @@ export const Header = () => {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
+      />
+      <WelcomeModal
+        isOpen={showWelcome}
+        userName={user?.name}
+        onClose={() => setShowWelcome(false)}
       />
     </>
   );
