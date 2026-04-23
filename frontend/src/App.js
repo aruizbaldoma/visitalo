@@ -235,7 +235,7 @@ function MainApp() {
                   </button>
                 </div>
               )}
-              <ItineraryTimeline itinerary={itinerary} isAuthenticated={isAuthenticated} />
+              <ItineraryTimeline itinerary={itinerary} isAuthenticated={isAuthenticated} travelDetails={travelDetails} />
             </>
           )}
         </div>

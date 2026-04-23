@@ -1,6 +1,7 @@
 import {
   X,
   PlaneLanding,
+  PlaneTakeoff,
   Hotel,
   Crown,
   Compass,
@@ -23,8 +24,12 @@ import {
   UtensilsCrossed,
   Wine,
   Coffee,
+  Plus,
+  Trash2,
+  Route,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { AuthModal } from "./AuthModal";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
@@ -103,15 +108,26 @@ export const TravelDetailsModal = ({
   const [transportReady, setTransportReady] = useState(false);
   const [arrivalDateTime, setArrivalDateTime] = useState("");
 
-  // Bloque 2: alojamiento (selección múltiple)
+  // Bloque 2: salida (vuelta)
+  const [departureReady, setDepartureReady] = useState(false);
+  const [departureDateTime, setDepartureDateTime] = useState("");
+
+  // Bloque 3: multi-ciudad
+  const [multiCity, setMultiCity] = useState(false);
+  const [cities, setCities] = useState([{ name: "", startDate: "", endDate: "" }]);
+
+  // Bloque 4: alojamiento (selección múltiple)
   const [hotelCategories, setHotelCategories] = useState(["standard"]);
 
-  // Bloque 3: ¿Qué te pide el cuerpo? (PLUS)
+  // Bloque 5: ¿Qué te pide el cuerpo? (PLUS)
   const [groupType, setGroupType] = useState("pareja");
   const [budget, setBudget] = useState("balanced");
   const [budgetAmount, setBudgetAmount] = useState(1000);
   const [activities, setActivities] = useState([]);
   const [mustVisit, setMustVisit] = useState("");
+
+  // Auth modal anidado (sin cerrar el modal de personalización)
+  const [showNestedAuth, setShowNestedAuth] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -119,8 +135,11 @@ export const TravelDetailsModal = ({
     if (startDate && !arrivalDateTime) {
       setArrivalDateTime(`${startDate}T12:00`);
     }
+    if (endDate && !departureDateTime) {
+      setDepartureDateTime(`${endDate}T18:00`);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, startDate]);
+  }, [isOpen, startDate, endDate]);
 
   if (!isOpen) return null;
 
@@ -138,15 +157,35 @@ export const TravelDetailsModal = ({
       prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id],
     );
 
-  const goToAuth = () => {
-    onClose();
-    onOpenAuth && onOpenAuth();
+  const addCity = () =>
+    setCities((prev) => [...prev, { name: "", startDate: "", endDate: "" }]);
+
+  const removeCity = (idx) =>
+    setCities((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev));
+
+  const updateCity = (idx, field, value) =>
+    setCities((prev) => prev.map((c, i) => (i === idx ? { ...c, [field]: value } : c)));
+
+  // CTA del upsell PLUS: si no está autenticado → abrir login nested; si auth → flujo Stripe (TODO).
+  const handlePlusCta = () => {
+    if (!isAuthenticated) {
+      setShowNestedAuth(true);
+    } else {
+      // Usuario autenticado en plan basic: futuro checkout Stripe.
+      onOpenAuth && onOpenAuth();
+    }
   };
+
+  const plusCtaLabel = isAuthenticated ? "Desbloquear mi viaje PLUS" : "Iniciar sesión / Registrarme";
 
   const handleSubmit = () => {
     const details = {
       transportReady,
       arrivalDateTime: transportReady ? arrivalDateTime : null,
+      departureReady,
+      departureDateTime: departureReady ? departureDateTime : null,
+      multiCity,
+      cities: multiCity ? cities.filter((c) => c.name.trim()) : [],
       hotelCategories: isPlusUser ? hotelCategories : ["standard"],
       ...(isPlusUser
         ? {
@@ -238,21 +277,162 @@ export const TravelDetailsModal = ({
             )}
           </Section>
 
-          {/* Bloque 2: Alojamiento */}
+          {/* Bloque 2: Tu salida */}
+          <Section
+            Icon={PlaneTakeoff}
+            title="Tu salida"
+            subtitle="¿Tienes ya el vuelo o transporte de vuelta?"
+          >
+            <p className="text-xs text-gray-500 mb-4">
+              Si nos indicas a qué hora sales del destino, exprimimos el último día sin prisas
+              y evitamos cruzarlo con desplazamientos.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <ChoiceButton
+                active={departureReady}
+                onClick={() => setDepartureReady(true)}
+                label="Sí, ya lo tengo"
+                data-testid="departure-yes"
+              />
+              <ChoiceButton
+                active={!departureReady}
+                onClick={() => setDepartureReady(false)}
+                label="Todavía no"
+                data-testid="departure-no"
+              />
+            </div>
+
+            {departureReady && (
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: BRAND_BLUE }}>
+                  Fecha y hora de salida del destino
+                </label>
+                <input
+                  type="datetime-local"
+                  value={departureDateTime}
+                  onChange={(e) => setDepartureDateTime(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#3ccca4]"
+                  data-testid="departure-datetime"
+                />
+              </div>
+            )}
+          </Section>
+
+          {/* Bloque 3: Multi-ciudad */}
+          <Section
+            Icon={Route}
+            title="¿Varias ciudades?"
+            subtitle="Encadena varios destinos en un mismo viaje."
+          >
+            <p className="text-xs text-gray-500 mb-4">
+              Si vas a moverte por más de una ciudad, añádelas con las fechas de cada una.
+              Lo tendremos en cuenta al montar el itinerario y los desplazamientos.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <ChoiceButton
+                active={multiCity}
+                onClick={() => setMultiCity(true)}
+                label="Sí, varias ciudades"
+                data-testid="multicity-yes"
+              />
+              <ChoiceButton
+                active={!multiCity}
+                onClick={() => setMultiCity(false)}
+                label="Solo un destino"
+                data-testid="multicity-no"
+              />
+            </div>
+
+            {multiCity && (
+              <div className="space-y-3">
+                {cities.map((c, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-lg p-3 bg-gray-50 border border-gray-200 space-y-2"
+                    data-testid={`city-row-${idx}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span
+                        className="text-xs font-bold uppercase tracking-widest"
+                        style={{ color: BRAND_GREEN, letterSpacing: "0.14em" }}
+                      >
+                        Ciudad {idx + 1}
+                      </span>
+                      {cities.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeCity(idx)}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          aria-label="Eliminar ciudad"
+                          data-testid={`city-remove-${idx}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Ciudad (ej: Roma)"
+                      value={c.name}
+                      onChange={(e) => updateCity(idx, "name", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3ccca4]"
+                      data-testid={`city-name-${idx}`}
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                          Llegada
+                        </label>
+                        <input
+                          type="date"
+                          value={c.startDate}
+                          onChange={(e) => updateCity(idx, "startDate", e.target.value)}
+                          className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3ccca4]"
+                          data-testid={`city-start-${idx}`}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                          Salida
+                        </label>
+                        <input
+                          type="date"
+                          value={c.endDate}
+                          onChange={(e) => updateCity(idx, "endDate", e.target.value)}
+                          className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3ccca4]"
+                          data-testid={`city-end-${idx}`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addCity}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border-2 border-dashed border-gray-300 text-sm font-semibold text-gray-600 hover:border-[#3ccca4] hover:text-[#031834] transition-colors"
+                  data-testid="add-city"
+                >
+                  <Plus className="w-4 h-4" />
+                  Añadir otra ciudad
+                </button>
+              </div>
+            )}
+          </Section>
+
+          {/* Bloque 4: Alojamiento */}
           <Section
             Icon={Hotel}
             title="Alojamiento"
             subtitle="¿En qué tipo de alojamiento estás pensando?"
           >
             {!isPlusUser ? (
-              <>
-                <DefaultPill label="Estándar — calidad/precio en 3-4 estrellas" />
-                <PlusUpsell
-                  onCta={goToAuth}
-                  message="Pásate a PLUS para dormir en sitios únicos: hoteles boutique, villas privadas, apartamentos de diseño y hostales con rollazo."
-                  small
-                />
-              </>
+              <PlusUpsell
+                ctaLabel={plusCtaLabel}
+                onCta={handlePlusCta}
+                message="Pásate a PLUS para dormir en sitios únicos: hoteles boutique, villas privadas, apartamentos de diseño y hostales con rollazo."
+              />
             ) : (
               <>
                 <p className="text-xs text-gray-500 mb-3">
@@ -312,7 +492,8 @@ export const TravelDetailsModal = ({
           >
             {!isPlusUser ? (
               <PlusUpsell
-                onCta={goToAuth}
+                ctaLabel={plusCtaLabel}
+                onCta={handlePlusCta}
                 message="Con PLUS ajustas cada detalle de tu viaje: con quién vas, presupuesto, ritmo, experiencias y tus sitios imprescindibles."
               />
             ) : (
@@ -353,6 +534,13 @@ export const TravelDetailsModal = ({
           </button>
         </div>
       </div>
+
+      {/* AuthModal anidado — z superior para quedar encima del modal de personalización */}
+      {showNestedAuth && (
+        <div className="fixed inset-0 z-[300]">
+          <AuthModal isOpen={true} onClose={() => setShowNestedAuth(false)} />
+        </div>
+      )}
     </div>
   );
 };
@@ -413,7 +601,7 @@ const DefaultPill = ({ label }) => (
   </div>
 );
 
-const PlusUpsell = ({ onCta, message }) => (
+const PlusUpsell = ({ onCta, message, ctaLabel = "Desbloquear mi viaje PLUS" }) => (
   <div
     className="rounded-xl p-5 overflow-hidden relative"
     style={{
@@ -450,7 +638,7 @@ const PlusUpsell = ({ onCta, message }) => (
         style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
         data-testid="plus-gate-cta"
       >
-        Desbloquear mi viaje PLUS
+        {ctaLabel}
         <ArrowRight className="w-4 h-4" />
       </button>
     </div>

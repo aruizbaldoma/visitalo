@@ -8,7 +8,7 @@ import { ConfirmationModal } from "./ConfirmationModal";
 import { FlightCard } from "./FlightCard";
 import { HotelCard } from "./HotelCard";
 
-export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
+export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails }) => {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showAlternativesModal, setShowAlternativesModal] = useState(false);
@@ -50,16 +50,36 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
   };
 
   const handleDelete = (activityId) => {
-    // Eliminar actividad del itinerario
+    // Soft-delete: marcar como 'deleted' para poder restaurar
     const updatedDays = itineraryData.days.map(day => {
-      const filterActivities = (activities) =>
-        activities.filter(act => act.activityId !== activityId);
+      const markActivities = (activities) =>
+        activities.map(act =>
+          act.activityId === activityId ? { ...act, deleted: true } : act
+        );
 
       return {
         ...day,
-        morning: { activities: filterActivities(day.morning.activities) },
-        afternoon: { activities: filterActivities(day.afternoon.activities) },
-        night: { activities: filterActivities(day.night.activities) }
+        morning: { activities: markActivities(day.morning.activities) },
+        afternoon: { activities: markActivities(day.afternoon.activities) },
+        night: { activities: markActivities(day.night.activities) }
+      };
+    });
+
+    setItineraryData({ ...itineraryData, days: updatedDays });
+  };
+
+  const handleRestore = (activityId) => {
+    const updatedDays = itineraryData.days.map(day => {
+      const restoreActivities = (activities) =>
+        activities.map(act =>
+          act.activityId === activityId ? { ...act, deleted: false } : act
+        );
+
+      return {
+        ...day,
+        morning: { activities: restoreActivities(day.morning.activities) },
+        afternoon: { activities: restoreActivities(day.afternoon.activities) },
+        night: { activities: restoreActivities(day.night.activities) }
       };
     });
 
@@ -178,6 +198,15 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Itinerario - 3/4 en desktop */}
         <div className="lg:col-span-3 space-y-8">
+          {/* Banner de vuelo de llegada (si el usuario lo indicó) */}
+          {travelDetails?.transportReady && travelDetails?.arrivalDateTime && (
+            <FlightInfoBanner
+              type="arrival"
+              dateTime={travelDetails.arrivalDateTime}
+              destination={destination}
+            />
+          )}
+
           {days.map((day, dayIndex) => (
             <DayCard
               key={day.day}
@@ -187,11 +216,21 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
               onInfo={handleInfo}
               onAlternative={handleAlternative}
               onDelete={handleDelete}
+              onRestore={handleRestore}
               destination={destination}
               getActivityType={getActivityType}
               hotelInfo={itineraryData.hotelInfo}
             />
           ))}
+
+          {/* Banner de vuelo de salida (si el usuario lo indicó) */}
+          {travelDetails?.departureReady && travelDetails?.departureDateTime && (
+            <FlightInfoBanner
+              type="departure"
+              dateTime={travelDetails.departureDateTime}
+              destination={destination}
+            />
+          )}
         </div>
 
         {/* Sidebar - 1/4 en desktop, debajo en móvil/tablet */}
@@ -206,7 +245,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated }) => {
   );
 };
 
-const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete, destination, getActivityType }) => {
+const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete, onRestore, destination, getActivityType }) => {
   return (
     <div className="relative">
       {/* Línea de Conexión Mejorada */}
@@ -257,6 +296,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
             onInfo={onInfo}
             onAlternative={onAlternative}
             onDelete={onDelete}
+            onRestore={onRestore}
             destination={destination}
             getActivityType={getActivityType}
           />
@@ -271,6 +311,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
             onInfo={onInfo}
             onAlternative={onAlternative}
             onDelete={onDelete}
+            onRestore={onRestore}
             destination={destination}
             getActivityType={getActivityType}
           />
@@ -285,6 +326,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
             onInfo={onInfo}
             onAlternative={onAlternative}
             onDelete={onDelete}
+            onRestore={onRestore}
             destination={destination}
             getActivityType={getActivityType}
           />
@@ -294,7 +336,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
   );
 };
 
-const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo, onAlternative, onDelete, destination, getActivityType, showHotel, hotelInfo }) => {
+const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo, onAlternative, onDelete, onRestore, destination, getActivityType, showHotel, hotelInfo }) => {
   if (!activities || activities.length === 0) {
     return (
       <div className="text-center py-8 text-gray-400 text-sm italic">
@@ -320,52 +362,78 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
       <div className="space-y-3 ml-2">
         {activities.map((activity, index) => {
           const activityType = getActivityType(activity);
-          
-          // Renderizar FlightCard para vuelos (sin botón Ver Disponibilidad)
-          if (activityType === 'flight') {
+          const isDeleted = !!activity.deleted;
+
+          const renderCard = () => {
+            if (activityType === 'flight') {
+              return (
+                <FlightCard
+                  flight={{
+                    type: activity.title?.toLowerCase().includes('llegada') || activity.title?.toLowerCase().includes('arrival') ? 'arrival' : 'departure',
+                    time: activity.time,
+                    details: activity.description
+                  }}
+                  destination={destination}
+                  showButton={false}
+                />
+              );
+            }
+            if (activityType === 'hotel') {
+              return (
+                <HotelCard
+                  hotel={{
+                    id: activity.activityId,
+                    name: activity.title,
+                    zone: activity.location,
+                    website: activity.website || activity.hotel_url,
+                  }}
+                  destination={destination}
+                  isUserHotel={false}
+                  onInfo={onInfo}
+                  onAlternative={onAlternative}
+                  onDelete={onDelete}
+                />
+              );
+            }
             return (
-              <FlightCard
-                key={activity.activityId || index}
-                flight={{
-                  type: activity.title?.toLowerCase().includes('llegada') || activity.title?.toLowerCase().includes('arrival') ? 'arrival' : 'departure',
-                  time: activity.time,
-                  details: activity.description
-                }}
-                destination={destination}
-                showButton={false}
-              />
-            );
-          }
-          
-          // Renderizar HotelCard para hoteles
-          if (activityType === 'hotel') {
-            return (
-              <HotelCard
-                key={activity.activityId || index}
-                hotel={{
-                  id: activity.activityId,
-                  name: activity.title,
-                  zone: activity.location,
-                }}
-                destination={destination}
-                isUserHotel={false}
+              <ActivityCard
+                activity={activity}
+                isAuthenticated={isAuthenticated}
                 onInfo={onInfo}
                 onAlternative={onAlternative}
                 onDelete={onDelete}
               />
             );
-          }
-          
-          // Renderizar ActivityCard para actividades turísticas
+          };
+
           return (
-            <ActivityCard
+            <div
               key={activity.activityId || index}
-              activity={activity}
-              isAuthenticated={isAuthenticated}
-              onInfo={onInfo}
-              onAlternative={onAlternative}
-              onDelete={onDelete}
-            />
+              className="relative"
+              data-testid={`timeline-item-${activity.activityId || index}`}
+            >
+              <div
+                className={`transition-all duration-300 ${
+                  isDeleted ? "opacity-40 grayscale pointer-events-none select-none" : ""
+                }`}
+              >
+                {renderCard()}
+              </div>
+
+              {isDeleted && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() => onRestore && onRestore(activity.activityId)}
+                    className="pointer-events-auto px-4 py-2 rounded-full font-bold text-sm shadow-lg transition-all hover:scale-105"
+                    style={{ backgroundColor: "#3ccca4", color: "#031834" }}
+                    data-testid={`restore-${activity.activityId}`}
+                  >
+                    Restaurar actividad
+                  </button>
+                </div>
+              )}
+            </div>
           );
         })}
 
@@ -395,4 +463,62 @@ const formatDate = (dateString) => {
     month: 'long',
     day: 'numeric'
   });
+};
+
+// Banner de vuelo de llegada / salida — se inserta al inicio/final del itinerario
+const FlightInfoBanner = ({ type, dateTime, destination }) => {
+  if (!dateTime) return null;
+
+  const d = new Date(dateTime);
+  if (Number.isNaN(d.getTime())) return null;
+
+  const dateLabel = d.toLocaleDateString("es-ES", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+  const timeLabel = d.toLocaleTimeString("es-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const isArrival = type === "arrival";
+  const title = isArrival ? "Llegada a destino" : "Salida del destino";
+  const subtitle = isArrival
+    ? `Aterrizas en ${destination || "tu destino"}. Contamos el tiempo de desplazamiento del aeropuerto al centro.`
+    : `Sales desde ${destination || "tu destino"}. El último día lo ajustamos sin prisas para que no se te cruce con el viaje.`;
+
+  return (
+    <div
+      className="rounded-2xl p-5 flex items-center gap-4 shadow-sm"
+      style={{ background: "linear-gradient(135deg, #031834 0%, #0a2a4e 100%)" }}
+      data-testid={`flight-banner-${type}`}
+    >
+      <div
+        className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+        style={{ backgroundColor: "rgba(60, 204, 164, 0.2)" }}
+      >
+        <span className="text-2xl">{isArrival ? "🛬" : "🛫"}</span>
+      </div>
+      <div className="flex-1 min-w-0 text-white">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className="text-[10px] font-bold uppercase tracking-widest"
+            style={{ color: "#3ccca4", letterSpacing: "0.16em" }}
+          >
+            {isArrival ? "Inicio del viaje" : "Fin del viaje"}
+          </span>
+          <span
+            className="text-xs font-bold px-2 py-0.5 rounded-full"
+            style={{ backgroundColor: "rgba(60, 204, 164, 0.18)", color: "#3ccca4" }}
+          >
+            {timeLabel}
+          </span>
+        </div>
+        <h4 className="font-bold text-base mt-1">{title}</h4>
+        <p className="text-white/70 text-xs capitalize">{dateLabel}</p>
+        <p className="text-white/60 text-xs mt-1 leading-snug">{subtitle}</p>
+      </div>
+    </div>
+  );
 };

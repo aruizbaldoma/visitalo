@@ -1,10 +1,17 @@
-import { Hotel, MapPin, Info, RefreshCw, Trash2 } from "lucide-react";
+import { Hotel, MapPin, Info, RefreshCw, Trash2, ExternalLink } from "lucide-react";
 import { useState } from "react";
 
 export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onAlternative, onDelete }) => {
   const [showTooltip, setShowTooltip] = useState(null);
 
   if (!hotel) return null;
+
+  const hotelName = hotel.name || "";
+  // URL de reserva: preferir `website` o `hotel_url` del hotel; si no hay, Google Search como fallback.
+  const bookingUrl =
+    hotel.website ||
+    hotel.hotel_url ||
+    `https://www.google.com/search?q=${encodeURIComponent(`${hotelName} ${destination || ""} reservar`)}`;
 
   const handleAlternative = () => {
     if (onAlternative) onAlternative(hotel);
@@ -92,7 +99,20 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
           </div>
 
           {/* Botones de Acción */}
-          <div className="flex items-start gap-2 flex-shrink-0 self-end sm:self-start">
+          <div className="flex flex-wrap items-start gap-2 flex-shrink-0 self-end sm:self-start">
+            {/* Botón Reservar */}
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg transition-colors"
+              style={{ backgroundColor: "#3ccca4", color: "#031834" }}
+              data-testid="hotel-booking-link"
+            >
+              Reservar
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+
             {/* Botón Info */}
             {onInfo && (
               <button
