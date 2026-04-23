@@ -18,9 +18,7 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
   };
 
   const handleDelete = () => {
-    if (window.confirm("¿Eliminar este hotel del itinerario?")) {
-      if (onDelete) onDelete(hotel.id);
-    }
+    if (onDelete) onDelete(hotel.id);
   };
 
   // Si es hotel del usuario, mostrarlo como informativo (estilo FlightCard)

@@ -10,9 +10,7 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
   };
 
   const handleDelete = () => {
-    if (window.confirm("¿Eliminar esta actividad del itinerario?")) {
-      onDelete(activity.activityId);
-    }
+    if (onDelete) onDelete(activity.activityId);
   };
 
   return (

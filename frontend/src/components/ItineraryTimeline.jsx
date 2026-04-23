@@ -159,16 +159,22 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
 
   const { destination, totalDays, hotelRecommendation, days } = itineraryData;
 
-  // Normalizar hotel para el timeline: aceptar objeto o texto plano.
+  // Normalizar hotel para el timeline: aceptar objeto, texto plano, o null → fallback.
   const hotelForCards = (() => {
     const raw = itineraryData.hotelInfo || hotelRecommendation;
-    if (!raw) return null;
-    if (typeof raw === "object") return raw;
-    // Convertir string a objeto: primera línea/título + la parte de zona si existe
-    const firstLine = String(raw).split("\n")[0].trim();
-    const match = firstLine.match(/^([^.–\-—()]{4,60})/);
-    const name = (match ? match[1] : firstLine).trim() || "Alojamiento recomendado";
-    return { name, zone: destination, website: null };
+    if (raw && typeof raw === "object") return raw;
+    if (raw && typeof raw === "string") {
+      const firstLine = String(raw).split("\n")[0].trim();
+      const match = firstLine.match(/^([^.–\-—()]{4,60})/);
+      const name = (match ? match[1] : firstLine).trim() || `Alojamiento en ${destination}`;
+      return { name, zone: destination, website: null };
+    }
+    // Fallback: siempre mostrar una recomendación, con link de búsqueda.
+    return {
+      name: `Tu alojamiento en ${destination}`,
+      zone: `Centro de ${destination}`,
+      website: null,
+    };
   })();
 
   return (
