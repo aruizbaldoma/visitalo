@@ -53,13 +53,14 @@ export const WelcomeModal = ({ isOpen, userName, onClose }) => {
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-5 h-5" style={{ color: BRAND_GREEN }} />
             <p className="font-bold text-lg font-heading" style={{ color: BRAND_BLUE }}>
-              Tu próxima búsqueda es PLUS
+              Tus próximas 5 búsquedas son PLUS
             </p>
             <Sparkles className="w-5 h-5" style={{ color: BRAND_GREEN }} />
           </div>
           <p className="text-gray-600 text-sm mb-5 leading-relaxed">
-            Personaliza tu itinerario al máximo con recomendaciones premium,
-            ritmo a medida y preferencias avanzadas — <strong>sin coste</strong>.
+            Personaliza tus 5 primeros itinerarios al máximo con recomendaciones
+            premium, ritmo a medida y preferencias avanzadas —{" "}
+            <strong>totalmente gratis</strong>.
           </p>
           <div
             className="rounded-lg p-4 mb-6"

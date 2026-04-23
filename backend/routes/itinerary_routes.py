@@ -73,27 +73,38 @@ async def generate_itinerary(
         print(f"\n📥 REQUEST: Itinerario para {request.destination}")
         
         # Determinar el plan del usuario
+        # LÓGICA: cada usuario tiene 5 búsquedas PLUS gratis al registrarse.
+        # Cuando las agota, vuelve a Basic.
+        FREE_PLUS_SEARCHES = 5
         user_plan = "basic"
         first_trip_bonus = False
-        
+        plus_searches_used = 0
+        plus_searches_remaining = 0
+
         if user:
-            # Usuario autenticado
             user_plan = user.get("user_plan", "basic")
-            first_trip_used = user.get("first_trip_used", False)
-            
-            # ¡PRIMER VIAJE GRATIS! Otorgar Plan Plus
-            if not first_trip_used:
+            plus_searches_used = user.get("plus_searches_used", 0)
+            # Soportar usuarios antiguos que tenían "first_trip_used"
+            if plus_searches_used == 0 and user.get("first_trip_used") is True:
+                plus_searches_used = FREE_PLUS_SEARCHES  # ya gastó su bonus antiguo
+
+            if plus_searches_used < FREE_PLUS_SEARCHES:
                 user_plan = "plus"
                 first_trip_bonus = True
-                print(f"🎁 PRIMER VIAJE DETECTADO: Otorgando Plan PLUS gratis a {user['email']}")
-                
-                # Marcar el primer viaje como usado
+                plus_searches_used += 1
+                plus_searches_remaining = FREE_PLUS_SEARCHES - plus_searches_used
+                print(
+                    f"🎁 BÚSQUEDA PLUS gratis {plus_searches_used}/{FREE_PLUS_SEARCHES} "
+                    f"para {user['email']} — quedan {plus_searches_remaining}"
+                )
                 await db.users.update_one(
                     {"user_id": user["user_id"]},
-                    {"$set": {"first_trip_used": True}}
+                    {"$set": {
+                        "plus_searches_used": plus_searches_used,
+                        "first_trip_used": True,  # mantener compat
+                    }},
                 )
         else:
-            # Usuario no autenticado
             print(f"👤 Usuario NO AUTENTICADO: Usando Plan Basic")
         
         service = ItineraryService()
@@ -130,7 +141,12 @@ async def generate_itinerary(
         response_data = {"itinerary": itinerary}
         if first_trip_bonus:
             response_data["first_trip_bonus"] = True
-            response_data["message"] = "¡Felicidades! Has usado tu Plan PLUS gratis en tu primer viaje 🎉"
+            response_data["plus_searches_remaining"] = plus_searches_remaining
+            response_data["message"] = (
+                f"¡PLUS activado! Te quedan {plus_searches_remaining} búsquedas gratis 🎉"
+                if plus_searches_remaining > 0
+                else "Esta ha sido tu última búsqueda PLUS gratis."
+            )
         
         return JSONResponse(
             content=response_data,
