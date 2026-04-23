@@ -1,566 +1,331 @@
-import { X, Plane, Hotel, Sparkles, Plus, Trash2, Crown } from "lucide-react";
+import { X, Plane, Hotel, Sparkles, Crown, Utensils, Wallet } from "lucide-react";
 import { useState, useEffect } from "react";
 
-export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDate, endDate, userPlan = 'basic', isAuthenticated = false, onOpenAuth }) => {
-  // Estado de Vuelos
-  const [hasFlights, setHasFlights] = useState(false);
-  const [arrivalDate, setArrivalDate] = useState("");
-  const [arrivalTime, setArrivalTime] = useState("09:00");
-  const [departureDate, setDepartureDate] = useState("");
-  const [departureTime, setDepartureTime] = useState("18:00");
-  
-  // Estado de Alojamiento - ARRAY para múltiples hoteles
-  const [hasHotel, setHasHotel] = useState(false);
-  const [hotels, setHotels] = useState([{ name: "", checkIn: "", checkOut: "" }]);
+const BRAND_BLUE = "#031834";
+const BRAND_GREEN = "#3ccca4";
+
+const HOTEL_CATEGORIES = [
+  { value: "standard", label: "Estándar", sub: "3-4 estrellas", plus: false },
+  { value: "luxury", label: "Lujo", sub: "5 estrellas", plus: true },
+  { value: "boutique", label: "Boutique", sub: "Pequeño y con encanto", plus: true },
+  { value: "hostel", label: "Hostal con encanto", sub: "Ideal para mochileros", plus: true },
+  { value: "apartment", label: "Apartamento", sub: "Como en casa", plus: true },
+  { value: "rural", label: "Casa rural", sub: "Escapada a la naturaleza", plus: true },
+];
+
+const ACTIVITIES = [
+  { id: "beach", label: "Playa y sol", emoji: "🏖️" },
+  { id: "diving", label: "Buceo / Snorkel", emoji: "🤿" },
+  { id: "rafting", label: "Rafting extremo", emoji: "🛶" },
+  { id: "paragliding", label: "Paracaídas / Parapente", emoji: "🪂" },
+  { id: "balloon", label: "Paseo en globo", emoji: "🎈" },
+  { id: "nightlife", label: "Fiesta y vida nocturna", emoji: "🎉" },
+  { id: "relax", label: "Modo Zen / Relax total", emoji: "🧘" },
+  { id: "culture", label: "Museos y cultura", emoji: "🏛️" },
+  { id: "foodie", label: "Gastronomía local", emoji: "🍝" },
+  { id: "shopping", label: "Compras y mercados", emoji: "🛍️" },
+  { id: "hiking", label: "Senderismo y naturaleza", emoji: "🥾" },
+  { id: "nature", label: "Parques y fauna", emoji: "🦜" },
+];
+
+const BUDGET_OPTIONS = [
+  { value: "saver", label: "Modo ahorro", emoji: "💪" },
+  { value: "balanced", label: "Presupuesto equilibrado", emoji: "⚖️" },
+  { value: "luxury", label: "Me sobra, quiero lujo", emoji: "💎" },
+];
+
+const PACKAGE_OPTIONS = [
+  { value: "basic", label: "Solo vuelos + hotel" },
+  { value: "full", label: "Todo cerrado con actividades" },
+];
+
+export const TravelDetailsModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  totalDays,
+  startDate,
+  endDate,
+  userPlan = "basic",
+  isAuthenticated = false,
+  onOpenAuth,
+}) => {
+  const isPlusUser = userPlan === "plus";
+
   const [hotelCategory, setHotelCategory] = useState("standard");
-  
-  // Estado de "Hazlo a tu gusto" (Solo Plus)
-  const [activityPreferences, setActivityPreferences] = useState({
-    adventure: false,
-    culture: false,
-    gastronomy: false,
-    relax: false
-  });
-  const [pace, setPace] = useState("balanced");
+  const [hasHotel, setHasHotel] = useState(false);
+  const [hotelName, setHotelName] = useState("");
 
-  const isPlusUser = userPlan === 'plus';
+  // Bloque "Hazlo a tu gusto" (PLUS)
+  const [flexibleDates, setFlexibleDates] = useState(false);
+  const [groupType, setGroupType] = useState("pareja");
+  const [budget, setBudget] = useState("balanced");
+  const [budgetAmount, setBudgetAmount] = useState(1000);
+  const [packageType, setPackageType] = useState("basic");
+  const [activities, setActivities] = useState([]);
+  const [mustVisit, setMustVisit] = useState("");
 
-  // Sincronizar fechas del buscador cuando se abre el modal
   useEffect(() => {
-    if (isOpen) {
-      if (startDate) setArrivalDate(startDate);
-      if (endDate) setDepartureDate(endDate);
-    }
-  }, [isOpen, startDate, endDate]);
+    if (!isOpen) return;
+    // Reset a defaults al abrir
+    setHotelCategory("standard");
+  }, [isOpen]);
 
-  // Resetear estados cuando cambia hasFlights o hasHotel
-  useEffect(() => {
-    if (!hasFlights) {
-      setArrivalTime("09:00");
-      setDepartureTime("18:00");
-    }
-    if (!hasHotel) {
-      setHotels([{ name: "", checkIn: "", checkOut: "" }]);
-    }
-  }, [hasFlights, hasHotel]);
+  if (!isOpen) return null;
 
-  const handleActivityPreferenceToggle = (key) => {
-    if (!isPlusUser) return;
-    setActivityPreferences(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+  const toggleActivity = (id) =>
+    setActivities((prev) =>
+      prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id],
+    );
+
+  const goToAuth = () => {
+    onClose();
+    onOpenAuth && onOpenAuth();
   };
 
-  // Funciones para múltiples hoteles
-  const handleAddHotel = () => {
-    if (!isPlusUser) return;
-    setHotels([...hotels, { name: "", checkIn: "", checkOut: "" }]);
-  };
-
-  const handleRemoveHotel = (index) => {
-    if (hotels.length > 1) {
-      setHotels(hotels.filter((_, i) => i !== index));
-    }
-  };
-
-  const handleHotelChange = (index, field, value) => {
-    const newHotels = [...hotels];
-    newHotels[index][field] = value;
-    setHotels(newHotels);
-  };
-
-  const handleSave = () => {
+  const handleSubmit = () => {
     const details = {
-      hasFlights,
-      arrivalDate: hasFlights ? arrivalDate : null,
-      arrivalTime: hasFlights ? arrivalTime : null,
-      departureDate: hasFlights ? departureDate : null,
-      departureTime: hasFlights ? departureTime : null,
+      hotelCategory: isPlusUser ? hotelCategory : "standard",
       hasHotel,
-      hotels: hasHotel ? hotels : null,
-      hotelCategory: !hasHotel ? hotelCategory : null,
-      needsHotelRecommendation: !hasHotel,
-      userPlan,
-      preferences: isPlusUser ? {
-        activities: activityPreferences,
-        pace
-      } : null
+      hotelName: hasHotel ? hotelName : null,
+      // Todo lo demás solo aplica si es PLUS
+      ...(isPlusUser
+        ? {
+            flexibleDates,
+            groupType,
+            budget,
+            budgetAmount,
+            packageType,
+            activities,
+            mustVisit,
+          }
+        : {}),
     };
     onSave(details);
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" style={{ borderRadius: '12px' }}>
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4 overflow-y-auto"
+      onClick={onClose}
+      data-testid="travel-details-overlay"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl my-8 max-h-[90vh] overflow-y-auto"
+        data-testid="travel-details-modal"
+      >
         {/* Header */}
-        <div className="sticky top-0 bg-white px-8 py-5 flex items-center justify-between" style={{ borderBottom: '1px solid #E5E7EB' }}>
-          <div className="flex items-center gap-3">
-            <h3 className="text-2xl font-bold" style={{ color: '#031834' }}>
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 flex items-center justify-between z-10">
+          <div>
+            <h2
+              className="text-2xl font-bold font-heading"
+              style={{ color: BRAND_BLUE }}
+            >
               Personaliza tu viaje
-            </h3>
-            {isPlusUser && (
-              <span className="px-3 py-1 text-xs font-bold rounded-full" style={{ 
-                background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                color: '#000'
-              }}>
-                PLUS
-              </span>
-            )}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {totalDays > 0 ? `${totalDays} días · ${startDate} — ${endDate}` : "Ajusta tu experiencia"}
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Cerrar"
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="px-8 py-6 space-y-8">
-
-          {/* Banner PLUS gratis para usuarios NO autenticados */}
-          {!isAuthenticated && (
-            <div
-              className="rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center gap-4"
-              style={{
-                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-              }}
-              data-testid="plus-promo-banner"
+        {/* Banner PLUS promo para no registrados */}
+        {!isAuthenticated && (
+          <div
+            className="mx-6 mt-5 rounded-xl p-4 flex items-center gap-3"
+            style={{
+              background: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+            }}
+            data-testid="plus-promo-banner"
+          >
+            <div className="p-2 bg-white/30 rounded-lg flex-shrink-0">
+              <Crown className="w-5 h-5" style={{ color: BRAND_BLUE }} />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-sm" style={{ color: BRAND_BLUE }}>
+                Desbloquea PLUS gratis
+              </p>
+              <p className="text-xs" style={{ color: BRAND_BLUE }}>
+                Personaliza cada detalle de tu viaje sin coste.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={goToAuth}
+              className="px-4 py-2 rounded-lg font-bold text-xs hover:opacity-90 whitespace-nowrap"
+              style={{ backgroundColor: BRAND_BLUE, color: "#fff" }}
             >
-              <div className="flex items-center gap-3 flex-1">
-                <div className="p-2 bg-white/30 rounded-lg">
-                  <Crown className="w-6 h-6" style={{ color: '#031834' }} />
-                </div>
-                <div>
-                  <p className="font-bold text-lg" style={{ color: '#031834' }}>
-                    Disfruta de una cuenta PLUS en cuanto te registres 🎁
-                  </p>
-                  <p className="text-sm" style={{ color: '#031834' }}>
-                    Personaliza cada detalle de tu viaje y desbloquea las recomendaciones inteligentes.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenAuth && onOpenAuth();
-                }}
-                className="px-5 py-2.5 rounded-lg font-bold text-sm transition-all hover:opacity-90 whitespace-nowrap"
-                style={{ backgroundColor: '#031834', color: '#fff' }}
-                data-testid="plus-promo-auth-button"
+              Registrarme gratis
+            </button>
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="px-6 py-5 space-y-6">
+          {/* ------ Bloque 1: Hotel ------ */}
+          <section className="rounded-xl p-5" style={{ border: "1px solid #E5E7EB" }}>
+            <div className="flex items-start gap-3 mb-4">
+              <div
+                className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: `${BRAND_GREEN}20` }}
               >
-                Registrarme gratis
-              </button>
-            </div>
-          )}
-          
-          {/* BLOQUE 1: VUELOS - Estilo Profesional Mejorado */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
-                <Plane className="w-5 h-5" style={{ color: '#3ccca4' }} />
+                <Hotel className="w-5 h-5" style={{ color: BRAND_GREEN }} />
               </div>
-              <h4 className="text-lg font-bold" style={{ color: '#031834' }}>
-                Vuelos
-              </h4>
-            </div>
-
-            <label className="flex items-center justify-between cursor-pointer p-4 rounded-lg hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-              <span className="text-gray-700 font-medium text-sm">¿Ya tienes vuelos reservados?</span>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={hasFlights}
-                  onChange={(e) => setHasFlights(e.target.checked)}
-                  className="sr-only"
-                />
-                <div className={`w-12 h-6 rounded-full transition-colors ${hasFlights ? 'bg-[#3ccca4]' : 'bg-gray-300'}`}>
-                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${hasFlights ? 'transform translate-x-6' : ''}`} />
-                </div>
+              <div>
+                <h3 className="font-bold font-heading" style={{ color: BRAND_BLUE }}>
+                  ¿En qué tipo de alojamiento estabas pensando?
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Buscaremos los mejores del destino según tu elección.
+                </p>
               </div>
-            </label>
-
-            {hasFlights && (
-              <div className="space-y-4 mt-4">
-                {/* Llegada */}
-                <div className="p-5 rounded-xl" style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="text-xl">✈️</span>
-                    <p className="text-sm font-bold text-gray-800">Llegada</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2">¿Cuándo vas?</label>
-                      <input
-                        type="date"
-                        value={arrivalDate}
-                        onChange={(e) => setArrivalDate(e.target.value)}
-                        className="w-full px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                        style={{ border: '1px solid #d1d5db', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2">Hora</label>
-                      <input
-                        type="time"
-                        value={arrivalTime}
-                        onChange={(e) => setArrivalTime(e.target.value)}
-                        className="w-full px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                        style={{ border: '1px solid #d1d5db', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Salida */}
-                <div className="p-5 rounded-xl" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca' }}>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="text-xl">🛫</span>
-                    <p className="text-sm font-bold text-gray-800">Salida</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2">¿Cuándo vuelves?</label>
-                      <input
-                        type="date"
-                        value={departureDate}
-                        onChange={(e) => setDepartureDate(e.target.value)}
-                        min={arrivalDate}
-                        className="w-full px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                        style={{ border: '1px solid #d1d5db', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2">Hora</label>
-                      <input
-                        type="time"
-                        value={departureTime}
-                        onChange={(e) => setDepartureTime(e.target.value)}
-                        className="w-full px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                        style={{ border: '1px solid #d1d5db', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid #E5E7EB' }} />
-
-          {/* BLOQUE 2: ALOJAMIENTO - Con múltiples hoteles */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-lg" style={{ backgroundColor: '#e8f7f2' }}>
-                <Hotel className="w-5 h-5" style={{ color: '#3ccca4' }} />
-              </div>
-              <h4 className="text-lg font-bold" style={{ color: '#031834' }}>
-                Alojamiento
-              </h4>
-            </div>
-
-            <label className="flex items-center justify-between cursor-pointer p-4 rounded-lg hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-              <span className="text-gray-700 font-medium text-sm">¿Ya tienes hotel?</span>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={hasHotel}
-                  onChange={(e) => setHasHotel(e.target.checked)}
-                  className="sr-only"
-                />
-                <div className={`w-12 h-6 rounded-full transition-colors ${hasHotel ? 'bg-[#3ccca4]' : 'bg-gray-300'}`}>
-                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${hasHotel ? 'transform translate-x-6' : ''}`} />
-                </div>
-              </div>
-            </label>
-
-            {hasHotel && (
-              <div className="space-y-3">
-                {hotels.map((hotel, index) => (
-                  <div key={index} className="p-4 rounded-lg" style={{ border: '1px solid #E5E7EB', backgroundColor: '#f9fafb' }}>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-semibold text-gray-600">Hotel {index + 1}</span>
-                      {hotels.length > 1 && (
-                        <button
-                          onClick={() => handleRemoveHotel(index)}
-                          className="p-1 hover:bg-red-50 rounded transition-colors"
-                          title="Eliminar hotel"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
-                      )}
-                    </div>
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        placeholder="Nombre del hotel (opcional)"
-                        value={hotel.name}
-                        onChange={(e) => handleHotelChange(index, 'name', e.target.value)}
-                        className="w-full px-3 py-2 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                        style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
-                      />
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">Check-in</label>
-                          <input
-                            type="date"
-                            value={hotel.checkIn}
-                            onChange={(e) => handleHotelChange(index, 'checkIn', e.target.value)}
-                            className="w-full px-3 py-2 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                            style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">Check-out</label>
-                          <input
-                            type="date"
-                            value={hotel.checkOut}
-                            onChange={(e) => handleHotelChange(index, 'checkOut', e.target.value)}
-                            min={hotel.checkIn}
-                            className="w-full px-3 py-2 text-sm focus:ring-2 focus:ring-[#3ccca4] focus:outline-none"
-                            style={{ border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#FFFFFF' }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {/* Botón Añadir Hotel */}
-                <div className="relative group">
-                  <button
-                    onClick={handleAddHotel}
-                    disabled={!isPlusUser}
-                    className={`w-full p-3 rounded-lg flex items-center justify-center gap-2 transition-all ${
-                      isPlusUser 
-                        ? 'border-2 border-dashed border-[#3ccca4] text-[#3ccca4] hover:bg-[#e8f7f2] cursor-pointer' 
-                        : 'border-2 border-dashed border-gray-300 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span className="text-sm font-medium">Añadir otro hotel</span>
-                    {!isPlusUser && (
-                      <span className="ml-2 px-2 py-0.5 text-[10px] font-bold rounded" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000' }}>
-                        PLUS
-                      </span>
-                    )}
-                  </button>
-                  {!isPlusUser && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                      Función exclusiva de Plan PLUS
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {!hasHotel && (
-              <div className="space-y-2 mt-3">
-                <label className="block text-xs font-semibold text-gray-600 mb-2">
-                  Categoría de Hotel
-                </label>
-                
-                <div className="space-y-2">
-                  <label className="flex items-center justify-between gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ border: '1px solid #E5E7EB' }}>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="hotelCategory"
-                        value="standard"
-                        checked={hotelCategory === 'standard'}
-                        onChange={(e) => setHotelCategory(e.target.value)}
-                        className="w-4 h-4 accent-[#3ccca4]"
-                      />
-                      <span className="text-sm text-gray-700">Estándar (3-4 estrellas)</span>
-                    </div>
-                  </label>
-
-                  {['boutique', 'luxury', 'hostel', 'apartment'].map((category) => {
-                    const labels = {
-                      boutique: 'Boutique',
-                      luxury: 'Lujo 5★',
-                      hostel: 'Hostal con encanto',
-                      apartment: 'Apartamento'
-                    };
-                    
-                    return (
-                      <label 
-                        key={category}
-                        className={`flex items-center justify-between gap-3 p-3 rounded-lg transition-colors ${isPlusUser ? 'cursor-pointer hover:bg-gray-50' : 'opacity-50 cursor-not-allowed bg-gray-50'}`} 
-                        style={{ border: '1px solid #E5E7EB' }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            name="hotelCategory"
-                            value={category}
-                            checked={hotelCategory === category}
-                            onChange={(e) => setHotelCategory(e.target.value)}
-                            disabled={!isPlusUser}
-                            className="w-4 h-4 accent-[#3ccca4]"
-                          />
-                          <span className="text-sm text-gray-700">{labels[category]}</span>
-                        </div>
-                        {!isPlusUser && (
-                          <span className="px-2 py-0.5 text-[10px] font-semibold rounded" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000' }}>
-                            PLUS
-                          </span>
-                        )}
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid #E5E7EB' }} />
-
-          {/* BLOQUE 3: HAZLO A TU GUSTO - Rediseño Compacto */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`p-2.5 rounded-lg ${isPlusUser ? '' : 'bg-gray-100'}`} style={isPlusUser ? { backgroundColor: '#e8f7f2' } : {}}>
-                  <Sparkles className="w-5 h-5" style={{ color: isPlusUser ? '#3ccca4' : '#9ca3af' }} />
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold" style={{ color: isPlusUser ? '#031834' : '#6b7280' }}>
-                    Hazlo a tu gusto
-                  </h4>
-                  <p className="text-xs text-gray-500">Actividades y ritmo personalizados</p>
-                </div>
-              </div>
-              {isPlusUser && (
-                <span className="px-2 py-1 text-[10px] font-bold rounded-full" style={{ 
-                  background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                  color: '#000'
-                }}>
-                  PLUS
-                </span>
-              )}
             </div>
 
             {!isPlusUser ? (
-              // Banner Compacto para Basic
-              <div className="p-4 rounded-xl flex items-center justify-between gap-4" style={{ backgroundColor: '#fffbeb', border: '1px solid #fde047' }}>
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="p-2 rounded-full" style={{ backgroundColor: '#fef3c7' }}>
-                    <Crown className="w-5 h-5" style={{ color: '#f59e0b' }} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-800">Personalización Completa</p>
-                    <p className="text-xs text-gray-600">Primer viaje gratis • Solo 1€/mes</p>
-                  </div>
-                </div>
-                <button
-                  className="px-4 py-2 font-bold text-sm text-white rounded-lg hover:shadow-lg transition-all whitespace-nowrap"
-                  style={{ backgroundColor: '#3ccca4' }}
-                  onClick={() => alert('🚀 Próximamente: Activar Plan PLUS')}
-                >
-                  Activar PLUS
-                </button>
-              </div>
+              <PlusGate
+                defaultLabel="Estándar (3-4 estrellas)"
+                ctaLabel="Únete a PLUS"
+                message="Desbloquea hoteles de lujo, apartamentos, hostales con encanto y más."
+                onCta={goToAuth}
+              />
             ) : (
-              // Contenido Plus Compacto
-              <div className="space-y-5">
-                {/* Actividades */}
-                <div className="space-y-3">
-                  <label className="block text-xs font-semibold text-gray-600">
-                    Tipo de Actividades
-                  </label>
-                  
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { key: 'adventure', emoji: '🏔️', label: 'Aventura' },
-                      { key: 'culture', emoji: '🏛️', label: 'Cultura' },
-                      { key: 'gastronomy', emoji: '🍷', label: 'Gastronomía' },
-                      { key: 'relax', emoji: '🧘', label: 'Relax' }
-                    ].map(({ key, emoji, label }) => (
-                      <label 
-                        key={key}
-                        className={`p-3 rounded-lg cursor-pointer transition-all ${
-                          activityPreferences[key] 
-                            ? 'bg-[#e8f7f2] border-2 border-[#3ccca4]' 
-                            : 'bg-white hover:bg-gray-50 border border-gray-200'
-                        }`}
+              <>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {HOTEL_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.value}
+                      type="button"
+                      onClick={() => setHotelCategory(cat.value)}
+                      className={`flex items-center gap-3 p-3 rounded-lg text-left transition-all ${
+                        hotelCategory === cat.value ? "shadow-sm" : "hover:bg-gray-50"
+                      }`}
+                      style={{
+                        border: `2px solid ${
+                          hotelCategory === cat.value ? BRAND_GREEN : "#E5E7EB"
+                        }`,
+                      }}
+                      data-testid={`hotel-cat-${cat.value}`}
+                    >
+                      <span
+                        className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
+                        style={{
+                          border: `2px solid ${
+                            hotelCategory === cat.value ? BRAND_GREEN : "#D1D5DB"
+                          }`,
+                        }}
                       >
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={activityPreferences[key]}
-                            onChange={() => handleActivityPreferenceToggle(key)}
-                            className="w-4 h-4 accent-[#3ccca4]"
+                        {hotelCategory === cat.value && (
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: BRAND_GREEN }}
                           />
-                          <span className="text-base">{emoji}</span>
-                          <span className="text-xs font-semibold text-gray-700">{label}</span>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
+                        )}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className="font-semibold text-sm"
+                          style={{ color: BRAND_BLUE }}
+                        >
+                          {cat.label}
+                        </p>
+                        <p className="text-xs text-gray-500">{cat.sub}</p>
+                      </div>
+                    </button>
+                  ))}
                 </div>
 
-                {/* Ritmo */}
-                <div className="space-y-3">
-                  <label className="block text-xs font-semibold text-gray-600">
-                    Ritmo del Viaje
+                <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                  <label
+                    className="text-sm font-medium"
+                    style={{ color: BRAND_BLUE }}
+                  >
+                    ¿Ya tienes hotel?
                   </label>
-                  
-                  <div className="space-y-2">
-                    {[
-                      { value: 'intense', emoji: '⚡', label: 'Intenso' },
-                      { value: 'balanced', emoji: '⚖️', label: 'Equilibrado' },
-                      { value: 'relaxed', emoji: '🌴', label: 'Relajado' }
-                    ].map(({ value, emoji, label }) => (
-                      <label 
-                        key={value}
-                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
-                          pace === value 
-                            ? 'bg-[#e8f7f2] border-2 border-[#3ccca4]' 
-                            : 'bg-white hover:bg-gray-50 border border-gray-200'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="pace"
-                          value={value}
-                          checked={pace === value}
-                          onChange={(e) => setPace(e.target.value)}
-                          className="w-4 h-4 accent-[#3ccca4]"
-                        />
-                        <span className="text-base">{emoji}</span>
-                        <span className="text-sm font-semibold text-gray-700">{label}</span>
-                      </label>
-                    ))}
-                  </div>
+                  <Switch checked={hasHotel} onChange={setHasHotel} />
                 </div>
-              </div>
+                {hasHotel && (
+                  <input
+                    type="text"
+                    placeholder="Nombre del hotel que ya has reservado"
+                    value={hotelName}
+                    onChange={(e) => setHotelName(e.target.value)}
+                    className="mt-3 w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none"
+                  />
+                )}
+              </>
             )}
-          </div>
+          </section>
+
+          {/* ------ Bloque 2: Hazlo a tu gusto ------ */}
+          <section className="rounded-xl p-5" style={{ border: "1px solid #E5E7EB" }}>
+            <div className="flex items-start gap-3 mb-4">
+              <div
+                className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: `${BRAND_GREEN}20` }}
+              >
+                <Sparkles className="w-5 h-5" style={{ color: BRAND_GREEN }} />
+              </div>
+              <div>
+                <h3 className="font-bold font-heading" style={{ color: BRAND_BLUE }}>
+                  Hazlo a tu gusto 🎯
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Cuéntanos cómo te gusta viajar y te lo montamos a medida.
+                </p>
+              </div>
+            </div>
+
+            {!isPlusUser ? (
+              <PlusGate
+                ctaLabel="Únete a PLUS"
+                message="Activa PLUS y elige presupuesto, ritmo, actividades y sitios imprescindibles."
+                onCta={goToAuth}
+              />
+            ) : (
+              <PlusCustomizer
+                flexibleDates={flexibleDates}
+                setFlexibleDates={setFlexibleDates}
+                groupType={groupType}
+                setGroupType={setGroupType}
+                budget={budget}
+                setBudget={setBudget}
+                budgetAmount={budgetAmount}
+                setBudgetAmount={setBudgetAmount}
+                packageType={packageType}
+                setPackageType={setPackageType}
+                activities={activities}
+                toggleActivity={toggleActivity}
+                mustVisit={mustVisit}
+                setMustVisit={setMustVisit}
+              />
+            )}
+          </section>
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white px-8 py-4 flex justify-end gap-3" style={{ borderTop: '1px solid #E5E7EB' }}>
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex justify-end gap-3">
           <button
+            type="button"
             onClick={onClose}
-            className="px-6 py-2.5 font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
+            className="px-5 py-2.5 text-sm font-semibold rounded-lg border border-gray-300 hover:bg-gray-50"
           >
             Cancelar
           </button>
           <button
-            onClick={handleSave}
-            className="px-6 py-2.5 font-semibold text-white transition-all hover:shadow-lg"
-            style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
+            type="button"
+            onClick={handleSubmit}
+            className="px-6 py-2.5 text-sm font-bold rounded-lg transition-all hover:opacity-90"
+            style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
+            data-testid="travel-details-save"
           >
             Guardar
           </button>
@@ -569,3 +334,227 @@ export const TravelDetailsModal = ({ isOpen, onClose, onSave, totalDays, startDa
     </div>
   );
 };
+
+// ------- Subcomponentes -------
+
+const Switch = ({ checked, onChange }) => (
+  <button
+    type="button"
+    onClick={() => onChange(!checked)}
+    className="relative w-12 h-6 rounded-full transition-colors focus:outline-none"
+    style={{ backgroundColor: checked ? BRAND_GREEN : "#D1D5DB" }}
+  >
+    <span
+      className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
+      style={{ transform: checked ? "translateX(26px)" : "translateX(2px)" }}
+    ></span>
+  </button>
+);
+
+const PlusGate = ({ defaultLabel, ctaLabel, message, onCta }) => (
+  <div>
+    {defaultLabel && (
+      <div
+        className="p-3 rounded-lg mb-3 flex items-center gap-3"
+        style={{ backgroundColor: `${BRAND_GREEN}15` }}
+      >
+        <span
+          className="w-3 h-3 rounded-full"
+          style={{ backgroundColor: BRAND_GREEN }}
+        />
+        <p className="text-sm font-semibold" style={{ color: BRAND_BLUE }}>
+          {defaultLabel} <span className="text-xs font-normal text-gray-500">(por defecto)</span>
+        </p>
+      </div>
+    )}
+    <div
+      className="rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3"
+      style={{
+        background: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+      }}
+    >
+      <div className="flex items-center gap-3 flex-1">
+        <Crown className="w-5 h-5 flex-shrink-0" style={{ color: BRAND_BLUE }} />
+        <p className="text-sm font-medium" style={{ color: BRAND_BLUE }}>
+          {message}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={onCta}
+        className="px-4 py-2 rounded-lg font-bold text-xs transition-all hover:opacity-90 whitespace-nowrap"
+        style={{ backgroundColor: BRAND_BLUE, color: "#fff" }}
+        data-testid="plus-gate-cta"
+      >
+        {ctaLabel}
+      </button>
+    </div>
+  </div>
+);
+
+const PlusCustomizer = ({
+  flexibleDates,
+  setFlexibleDates,
+  groupType,
+  setGroupType,
+  budget,
+  setBudget,
+  budgetAmount,
+  setBudgetAmount,
+  packageType,
+  setPackageType,
+  activities,
+  toggleActivity,
+  mustVisit,
+  setMustVisit,
+}) => (
+  <div className="space-y-5">
+    {/* Fechas flexibles + equipo */}
+    <div>
+      <p className="font-bold mb-3 text-sm flex items-center gap-2" style={{ color: BRAND_BLUE }}>
+        <Plane className="w-4 h-4" style={{ color: BRAND_GREEN }} />
+        ¡Cuéntanos sobre tu viaje!
+      </p>
+      <div className="flex items-center justify-between mb-3">
+        <label className="text-sm text-gray-700">
+          ¿Fechas flexibles? <span className="text-xs text-gray-400">(jugamos para ahorrar)</span>
+        </label>
+        <Switch checked={flexibleDates} onChange={setFlexibleDates} />
+      </div>
+      <label className="block text-sm text-gray-700 mb-2">¿Con quién vas?</label>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {[
+          { v: "solo", l: "Viaje solo" },
+          { v: "pareja", l: "Pareja" },
+          { v: "amigos", l: "Amigos" },
+          { v: "familia", l: "Familia" },
+        ].map((g) => (
+          <button
+            key={g.v}
+            type="button"
+            onClick={() => setGroupType(g.v)}
+            className="py-2 px-3 rounded-lg text-xs font-medium transition-all"
+            style={{
+              border: `2px solid ${groupType === g.v ? BRAND_GREEN : "#E5E7EB"}`,
+              color: BRAND_BLUE,
+              backgroundColor: groupType === g.v ? `${BRAND_GREEN}15` : "#fff",
+            }}
+          >
+            {g.l}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Presupuesto */}
+    <div>
+      <p className="font-bold mb-3 text-sm flex items-center gap-2" style={{ color: BRAND_BLUE }}>
+        <Wallet className="w-4 h-4" style={{ color: BRAND_GREEN }} />
+        Hablemos de pasta (sin dramas)
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+        {BUDGET_OPTIONS.map((b) => (
+          <button
+            key={b.value}
+            type="button"
+            onClick={() => setBudget(b.value)}
+            className="p-3 rounded-lg text-sm font-medium transition-all text-left"
+            style={{
+              border: `2px solid ${budget === b.value ? BRAND_GREEN : "#E5E7EB"}`,
+              backgroundColor: budget === b.value ? `${BRAND_GREEN}15` : "#fff",
+              color: BRAND_BLUE,
+            }}
+          >
+            <span className="text-lg mr-1">{b.emoji}</span>
+            <span>{b.label}</span>
+          </button>
+        ))}
+      </div>
+      <label className="text-sm text-gray-700 flex items-center justify-between mb-1">
+        <span>Presupuesto máximo por persona</span>
+        <span className="font-bold text-base" style={{ color: BRAND_BLUE }}>
+          {budgetAmount.toLocaleString("es-ES")}€
+        </span>
+      </label>
+      <input
+        type="range"
+        min="200"
+        max="5000"
+        step="50"
+        value={budgetAmount}
+        onChange={(e) => setBudgetAmount(Number(e.target.value))}
+        className="w-full accent-[#3ccca4]"
+      />
+      <div className="flex justify-between text-xs text-gray-400 mt-1">
+        <span>200€</span>
+        <span>5.000€</span>
+      </div>
+
+      <p className="text-sm text-gray-700 mt-4 mb-2">¿Qué quieres incluir?</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {PACKAGE_OPTIONS.map((p) => (
+          <button
+            key={p.value}
+            type="button"
+            onClick={() => setPackageType(p.value)}
+            className="p-3 rounded-lg text-sm font-medium transition-all text-left"
+            style={{
+              border: `2px solid ${packageType === p.value ? BRAND_GREEN : "#E5E7EB"}`,
+              backgroundColor: packageType === p.value ? `${BRAND_GREEN}15` : "#fff",
+              color: BRAND_BLUE,
+            }}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Actividades */}
+    <div>
+      <p className="font-bold mb-2 text-sm flex items-center gap-2" style={{ color: BRAND_BLUE }}>
+        <span className="text-base">🎢</span> ¿Qué te pide el cuerpo?
+      </p>
+      <p className="text-xs text-gray-500 mb-3">Elige todas las que te molen, no hay límite.</p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        {ACTIVITIES.map((a) => {
+          const active = activities.includes(a.id);
+          return (
+            <button
+              key={a.id}
+              type="button"
+              onClick={() => toggleActivity(a.id)}
+              className="flex items-center gap-2 p-2.5 rounded-lg text-xs font-medium transition-all text-left"
+              style={{
+                border: `2px solid ${active ? BRAND_GREEN : "#E5E7EB"}`,
+                backgroundColor: active ? `${BRAND_GREEN}15` : "#fff",
+                color: BRAND_BLUE,
+              }}
+            >
+              <span className="text-base">{a.emoji}</span>
+              <span className="flex-1">{a.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+
+    {/* Must visit */}
+    <div>
+      <p className="font-bold mb-2 text-sm flex items-center gap-2" style={{ color: BRAND_BLUE }}>
+        <Utensils className="w-4 h-4" style={{ color: BRAND_GREEN }} />
+        Tus "Sí o Sí" 📍
+      </p>
+      <p className="text-xs text-gray-500 mb-2">
+        ¿Algún restaurante de TikTok, mirador secreto o museo raro que quieras sí o sí?
+      </p>
+      <textarea
+        value={mustVisit}
+        onChange={(e) => setMustVisit(e.target.value)}
+        placeholder="Ej: cenar en La Terraza del Casino, ver el atardecer en el Templo de Debod, comer callos en Casa Lucas…"
+        rows={3}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none resize-none"
+      />
+    </div>
+  </div>
+);
