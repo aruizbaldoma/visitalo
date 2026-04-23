@@ -11,15 +11,23 @@ def build_user_public(user_doc: Dict) -> Dict:
     Reglas:
     - Si `subscription_expires_at` existe y es futura → user_plan = 'plus' (suscripción activa).
     - Si no, y `plus_searches_remaining > 0` → user_plan = 'plus' (modo gratis de prueba).
+    - Usuarios legacy (sin `plus_searches_remaining` en DB) → se tratan como recién creados (5 búsquedas PLUS).
     - En cualquier otro caso → user_plan = 'basic'.
     """
     now = datetime.now(timezone.utc)
     expires = user_doc.get("subscription_expires_at")
-    remaining = int(user_doc.get("plus_searches_remaining", 0) or 0)
+    raw_remaining = user_doc.get("plus_searches_remaining")
+    if raw_remaining is None:
+        # Usuario legacy (antes de la migración): le damos 5 búsquedas por defecto.
+        remaining = 5
+    else:
+        try:
+            remaining = int(raw_remaining)
+        except (TypeError, ValueError):
+            remaining = 0
 
     sub_active = False
     if expires:
-        # Asegurar timezone aware
         if expires.tzinfo is None:
             expires = expires.replace(tzinfo=timezone.utc)
         sub_active = expires > now
@@ -43,6 +51,18 @@ def build_user_public(user_doc: Dict) -> Dict:
     }
 
 
+async def ensure_migrated(db, user_doc: Dict) -> Dict:
+    """Si el usuario no tiene `plus_searches_remaining` en DB, lo escribe (5) y lo normaliza a plus."""
+    if user_doc.get("plus_searches_remaining") is None:
+        await db.users.update_one(
+            {"user_id": user_doc["user_id"]},
+            {"$set": {"plus_searches_remaining": 5, "user_plan": "plus"}},
+        )
+        user_doc["plus_searches_remaining"] = 5
+        user_doc["user_plan"] = "plus"
+    return user_doc
+
+
 async def consume_plus_search(db, user_id: str) -> Dict:
     """Decrementa el contador de búsquedas PLUS gratis.
 
@@ -54,6 +74,8 @@ async def consume_plus_search(db, user_id: str) -> Dict:
     if not user_doc:
         return {"effective_plan": "basic", "plus_searches_remaining": 0, "subscription_active": False}
 
+    # Auto-migración de usuarios legacy (antes de introducir el contador).
+    user_doc = await ensure_migrated(db, user_doc)
     public = build_user_public(user_doc)
 
     if public["subscription_active"]:

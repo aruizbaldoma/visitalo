@@ -63,7 +63,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 p-4"
       onClick={onClose}
       data-testid="auth-modal-overlay"
     >

@@ -6,6 +6,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Header } from "./components/Header";
 import { HeroItinerary } from "./components/HeroItinerary";
 import { TravelDetailsModal } from "./components/TravelDetailsModal";
+import { ItineraryLoading } from "./components/ItineraryLoading";
 import { ItineraryTimeline } from "./components/ItineraryTimeline";
 import { Footer } from "./components/Footer";
 import { AuthCallback } from "./components/AuthCallback";
@@ -131,7 +132,7 @@ function MainApp() {
         startDate: searchData.startDate,
         endDate: searchData.endDate,
         userPlan: effectivePlan,
-        ...travelDetails,
+        ...(searchData._preloadedDetails || travelDetails || {}),
       };
 
       const response = await axios.post(`${API}/api/generate-itinerary`, requestData);
@@ -163,6 +164,32 @@ function MainApp() {
   const handleSaveDetails = (details) => {
     setTravelDetails(details);
     toast.success("Detalles guardados correctamente");
+
+    // Guardar el texto 'Sí o Sí' en backend (para futuros análisis)
+    const mustVisit = (details?.mustVisit || "").trim();
+    if (mustVisit) {
+      axios
+        .post(`${API}/api/insights/must-visit`, {
+          text: mustVisit,
+          destination: currentSearchData?.destination || "",
+          user_id: user?.user_id || null,
+        })
+        .catch(() => {
+          /* silencioso: no bloquear UX si falla */
+        });
+    }
+  };
+
+  const handleAutoSearch = (details) => {
+    if (!currentSearchData?.destination || !currentSearchData?.startDate || !currentSearchData?.endDate) return;
+    // Ejecuta la búsqueda con los detalles recién guardados (sin esperar al re-render).
+    setTravelDetails(details);
+    handleSearch({
+      destination: currentSearchData.destination,
+      startDate: currentSearchData.startDate,
+      endDate: currentSearchData.endDate,
+      _preloadedDetails: details, // marca interna opcional
+    });
   };
 
   const totalDays = searchParams
@@ -172,6 +199,8 @@ function MainApp() {
   return (
     <div className="App min-h-screen" style={{ backgroundColor: '#FFFFFF' }}>
       <Toaster position="top-center" richColors />
+
+      {isLoading && <ItineraryLoading />}
 
       {/* Banner Modo MOCK */}
       {isMockMode && (
@@ -203,7 +232,9 @@ function MainApp() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveDetails}
+        onAutoSearch={handleAutoSearch}
         totalDays={totalDays}
+        destination={currentSearchData.destination || searchParams?.destination || ""}
         startDate={currentSearchData.startDate || searchParams?.startDate || ""}
         endDate={currentSearchData.endDate || searchParams?.endDate || ""}
         userPlan={userPlan}

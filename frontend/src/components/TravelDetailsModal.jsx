@@ -95,9 +95,11 @@ export const TravelDetailsModal = ({
   isOpen,
   onClose,
   onSave,
+  onAutoSearch,
   totalDays,
   startDate,
   endDate,
+  destination,
   userPlan = "basic",
   isAuthenticated = false,
   onOpenAuth,
@@ -184,8 +186,8 @@ export const TravelDetailsModal = ({
       arrivalDateTime: transportReady ? arrivalDateTime : null,
       departureReady,
       departureDateTime: departureReady ? departureDateTime : null,
-      multiCity,
-      cities: multiCity ? cities.filter((c) => c.name.trim()) : [],
+      multiCity: isPlusUser ? multiCity : false,
+      cities: isPlusUser && multiCity ? cities.filter((c) => c.name.trim()) : [],
       hotelCategories: isPlusUser ? hotelCategories : ["standard"],
       ...(isPlusUser
         ? {
@@ -199,6 +201,12 @@ export const TravelDetailsModal = ({
     };
     onSave(details);
     onClose();
+
+    // Si el usuario tiene destino + fechas ya rellenados, ejecuta la búsqueda automáticamente
+    if (onAutoSearch && destination && startDate && endDate) {
+      // Dar un tick al estado antes de disparar la búsqueda
+      setTimeout(() => onAutoSearch(details), 50);
+    }
   };
 
   return (
@@ -325,27 +333,35 @@ export const TravelDetailsModal = ({
             title="¿Varias ciudades?"
             subtitle="Encadena varios destinos en un mismo viaje."
           >
-            <p className="text-xs text-gray-500 mb-4">
-              Si vas a moverte por más de una ciudad, añádelas con las fechas de cada una.
-              Lo tendremos en cuenta al montar el itinerario y los desplazamientos.
-            </p>
-
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              <ChoiceButton
-                active={multiCity}
-                onClick={() => setMultiCity(true)}
-                label="Sí, varias ciudades"
-                data-testid="multicity-yes"
+            {!isPlusUser ? (
+              <PlusUpsell
+                ctaLabel={plusCtaLabel}
+                onCta={handlePlusCta}
+                message="Con PLUS puedes planificar viajes por varias ciudades en una sola búsqueda, con fechas independientes para cada destino."
               />
-              <ChoiceButton
-                active={!multiCity}
-                onClick={() => setMultiCity(false)}
-                label="Solo un destino"
-                data-testid="multicity-no"
-              />
-            </div>
+            ) : (
+              <>
+                <p className="text-xs text-gray-500 mb-4">
+                  Si vas a moverte por más de una ciudad, añádelas con las fechas de cada una.
+                  Lo tendremos en cuenta al montar el itinerario y los desplazamientos.
+                </p>
 
-            {multiCity && (
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <ChoiceButton
+                    active={multiCity}
+                    onClick={() => setMultiCity(true)}
+                    label="Sí, varias ciudades"
+                    data-testid="multicity-yes"
+                  />
+                  <ChoiceButton
+                    active={!multiCity}
+                    onClick={() => setMultiCity(false)}
+                    label="Solo un destino"
+                    data-testid="multicity-no"
+                  />
+                </div>
+
+                {multiCity && (
               <div className="space-y-3">
                 {cities.map((c, idx) => (
                   <div
@@ -418,6 +434,8 @@ export const TravelDetailsModal = ({
                   Añadir otra ciudad
                 </button>
               </div>
+            )}
+              </>
             )}
           </Section>
 

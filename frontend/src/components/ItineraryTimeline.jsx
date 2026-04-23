@@ -159,6 +159,18 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
 
   const { destination, totalDays, hotelRecommendation, days } = itineraryData;
 
+  // Normalizar hotel para el timeline: aceptar objeto o texto plano.
+  const hotelForCards = (() => {
+    const raw = itineraryData.hotelInfo || hotelRecommendation;
+    if (!raw) return null;
+    if (typeof raw === "object") return raw;
+    // Convertir string a objeto: primera línea/título + la parte de zona si existe
+    const firstLine = String(raw).split("\n")[0].trim();
+    const match = firstLine.match(/^([^.–\-—()]{4,60})/);
+    const name = (match ? match[1] : firstLine).trim() || "Alojamiento recomendado";
+    return { name, zone: destination, website: null };
+  })();
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-10 lg:px-20">
       {/* Modales */}
@@ -219,7 +231,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
               onRestore={handleRestore}
               destination={destination}
               getActivityType={getActivityType}
-              hotelInfo={itineraryData.hotelInfo}
+              hotelInfo={hotelForCards}
             />
           ))}
 
@@ -245,7 +257,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
   );
 };
 
-const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete, onRestore, destination, getActivityType }) => {
+const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete, onRestore, destination, getActivityType, hotelInfo }) => {
   return (
     <div className="relative">
       {/* Línea de Conexión Mejorada */}
@@ -329,6 +341,8 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
             onRestore={onRestore}
             destination={destination}
             getActivityType={getActivityType}
+            showHotel={true}
+            hotelInfo={hotelInfo}
           />
         </div>
       </div>
