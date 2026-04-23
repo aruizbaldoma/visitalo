@@ -127,20 +127,6 @@ export const TravelDetailsModal = ({
     onClose();
   };
 
-  // Banner superior PLUS: solo si NO es PLUS
-  const showTopBanner = !isPlusUser;
-  const bannerCopy = isAuthenticated
-    ? {
-        title: "Lleva tu viaje al siguiente nivel",
-        sub: "Pásate a PLUS y desbloquea todas las opciones de personalización.",
-        cta: "Pasar a PLUS",
-      }
-    : {
-        title: "Regístrate y prueba PLUS gratis",
-        sub: "Ajusta cada detalle de tu viaje sin coste durante tus primeras búsquedas.",
-        cta: "Registrarme gratis",
-      };
-
   return (
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4 overflow-y-auto"
@@ -172,36 +158,6 @@ export const TravelDetailsModal = ({
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
-        {/* Banner superior (oculto para PLUS) */}
-        {showTopBanner && (
-          <div
-            className="mx-6 mt-5 rounded-xl p-4 flex items-center gap-3"
-            style={{ background: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)" }}
-            data-testid="plus-promo-banner"
-          >
-            <div className="p-2 bg-white/30 rounded-lg flex-shrink-0">
-              <Crown className="w-5 h-5" style={{ color: BRAND_BLUE }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm" style={{ color: BRAND_BLUE }}>
-                {bannerCopy.title}
-              </p>
-              <p className="text-xs" style={{ color: BRAND_BLUE, opacity: 0.85 }}>
-                {bannerCopy.sub}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={goToAuth}
-              className="px-4 py-2 rounded-lg font-bold text-xs hover:opacity-90 whitespace-nowrap"
-              style={{ backgroundColor: BRAND_BLUE, color: "#fff" }}
-              data-testid="plus-promo-cta"
-            >
-              {bannerCopy.cta}
-            </button>
-          </div>
-        )}
 
         {/* Content */}
         <div className="px-6 py-5 space-y-5">
