@@ -75,8 +75,8 @@ export const TravelDetailsModal = ({
   const [transportReady, setTransportReady] = useState(false);
   const [arrivalDateTime, setArrivalDateTime] = useState("");
 
-  // Bloque 2: alojamiento
-  const [hotelCategory, setHotelCategory] = useState("standard");
+  // Bloque 2: alojamiento (selección múltiple)
+  const [hotelCategories, setHotelCategories] = useState(["standard"]);
 
   // Bloque 3: ¿Qué te pide el cuerpo? (PLUS)
   const [groupType, setGroupType] = useState("pareja");
@@ -88,7 +88,7 @@ export const TravelDetailsModal = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    setHotelCategory("standard");
+    setHotelCategories(["standard"]);
     if (startDate && !arrivalDateTime) {
       setArrivalDateTime(`${startDate}T12:00`);
     }
@@ -96,6 +96,15 @@ export const TravelDetailsModal = ({
   }, [isOpen, startDate]);
 
   if (!isOpen) return null;
+
+  const toggleHotelCategory = (value) =>
+    setHotelCategories((prev) => {
+      if (prev.includes(value)) {
+        const next = prev.filter((v) => v !== value);
+        return next.length ? next : [value]; // al menos una seleccionada
+      }
+      return [...prev, value];
+    });
 
   const toggleActivity = (id) =>
     setActivities((prev) =>
@@ -111,7 +120,7 @@ export const TravelDetailsModal = ({
     const details = {
       transportReady,
       arrivalDateTime: transportReady ? arrivalDateTime : null,
-      hotelCategory: isPlusUser ? hotelCategory : "standard",
+      hotelCategories: isPlusUser ? hotelCategories : ["standard"],
       ...(isPlusUser
         ? {
             groupType,
@@ -219,44 +228,53 @@ export const TravelDetailsModal = ({
                 />
               </>
             ) : (
-              <div className="grid sm:grid-cols-2 gap-2">
-                {HOTEL_CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.value}
-                    type="button"
-                    onClick={() => setHotelCategory(cat.value)}
-                    className={`flex items-center gap-3 p-3 rounded-lg text-left transition-all ${
-                      hotelCategory === cat.value ? "shadow-sm" : "hover:bg-gray-50"
-                    }`}
-                    style={{
-                      border: `2px solid ${hotelCategory === cat.value ? BRAND_GREEN : "#E5E7EB"}`,
-                    }}
-                    data-testid={`hotel-cat-${cat.value}`}
-                  >
-                    <span
-                      className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
-                      style={{
-                        border: `2px solid ${
-                          hotelCategory === cat.value ? BRAND_GREEN : "#D1D5DB"
-                        }`,
-                      }}
-                    >
-                      {hotelCategory === cat.value && (
+              <>
+                <p className="text-xs text-gray-500 mb-3">
+                  Puedes elegir varias opciones — te daremos alternativas de cada tipo.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {HOTEL_CATEGORIES.map((cat) => {
+                    const active = hotelCategories.includes(cat.value);
+                    return (
+                      <button
+                        key={cat.value}
+                        type="button"
+                        onClick={() => toggleHotelCategory(cat.value)}
+                        className={`flex items-center gap-3 p-3 rounded-lg text-left transition-all ${
+                          active ? "shadow-sm" : "hover:bg-gray-50"
+                        }`}
+                        style={{
+                          border: `2px solid ${active ? BRAND_GREEN : "#E5E7EB"}`,
+                          backgroundColor: active ? `${BRAND_GREEN}10` : "#fff",
+                        }}
+                        data-testid={`hotel-cat-${cat.value}`}
+                      >
                         <span
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: BRAND_GREEN }}
-                        />
-                      )}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm" style={{ color: BRAND_BLUE }}>
-                        {cat.label}
-                      </p>
-                      <p className="text-xs text-gray-500">{cat.sub}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                          className="w-5 h-5 rounded-md flex-shrink-0 flex items-center justify-center transition-colors"
+                          style={{
+                            border: `2px solid ${active ? BRAND_GREEN : "#D1D5DB"}`,
+                            backgroundColor: active ? BRAND_GREEN : "#fff",
+                          }}
+                        >
+                          {active && (
+                            <Check
+                              className="w-3 h-3"
+                              style={{ color: BRAND_BLUE }}
+                              strokeWidth={3}
+                            />
+                          )}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm" style={{ color: BRAND_BLUE }}>
+                            {cat.label}
+                          </p>
+                          <p className="text-xs text-gray-500">{cat.sub}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </Section>
 
