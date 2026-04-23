@@ -14,6 +14,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
   const [showAlternativesModal, setShowAlternativesModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [itineraryData, setItineraryData] = useState(itinerary);
+  const [hotelDeleted, setHotelDeleted] = useState(false);
 
   // Actualizar cuando cambie el itinerario
   if (itinerary && itinerary !== itineraryData) {
@@ -162,20 +163,26 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
   // Normalizar hotel para el timeline: aceptar objeto, texto plano, o null → fallback.
   const hotelForCards = (() => {
     const raw = itineraryData.hotelInfo || hotelRecommendation;
-    if (raw && typeof raw === "object") return raw;
-    if (raw && typeof raw === "string") {
+    let base;
+    if (raw && typeof raw === "object") {
+      base = raw;
+    } else if (raw && typeof raw === "string") {
       const firstLine = String(raw).split("\n")[0].trim();
       const match = firstLine.match(/^([^.–\-—()]{4,60})/);
       const name = (match ? match[1] : firstLine).trim() || `Alojamiento en ${destination}`;
-      return { name, zone: destination, website: null };
+      base = { name, zone: destination, website: null };
+    } else {
+      base = {
+        name: `Tu alojamiento en ${destination}`,
+        zone: `Centro de ${destination}`,
+        website: null,
+      };
     }
-    // Fallback: siempre mostrar una recomendación, con link de búsqueda.
-    return {
-      name: `Tu alojamiento en ${destination}`,
-      zone: `Centro de ${destination}`,
-      website: null,
-    };
+    return { id: "hotel_main", ...base, deleted: hotelDeleted };
   })();
+
+  const handleHotelDelete = () => setHotelDeleted(true);
+  const handleHotelRestore = () => setHotelDeleted(false);
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-10 lg:px-20">
@@ -238,6 +245,9 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
               destination={destination}
               getActivityType={getActivityType}
               hotelInfo={hotelForCards}
+              onHotelDelete={handleHotelDelete}
+              onHotelRestore={handleHotelRestore}
+              onHotelAlternative={handleAlternative}
             />
           ))}
 
@@ -263,7 +273,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
   );
 };
 
-const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete, onRestore, destination, getActivityType, hotelInfo }) => {
+const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete, onRestore, destination, getActivityType, hotelInfo, onHotelDelete, onHotelRestore, onHotelAlternative }) => {
   return (
     <div className="relative">
       {/* Línea de Conexión Mejorada */}
@@ -349,6 +359,9 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
             getActivityType={getActivityType}
             showHotel={true}
             hotelInfo={hotelInfo}
+            onHotelDelete={onHotelDelete}
+            onHotelRestore={onHotelRestore}
+            onHotelAlternative={onHotelAlternative}
           />
         </div>
       </div>
@@ -356,7 +369,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
   );
 };
 
-const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo, onAlternative, onDelete, onRestore, destination, getActivityType, showHotel, hotelInfo }) => {
+const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo, onAlternative, onDelete, onRestore, destination, getActivityType, showHotel, hotelInfo, onHotelDelete, onHotelRestore, onHotelAlternative }) => {
   if (!activities || activities.length === 0) {
     return (
       <div className="text-center py-8 text-gray-400 text-sm italic">
@@ -449,7 +462,7 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
                     style={{ backgroundColor: "#3ccca4", color: "#031834" }}
                     data-testid={`restore-${activity.activityId}`}
                   >
-                    Restaurar actividad
+                    Reactivar actividad
                   </button>
                 </div>
               )}
@@ -457,16 +470,37 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
           );
         })}
 
-        {/* Mostrar hotel al final de la noche */}
+        {/* Mostrar hotel al final de la noche (soft-delete con overlay) */}
         {showHotel && hotelInfo && (
-          <HotelCard
-            hotel={hotelInfo}
-            destination={destination}
-            isUserHotel={hotelInfo.isUserHotel || false}
-            onInfo={!hotelInfo.isUserHotel ? onInfo : undefined}
-            onAlternative={!hotelInfo.isUserHotel ? onAlternative : undefined}
-            onDelete={!hotelInfo.isUserHotel ? onDelete : undefined}
-          />
+          <div className="relative" data-testid="hotel-block">
+            <div
+              className={`transition-all duration-300 ${
+                hotelInfo.deleted ? "opacity-40 grayscale pointer-events-none select-none" : ""
+              }`}
+            >
+              <HotelCard
+                hotel={hotelInfo}
+                destination={destination}
+                isUserHotel={hotelInfo.isUserHotel || false}
+                onInfo={!hotelInfo.isUserHotel ? onInfo : undefined}
+                onAlternative={!hotelInfo.isUserHotel ? onHotelAlternative : undefined}
+                onDelete={!hotelInfo.isUserHotel ? onHotelDelete : undefined}
+              />
+            </div>
+            {hotelInfo.deleted && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={onHotelRestore}
+                  className="pointer-events-auto px-4 py-2 rounded-full font-bold text-sm shadow-lg transition-all hover:scale-105"
+                  style={{ backgroundColor: "#3ccca4", color: "#031834" }}
+                  data-testid="restore-hotel"
+                >
+                  Reactivar alojamiento
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AuthModal } from "./AuthModal";
+import { RangeDatePicker } from "./RangeDatePicker";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
@@ -396,32 +397,17 @@ export const TravelDetailsModal = ({
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3ccca4]"
                       data-testid={`city-name-${idx}`}
                     />
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-[11px] font-medium text-gray-500 mb-1">
-                          Llegada
-                        </label>
-                        <input
-                          type="date"
-                          value={c.startDate}
-                          onChange={(e) => updateCity(idx, "startDate", e.target.value)}
-                          className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3ccca4]"
-                          data-testid={`city-start-${idx}`}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-medium text-gray-500 mb-1">
-                          Salida
-                        </label>
-                        <input
-                          type="date"
-                          value={c.endDate}
-                          onChange={(e) => updateCity(idx, "endDate", e.target.value)}
-                          className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3ccca4]"
-                          data-testid={`city-end-${idx}`}
-                        />
-                      </div>
-                    </div>
+                    <RangeDatePicker
+                      startDate={c.startDate}
+                      endDate={c.endDate}
+                      onChange={({ startDate, endDate }) => {
+                        updateCity(idx, "startDate", startDate);
+                        updateCity(idx, "endDate", endDate);
+                      }}
+                      startPlaceholder="Llegada"
+                      endPlaceholder="Salida"
+                      triggerClassName="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white text-left text-gray-700 hover:border-[#3ccca4] transition-colors"
+                    />
                   </div>
                 ))}
                 <button

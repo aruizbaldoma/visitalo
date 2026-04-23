@@ -10,7 +10,10 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
   };
 
   const handleDelete = () => {
-    if (onDelete) onDelete(activity.activityId);
+    if (!onDelete) return;
+    if (window.confirm("¿Seguro que quieres quitar esta actividad del día?\n\nPodrás reactivarla después sin perderla.")) {
+      onDelete(activity.activityId);
+    }
   };
 
   return (
