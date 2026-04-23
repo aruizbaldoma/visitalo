@@ -61,8 +61,8 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
               style={{ lineHeight: "1.6" }}
               data-testid="hero-subtitle"
             >
-              La forma más rápida de tener un viaje experto y personalizado.
-              Dinos a dónde vas y montamos tu plan al minuto, adaptado a tu ritmo.
+              Tu próximo viaje, montado en segundos. Sin foros, sin Excel, sin dramas.
+              Solo hacer la maleta.
             </p>
           </div>
 
@@ -171,24 +171,24 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 style={{ letterSpacing: "-0.02em", lineHeight: "1.05" }}
                 data-testid="plus-title"
               >
-                Sube de nivel.
+                Desbloquea el
                 <br />
-                <span style={{ color: BRAND_GREEN }}>Pásate a PLUS.</span>
+                <span style={{ color: BRAND_GREEN }}>Modo Dios.</span>
               </h2>
               <p
                 className="text-base md:text-lg mb-7"
                 style={{ color: "rgba(255,255,255,0.78)", lineHeight: "1.65" }}
               >
-                Duerme en sitios épicos, accede a actividades exclusivas y personaliza cada
-                detalle del itinerario. Todo por menos de lo que cuesta un café al mes.
+                Hoteles boutique que no salen en Booking. Casas rurales mágicas.
+                Restaurantes con alma. Actividades secretas. Todo lo bueno, solo para los que van en serio.
               </p>
 
               <ul className="space-y-3 mb-8">
                 {[
-                  "Hoteles boutique, villas privadas, apartamentos de diseño y hostales con rollazo",
-                  "Experiencias curadas: adrenalina, cultura secreta y los mejores spots",
-                  "Itinerario 100% personalizable según tu estilo y ritmo",
-                  "Sin anuncios ni ruido. Solo tu viaje.",
+                  "Alojamientos únicos (boutique, rural, premium)",
+                  "Actividades curadas que nadie más te va a enseñar",
+                  "Itinerarios sin límites, personalización al 100%",
+                  "Sin ads. Sin ruido. Solo tu viaje.",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-white/85 text-sm md:text-base">
                     <span
@@ -209,7 +209,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                   style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
                   data-testid="plus-cta-button"
                 >
-                  Desbloquear mi viaje PLUS
+                  Unirme a PLUS
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <div className="text-white/70 text-sm">
@@ -231,14 +231,14 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                     className="text-xs font-bold uppercase tracking-widest"
                     style={{ color: BRAND_GREEN, letterSpacing: "0.18em" }}
                   >
-                    PLUS · Preview
+                    Modo Dios · Preview
                   </span>
                   <Crown className="w-5 h-5" style={{ color: BRAND_GREEN }} />
                 </div>
                 {[
                   { title: "Casa rural en la Alpujarra", meta: "Única · Sin masificación" },
                   { title: "Cena privada en Lisboa", meta: "Solo PLUS" },
-                  { title: "Hotel boutique · Cinque Terre", meta: "Selección curada" },
+                  { title: "Hotel boutique · Cinque Terre", meta: "Hand-picked" },
                 ].map((row) => (
                   <div
                     key={row.title}
@@ -286,8 +286,8 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 className="text-base md:text-lg text-gray-600 max-w-xl mb-8"
                 style={{ lineHeight: "1.65" }}
               >
-                Reserva las mejores experiencias del destino directamente desde tu itinerario.
-                Sin saltar entre webs, sin precios inflados, sin letra pequeña.
+                Reserva actividades brutales directamente desde tu itinerario. Sin saltar
+                entre 15 webs, sin precios inflados, sin letra pequeña. Todo en un scroll.
               </p>
               <button
                 onClick={handleScrollToSearch}
@@ -295,7 +295,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 style={{ backgroundColor: BRAND_BLUE, color: "#fff" }}
                 data-testid="activities-cta-button"
               >
-                ¡Montar mi aventura!
+                Montar mi plan
                 <ArrowRight className="w-5 h-5" />
               </button>
             </div>
@@ -305,7 +305,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 {[
                   { Icon: Landmark, tag: "Top 1%", title: "Tour secreto por la Alhambra" },
                   { Icon: Wine, tag: "Solo PLUS", title: "Cena maridada en La Rioja" },
-                  { Icon: Waves, tag: "Selección", title: "Kayak al atardecer · Ibiza" },
+                  { Icon: Waves, tag: "Hand-picked", title: "Kayak al atardecer · Ibiza" },
                   { Icon: UtensilsCrossed, tag: "Tendencia", title: "Street food tour · Nápoles" },
                 ].map((act, idx) => {
                   const { Icon } = act;

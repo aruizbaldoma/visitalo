@@ -440,7 +440,7 @@ const PlusUpsell = ({ onCta, message }) => (
             Visítalo PLUS
           </span>
         </span>
-        <span className="text-xs text-white/60">Desde 1€/mes</span>
+        <span className="text-xs text-white/60">Desde 1€/mes · cancela cuando quieras</span>
       </div>
       <p className="text-sm text-white/90 mb-4" style={{ lineHeight: "1.55" }}>
         {message}
