@@ -6,16 +6,23 @@ import {
   Compass,
   Users,
   Wallet,
-  Package as PackageIcon,
   MapPin,
   Waves,
   Anchor,
-  Plane,
+  Zap,
   Wind,
   PartyPopper,
   Landmark,
   Check,
   ArrowRight,
+  Building2,
+  Camera,
+  Mountain,
+  Sun,
+  Sparkles,
+  UtensilsCrossed,
+  Wine,
+  Coffee,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -44,18 +51,39 @@ const BUDGET_OPTIONS = [
   { value: "luxury", label: "Sin límite, modo lujo" },
 ];
 
-const PACKAGE_OPTIONS = [
-  { value: "basic", label: "Solo vuelos + hotel" },
-  { value: "full", label: "Todo cerrado con actividades" },
-];
-
-const ACTIVITIES = [
-  { id: "rafting", label: "Rafting", Icon: Waves },
-  { id: "diving", label: "Buceo", Icon: Anchor },
-  { id: "skydiving", label: "Salto en paracaídas", Icon: Plane },
-  { id: "balloon", label: "Paseo en globo", Icon: Wind },
-  { id: "nightlife", label: "Fiesta y vida nocturna", Icon: PartyPopper },
-  { id: "culture", label: "Cultura secreta", Icon: Landmark },
+const ACTIVITY_GROUPS = [
+  {
+    group: "Cultura y must-see",
+    items: [
+      { id: "museums", label: "Museos y galerías", sub: "Lo imprescindible", Icon: Building2 },
+      { id: "monuments", label: "Historia y monumentos", sub: "Los clásicos", Icon: Landmark },
+      { id: "instagram", label: "Sitios instagrameables", sub: "Los mejores spots", Icon: Camera },
+    ],
+  },
+  {
+    group: "Adrenalina y acción",
+    items: [
+      { id: "diving", label: "Buceo y snorkel", sub: "Explora el fondo", Icon: Anchor },
+      { id: "extreme", label: "Rafting o salto al vacío", sub: "Solo para valientes", Icon: Zap },
+      { id: "balloon", label: "Paseo en globo", sub: "Vistas de otro planeta", Icon: Wind },
+    ],
+  },
+  {
+    group: "Naturaleza y relax",
+    items: [
+      { id: "hiking", label: "Senderismo y naturaleza", sub: "Desconexión total", Icon: Mountain },
+      { id: "beach", label: "Playas y calas", sub: "Relax al sol", Icon: Sun },
+      { id: "zen", label: "Modo Zen", sub: "Balnearios y planes relax", Icon: Sparkles },
+    ],
+  },
+  {
+    group: "Comida y fiesta",
+    items: [
+      { id: "foodie", label: "Ruta foodie", sub: "Comer donde los locales", Icon: UtensilsCrossed },
+      { id: "nightlife", label: "Fiesta y noche", sub: "Vida nocturna y clubs", Icon: Wine },
+      { id: "cafes", label: "Cafeterías con encanto", sub: "Planes tranquilos", Icon: Coffee },
+    ],
+  },
 ];
 
 export const TravelDetailsModal = ({
@@ -82,7 +110,6 @@ export const TravelDetailsModal = ({
   const [groupType, setGroupType] = useState("pareja");
   const [budget, setBudget] = useState("balanced");
   const [budgetAmount, setBudgetAmount] = useState(1000);
-  const [packageType, setPackageType] = useState("basic");
   const [activities, setActivities] = useState([]);
   const [mustVisit, setMustVisit] = useState("");
 
@@ -126,7 +153,6 @@ export const TravelDetailsModal = ({
             groupType,
             budget,
             budgetAmount,
-            packageType,
             activities,
             mustVisit,
           }
@@ -297,8 +323,6 @@ export const TravelDetailsModal = ({
                 setBudget={setBudget}
                 budgetAmount={budgetAmount}
                 setBudgetAmount={setBudgetAmount}
-                packageType={packageType}
-                setPackageType={setPackageType}
                 activities={activities}
                 toggleActivity={toggleActivity}
                 mustVisit={mustVisit}
@@ -440,8 +464,6 @@ const PlusCustomizer = ({
   setBudget,
   budgetAmount,
   setBudgetAmount,
-  packageType,
-  setPackageType,
   activities,
   toggleActivity,
   mustVisit,
@@ -519,64 +541,68 @@ const PlusCustomizer = ({
       </div>
     </div>
 
-    {/* Qué quieres incluir */}
-    <div>
-      <p className="font-bold mb-3 text-sm flex items-center gap-2" style={{ color: BRAND_BLUE }}>
-        <PackageIcon className="w-4 h-4" style={{ color: BRAND_GREEN }} />
-        ¿Qué quieres incluir?
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {PACKAGE_OPTIONS.map((p) => (
-          <button
-            key={p.value}
-            type="button"
-            onClick={() => setPackageType(p.value)}
-            className="p-3 rounded-lg text-sm font-medium transition-all text-left"
-            style={{
-              border: `2px solid ${packageType === p.value ? BRAND_GREEN : "#E5E7EB"}`,
-              backgroundColor: packageType === p.value ? `${BRAND_GREEN}15` : "#fff",
-              color: BRAND_BLUE,
-            }}
-            data-testid={`package-${p.value}`}
-          >
-            {p.label}
-          </button>
-        ))}
-      </div>
-    </div>
-
-    {/* Actividades */}
+    {/* Experiencias agrupadas */}
     <div>
       <p className="font-bold mb-2 text-sm flex items-center gap-2" style={{ color: BRAND_BLUE }}>
         <Compass className="w-4 h-4" style={{ color: BRAND_GREEN }} />
         Experiencias que te molan
       </p>
-      <p className="text-xs text-gray-500 mb-3">Elige todas las que quieras, sin límite.</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {ACTIVITIES.map((a) => {
-          const active = activities.includes(a.id);
-          const { Icon } = a;
-          return (
-            <button
-              key={a.id}
-              type="button"
-              onClick={() => toggleActivity(a.id)}
-              className="flex items-center gap-2 p-3 rounded-lg text-sm font-medium transition-all text-left"
-              style={{
-                border: `2px solid ${active ? BRAND_GREEN : "#E5E7EB"}`,
-                backgroundColor: active ? `${BRAND_GREEN}15` : "#fff",
-                color: BRAND_BLUE,
-              }}
-              data-testid={`activity-${a.id}`}
+      <p className="text-xs text-gray-500 mb-4">
+        Elige todas las que quieras, sin límite. Las agrupamos por estilo para que encuentres tu rollo.
+      </p>
+
+      <div className="space-y-5">
+        {ACTIVITY_GROUPS.map(({ group, items }) => (
+          <div key={group}>
+            <p
+              className="text-[11px] font-bold uppercase tracking-widest mb-2.5"
+              style={{ color: BRAND_GREEN, letterSpacing: "0.14em" }}
             >
-              <Icon
-                className="w-4 h-4 flex-shrink-0"
-                style={{ color: active ? BRAND_GREEN : "#6B7280" }}
-              />
-              <span className="flex-1">{a.label}</span>
-            </button>
-          );
-        })}
+              {group}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {items.map((a) => {
+                const active = activities.includes(a.id);
+                const { Icon } = a;
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => toggleActivity(a.id)}
+                    className="flex items-start gap-3 p-3 rounded-lg text-left transition-all hover:-translate-y-0.5"
+                    style={{
+                      border: `2px solid ${active ? BRAND_GREEN : "#E5E7EB"}`,
+                      backgroundColor: active ? `${BRAND_GREEN}12` : "#fff",
+                    }}
+                    data-testid={`activity-${a.id}`}
+                  >
+                    <span
+                      className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center transition-colors"
+                      style={{
+                        backgroundColor: active ? BRAND_GREEN : `${BRAND_GREEN}18`,
+                      }}
+                    >
+                      <Icon
+                        className="w-4 h-4"
+                        style={{ color: active ? BRAND_BLUE : BRAND_GREEN }}
+                        strokeWidth={2.2}
+                      />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="font-semibold text-sm leading-snug"
+                        style={{ color: BRAND_BLUE }}
+                      >
+                        {a.label}
+                      </p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">{a.sub}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
 
