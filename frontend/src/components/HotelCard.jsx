@@ -1,13 +1,14 @@
 import { Hotel, MapPin, Info, RefreshCw, Trash2, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { DeleteConfirmPopover } from "./DeleteConfirmPopover";
 
 export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onAlternative, onDelete }) => {
   const [showTooltip, setShowTooltip] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   if (!hotel) return null;
 
   const hotelName = hotel.name || "";
-  // URL de reserva: preferir `website` o `hotel_url` del hotel; si no hay, Google Search como fallback.
   const bookingUrl =
     hotel.website ||
     hotel.hotel_url ||
@@ -17,11 +18,14 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
     if (onAlternative) onAlternative(hotel);
   };
 
-  const handleDelete = () => {
+  const handleDeleteClick = () => {
     if (!onDelete) return;
-    if (window.confirm("¿Seguro que quieres quitar este alojamiento del itinerario?\n\nPodrás reactivarlo después.")) {
-      onDelete(hotel.id);
-    }
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    setConfirmOpen(false);
+    if (onDelete) onDelete(hotel.id);
   };
 
   // Si es hotel del usuario, mostrarlo como informativo (estilo FlightCard)
@@ -68,12 +72,20 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
   // Si NO es hotel del usuario, mostrar con botones (sin Reservar - pendiente)
   return (
     <div 
-      className="flex flex-col sm:flex-row gap-4 p-4 bg-white hover:shadow-lg transition-all group"
+      className="relative flex flex-col sm:flex-row gap-4 p-4 bg-white hover:shadow-lg transition-all group"
       style={{ 
         border: '1px solid #E5E7EB', 
         borderRadius: '8px'
       }}
     >
+      {confirmOpen && (
+        <DeleteConfirmPopover
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirmOpen(false)}
+          title="¿Quitar el alojamiento?"
+          message="Seguro que aquí tienes otro plan super molón para dormir, pero si al final se te cae, puedes reactivar el que teníamos pensado para ti sin problema."
+        />
+      )}
       {/* Icono */}
       <div className="flex-shrink-0">
         <div 
@@ -155,7 +167,7 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
             {/* Botón Eliminar */}
             {onDelete && (
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 onMouseEnter={() => setShowTooltip('delete')}
                 onMouseLeave={() => setShowTooltip(null)}
                 className="relative p-2 hover:bg-red-50 transition-colors"

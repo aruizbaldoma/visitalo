@@ -1,23 +1,34 @@
 import { Info, RefreshCw, Trash2, Clock, MapPin, Euro, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { getCivitatisUrl } from "../config/affiliates";
+import { DeleteConfirmPopover } from "./DeleteConfirmPopover";
 
 export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative, onDelete }) => {
   const [showTooltip, setShowTooltip] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleAlternative = () => {
     onAlternative(activity);
   };
 
-  const handleDelete = () => {
+  const handleDeleteClick = () => {
     if (!onDelete) return;
-    if (window.confirm("¿Seguro que quieres quitar esta actividad del día?\n\nPodrás reactivarla después sin perderla.")) {
-      onDelete(activity.activityId);
-    }
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    setConfirmOpen(false);
+    if (onDelete) onDelete(activity.activityId);
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white hover:shadow-lg transition-all group" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+    <div className="relative flex flex-col sm:flex-row gap-4 p-4 bg-white hover:shadow-lg transition-all group" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+      {confirmOpen && (
+        <DeleteConfirmPopover
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirmOpen(false)}
+        />
+      )}
       {/* Hora */}
       <div className="flex-shrink-0 sm:w-20 flex sm:block items-center gap-3">
         <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#3ccca4' }}>
@@ -87,12 +98,13 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
 
             {/* Botón Eliminar */}
             <button
-              onClick={handleDelete}
+              onClick={handleDeleteClick}
               onMouseEnter={() => setShowTooltip('delete')}
               onMouseLeave={() => setShowTooltip(null)}
               className="relative p-2 hover:bg-red-50 transition-colors"
               style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
               title="Eliminar actividad"
+              data-testid={`delete-activity-${activity.activityId}`}
             >
               <Trash2 className="w-4 h-4 text-gray-600 hover:text-red-600" />
               {showTooltip === 'delete' && (

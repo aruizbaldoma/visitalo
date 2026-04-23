@@ -1,5 +1,5 @@
 import { Clock, MapPin, Sun, Sunset, Moon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ActivityCard } from "./ActivityCard";
 import { ActivityInfoModal } from "./ActivityInfoModal";
 import { AlternativesModal } from "./AlternativesModal";
@@ -16,10 +16,12 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
   const [itineraryData, setItineraryData] = useState(itinerary);
   const [hotelDeleted, setHotelDeleted] = useState(false);
 
-  // Actualizar cuando cambie el itinerario
-  if (itinerary && itinerary !== itineraryData) {
+  // Sincronizar con el prop `itinerary` SOLO cuando realmente cambia (nueva búsqueda),
+  // no en cada render. Antes se hacía inline y eso resetea los cambios locales (deleted, alternativas…).
+  useEffect(() => {
     setItineraryData(itinerary);
-  }
+    setHotelDeleted(false);
+  }, [itinerary]);
 
   const handleInfo = (activity) => {
     setSelectedActivity(activity);

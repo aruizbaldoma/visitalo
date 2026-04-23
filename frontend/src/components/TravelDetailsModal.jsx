@@ -426,10 +426,12 @@ export const TravelDetailsModal = ({
                               singleLabel="¿Qué días vas a estar?"
                               minDate={startDate ? new Date(startDate + "T00:00:00") : undefined}
                               maxDate={endDate ? new Date(endDate + "T00:00:00") : undefined}
-                              triggerClassName={`block w-full px-3 py-2 rounded-md text-sm bg-white text-left transition-colors ${
+                              triggerClassName={`block w-full px-3 py-2 rounded-md text-sm bg-white text-left font-medium transition-colors ${
                                 outOfRange
                                   ? "border-2 border-red-400 text-red-600"
-                                  : "border border-gray-300 text-gray-700 hover:border-[#3ccca4]"
+                                  : c.startDate && c.endDate
+                                  ? "border border-gray-300 text-gray-800 hover:border-[#3ccca4]"
+                                  : "border border-gray-300 text-gray-400 hover:border-[#3ccca4]"
                               }`}
                             />
                           </div>
