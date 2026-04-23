@@ -36,13 +36,6 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
       <div className="relative bg-white py-10 md:py-14 px-4" id="hero-search">
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-10 lg:px-20">
           <div className="text-left mb-8 md:mb-10">
-            <span
-              className="inline-block text-xs md:text-sm font-semibold uppercase tracking-widest mb-3"
-              style={{ color: BRAND_GREEN, letterSpacing: "0.18em" }}
-              data-testid="hero-eyebrow"
-            >
-              Modo Visítalo: ON
-            </span>
             <h1
               className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 font-heading"
               style={{ color: BRAND_BLUE, letterSpacing: "-0.03em", lineHeight: "1.05" }}
@@ -57,8 +50,8 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
               style={{ lineHeight: "1.6" }}
               data-testid="hero-subtitle"
             >
-              Tu próximo viaje, montado en segundos por una IA que sabe lo que mola.
-              Sin foros, sin Excel, sin dramas. Solo hacer la maleta.
+              Tu próximo viaje, montado en segundos. Sin foros, sin Excel, sin dramas.
+              Solo hacer la maleta.
             </p>
           </div>
 
