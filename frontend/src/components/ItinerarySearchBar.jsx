@@ -77,7 +77,10 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
           <VerticalDivider />
 
           {/* Bloque 2: Fechas */}
-          <div className="flex-[1.8] flex items-center gap-2 px-5 py-4 md:py-0 min-h-[60px]">
+          <div
+            data-date-block
+            className="flex-[1.8] flex items-center gap-2 px-5 py-4 md:py-0 min-h-[60px]"
+          >
             <CalendarIcon className="w-6 h-6 text-gray-400 flex-shrink-0" />
             <RangeDatePicker
               startDate={searchData.startDate}
@@ -87,6 +90,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
               endPlaceholder="Fecha de salida"
               className="flex-1"
               triggerClassName="block w-full text-sm text-gray-800 font-medium truncate"
+              anchorSelector="[data-date-block]"
             />
           </div>
 

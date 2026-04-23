@@ -29,7 +29,7 @@ const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1);
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 
 /* ---------- Single month grid ---------- */
-const MonthGrid = ({ month, start, end, hovered, onPick, onHover, minDate }) => {
+const MonthGrid = ({ month, start, end, hovered, onPick, onHover, minDate, maxDate }) => {
   const first = startOfMonth(month);
   const jsFirstWeekday = first.getDay(); // 0=Sun
   const leading = (jsFirstWeekday + 6) % 7; // convert to Mon=0
@@ -54,7 +54,9 @@ const MonthGrid = ({ month, start, end, hovered, onPick, onHover, minDate }) => 
       <div className="grid grid-cols-7 gap-1">
         {cells.map((date, idx) => {
           if (!date) return <div key={`e-${idx}`} />;
-          const isDisabled = minDate && beforeDay(date, minDate);
+          const tooEarly = minDate && beforeDay(date, minDate);
+          const tooLate = maxDate && beforeDay(maxDate, date);
+          const isDisabled = tooEarly || tooLate;
           const isStart = sameDay(date, start);
           const isEnd = sameDay(date, end);
           const inRange =
@@ -110,15 +112,17 @@ const MonthGrid = ({ month, start, end, hovered, onPick, onHover, minDate }) => 
 export const RangeDatePicker = ({
   startDate,
   endDate,
-  onChange, // ({ startDate: iso, endDate: iso }) => void
+  onChange,
   onOpenChange,
-  placeholder = "Elige fechas",
   startPlaceholder = "Fecha de llegada",
   endPlaceholder = "Fecha de salida",
+  singleLabel,
   minDate,
+  maxDate,
   className = "",
   triggerClassName = "",
-  align = "left", // "left" or "right"
+  anchorSelector,
+  align = "left",
 }) => {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(null);
@@ -138,7 +142,11 @@ export const RangeDatePicker = ({
   // Recalcular posición del popover cuando se abre o scroll/resize
   const computePosition = () => {
     if (!triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
+    // Si el caller pasó un selector de anchor, lo usamos para alinear el popover (p. ej. al bloque completo de fecha).
+    const anchorEl =
+      (anchorSelector && rootRef.current && rootRef.current.closest(anchorSelector)) ||
+      triggerRef.current;
+    const rect = anchorEl.getBoundingClientRect();
     const popoverHeight = 420;
     const popoverWidth = 620;
     const viewportH = window.innerHeight;
@@ -152,7 +160,6 @@ export const RangeDatePicker = ({
     } else {
       left = rect.left;
     }
-    // mantener dentro del viewport
     if (left < 8) left = 8;
     if (left + popoverWidth > viewportW - 8) left = viewportW - popoverWidth - 8;
 
@@ -202,10 +209,8 @@ export const RangeDatePicker = ({
       setHovered(null);
       return;
     }
-    // Rango completo: cerramos
+    // Rango completo: NO cerramos, el usuario confirma con "Hecho" o click fuera.
     onChange({ startDate: toISO(start), endDate: iso });
-    setOpen(false);
-    onOpenChange && onOpenChange(false);
   };
 
   const handleToggle = () => {
@@ -220,6 +225,13 @@ export const RangeDatePicker = ({
   };
 
   const label = (() => {
+    if (singleLabel && start && end) {
+      const opt = { day: "2-digit", month: "short" };
+      return `${start.toLocaleDateString("es-ES", opt)} — ${end.toLocaleDateString("es-ES", opt)}`;
+    }
+    if (singleLabel) {
+      return singleLabel;
+    }
     if (start && end) {
       const opt = { day: "2-digit", month: "short" };
       return `${start.toLocaleDateString("es-ES", opt)} — ${end.toLocaleDateString("es-ES", opt)}`;
@@ -302,6 +314,7 @@ export const RangeDatePicker = ({
                 onPick={handlePick}
                 onHover={setHovered}
                 minDate={minD}
+                maxDate={maxDate}
               />
               <MonthGrid
                 month={addMonths(viewMonth, 1)}
@@ -311,6 +324,7 @@ export const RangeDatePicker = ({
                 onPick={handlePick}
                 onHover={setHovered}
                 minDate={minD}
+                maxDate={maxDate}
               />
             </div>
 

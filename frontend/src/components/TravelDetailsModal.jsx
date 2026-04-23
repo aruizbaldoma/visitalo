@@ -397,17 +397,53 @@ export const TravelDetailsModal = ({
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3ccca4]"
                       data-testid={`city-name-${idx}`}
                     />
-                    <RangeDatePicker
-                      startDate={c.startDate}
-                      endDate={c.endDate}
-                      onChange={({ startDate, endDate }) => {
-                        updateCity(idx, "startDate", startDate);
-                        updateCity(idx, "endDate", endDate);
-                      }}
-                      startPlaceholder="Llegada"
-                      endPlaceholder="Salida"
-                      triggerClassName="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white text-left text-gray-700 hover:border-[#3ccca4] transition-colors"
-                    />
+                    {(() => {
+                      const outOfRange = (() => {
+                        if (!startDate || !endDate) return false;
+                        const minT = new Date(startDate + "T00:00:00").getTime();
+                        const maxT = new Date(endDate + "T00:00:00").getTime();
+                        const cs = c.startDate ? new Date(c.startDate + "T00:00:00").getTime() : null;
+                        const ce = c.endDate ? new Date(c.endDate + "T00:00:00").getTime() : null;
+                        if (cs && (cs < minT || cs > maxT)) return true;
+                        if (ce && (ce < minT || ce > maxT)) return true;
+                        return false;
+                      })();
+
+                      return (
+                        <>
+                          <div
+                            className={`rounded-md transition-colors ${
+                              outOfRange ? "ring-2 ring-red-400" : ""
+                            }`}
+                          >
+                            <RangeDatePicker
+                              startDate={c.startDate}
+                              endDate={c.endDate}
+                              onChange={({ startDate: s, endDate: e }) => {
+                                updateCity(idx, "startDate", s);
+                                updateCity(idx, "endDate", e);
+                              }}
+                              singleLabel="¿Qué días vas a estar?"
+                              minDate={startDate ? new Date(startDate + "T00:00:00") : undefined}
+                              maxDate={endDate ? new Date(endDate + "T00:00:00") : undefined}
+                              triggerClassName={`block w-full px-3 py-2 rounded-md text-sm bg-white text-left transition-colors ${
+                                outOfRange
+                                  ? "border-2 border-red-400 text-red-600"
+                                  : "border border-gray-300 text-gray-700 hover:border-[#3ccca4]"
+                              }`}
+                            />
+                          </div>
+                          {outOfRange && (
+                            <p
+                              className="text-xs mt-1 font-medium text-red-500"
+                              data-testid={`city-error-${idx}`}
+                            >
+                              ¿Te has equivocado con las fechas? Esta ciudad se ha salido del rango de tu viaje.
+                            </p>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 ))}
                 <button
