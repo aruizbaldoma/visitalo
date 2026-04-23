@@ -1,41 +1,33 @@
 import { Euro, Info } from "lucide-react";
 import { useState } from "react";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
-  // Calcular precio total de todas las actividades
-  const calculateTotalPrice = () => {
-    if (!itinerary || !itinerary.days) return 0;
-    
-    let total = 0;
-    itinerary.days.forEach(day => {
-      // Sumar actividades de mañana
-      day.morning.activities.forEach(activity => {
-        if (activity.price) total += activity.price;
-      });
-      // Sumar actividades de tarde
-      day.afternoon.activities.forEach(activity => {
-        if (activity.price) total += activity.price;
-      });
-      // Sumar actividades de noche
-      day.night.activities.forEach(activity => {
-        if (activity.price) total += activity.price;
+  // Recuento y suma excluyendo actividades eliminadas (soft-delete).
+  const computeSummary = () => {
+    if (!itinerary || !itinerary.days) return { totalPrice: 0, totalActivities: 0 };
+    let totalPrice = 0;
+    let totalActivities = 0;
+    itinerary.days.forEach((day) => {
+      ["morning", "afternoon", "night"].forEach((slot) => {
+        const acts = (day[slot] && day[slot].activities) || [];
+        acts.forEach((a) => {
+          if (a.deleted) return;
+          if (a.price) {
+            totalPrice += a.price;
+            totalActivities += 1;
+          }
+        });
       });
     });
-    
-    return total;
+    return { totalPrice, totalActivities };
   };
 
-  const totalPrice = calculateTotalPrice();
-  const totalActivities = itinerary?.days?.reduce((acc, day) => {
-    return acc + 
-      day.morning.activities.filter(a => a.price).length + 
-      day.afternoon.activities.filter(a => a.price).length + 
-      day.night.activities.filter(a => a.price).length;
-  }, 0) || 0;
+  const { totalPrice, totalActivities } = computeSummary();
 
-  if (!itinerary || totalActivities === 0) return null;
+  if (!itinerary) return null;
 
   return (
     <div className="lg:sticky lg:top-24 self-start">
@@ -51,9 +43,13 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
         {/* Total de actividades */}
         <div className="mb-6">
           <p className="text-sm text-gray-500 mb-1">Total de actividades</p>
-          <p className="text-2xl font-bold" style={{ color: '#031834' }}>
-            {totalActivities}
-          </p>
+          <AnimatedNumber
+            value={totalActivities}
+            decimals={0}
+            className="text-2xl font-bold"
+            style={{ color: "#031834" }}
+            testId="summary-activities-count"
+          />
         </div>
 
         {/* Separador */}
@@ -92,9 +88,13 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
 
           <div className="flex items-baseline gap-2">
             <Euro className="w-6 h-6" style={{ color: '#3ccca4' }} />
-            <p className="text-3xl font-bold" style={{ color: '#031834' }}>
-              {totalPrice.toFixed(2)}
-            </p>
+            <AnimatedNumber
+              value={totalPrice}
+              decimals={2}
+              className="text-3xl font-bold"
+              style={{ color: "#031834" }}
+              testId="summary-total-price"
+            />
           </div>
         </div>
 
