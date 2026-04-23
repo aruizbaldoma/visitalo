@@ -231,7 +231,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                     className="text-xs font-bold uppercase tracking-widest"
                     style={{ color: BRAND_GREEN, letterSpacing: "0.18em" }}
                   >
-                    Modo Dios · Preview
+                    PLUS · Preview
                   </span>
                   <Crown className="w-5 h-5" style={{ color: BRAND_GREEN }} />
                 </div>
