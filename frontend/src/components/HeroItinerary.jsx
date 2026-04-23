@@ -1,7 +1,7 @@
 import {
   Zap,
-  Eye,
-  Clock,
+  Sparkles,
+  SlidersHorizontal,
   Crown,
   ArrowRight,
   Landmark,
@@ -19,18 +19,21 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
   const benefits = [
     {
       Icon: Zap,
-      title: "Tu plan listo en segundos.",
-      text: "Nuestro sistema hace el trabajo pesado por ti. Olvídate de pestañas, foros y hojas de cálculo: en lo que tardas en servirte un café, tienes un itinerario completo.",
+      eyebrow: "Rapidez",
+      title: "Segundos, no semanas.",
+      text: "Olvídate de perder 3 noches entre pestañas, foros y Excels. Tu ruta está lista antes de que termines el café.",
     },
     {
-      Icon: Eye,
-      title: "Rutas sin puntos ciegos.",
-      text: "Cruzamos los spots virales con los rincones que solo conocen los locales. Visitas lo imprescindible y descubres lo que casi nadie encuentra.",
+      Icon: Sparkles,
+      eyebrow: "Curación PRO",
+      title: "Hand-picked, no random.",
+      text: "Sitios con alma, no los top-10 de siempre. Cada actividad está elegida para que vuelvas diciendo: «ha valido hasta el último euro».",
     },
     {
-      Icon: Clock,
-      title: "Ajustado a tu reloj.",
-      text: "Nos dices la hora exacta a la que aterrizas y el motor de Visítalo encaja cada actividad en su momento. Un itinerario real, ejecutable desde el primer minuto.",
+      Icon: SlidersHorizontal,
+      eyebrow: "Personalización",
+      title: "Tu viaje, tu vibra.",
+      text: "¿Más de brunch lento o ruta sin parar? ¿Playa chill o museos hasta cerrar? Lo montamos a tu medida, sin clichés turísticos.",
     },
   ];
 
@@ -87,22 +90,24 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
               className="inline-block text-xs font-semibold uppercase tracking-widest mb-3"
               style={{ color: BRAND_GREEN, letterSpacing: "0.18em" }}
             >
-              Por qué Visítalo
+              ¿Por qué Visítalo?
             </span>
             <h2
               className="text-3xl md:text-4xl font-bold font-heading"
               style={{ color: BRAND_BLUE, letterSpacing: "-0.02em", lineHeight: "1.1" }}
             >
-              Planificar un viaje ya no tiene por qué llevarte semanas.
+              Planificar viajes era un rollo.
+              <br />
+              <span style={{ color: BRAND_GREEN }}>Lo hemos arreglado.</span>
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
-            {benefits.map(({ Icon, title, text }) => (
+            {benefits.map(({ Icon, eyebrow, title, text }) => (
               <div
-                key={title}
+                key={eyebrow}
                 className="bg-gray-50 rounded-2xl p-7 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-transparent hover:border-[#3ccca4]/30"
-                data-testid={`benefit-card-${title.toLowerCase().replace(/[^a-z]+/g, "-")}`}
+                data-testid={`benefit-card-${eyebrow.toLowerCase().replace(/\s+/g, "-")}`}
               >
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
@@ -110,6 +115,12 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 >
                   <Icon className="w-7 h-7" style={{ color: BRAND_GREEN }} strokeWidth={2.2} />
                 </div>
+                <span
+                  className="text-xs font-bold uppercase tracking-widest mb-2 block"
+                  style={{ color: BRAND_GREEN, letterSpacing: "0.16em" }}
+                >
+                  {eyebrow}
+                </span>
                 <h3
                   className="text-xl md:text-2xl font-bold mb-3 font-heading"
                   style={{ color: BRAND_BLUE, letterSpacing: "-0.01em" }}
