@@ -1,6 +1,6 @@
 import {
   Zap,
-  Sparkles,
+  Eye,
   SlidersHorizontal,
   Crown,
   ArrowRight,
@@ -24,10 +24,10 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
       text: "Olvídate de perder 3 noches entre pestañas, foros y Excels. Tu ruta está lista antes de que termines el café.",
     },
     {
-      Icon: Sparkles,
+      Icon: Eye,
       eyebrow: "Curación PRO",
-      title: "Hand-picked, no random.",
-      text: "Sitios con alma, no los top-10 de siempre. Cada actividad está elegida para que vuelvas diciendo: «ha valido hasta el último euro».",
+      title: "Rutas sin puntos ciegos.",
+      text: "Cruzamos los spots virales con los rincones que solo conocen los locales. Visitas lo imprescindible y descubres lo que casi nadie encuentra.",
     },
     {
       Icon: SlidersHorizontal,
