@@ -151,10 +151,10 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails, o
           <MapPin className="w-16 h-16 mx-auto" />
         </div>
         <h3 className="text-2xl font-bold text-gray-700 mb-2">
-          Tu itinerario aparecerá aquí
+          Aquí va a aparecer tu planazo ✨
         </h3>
         <p className="text-gray-500">
-          Completa el buscador para generar tu plan de viaje personalizado
+          Rellena el buscador de arriba y te lo montamos en segundos. Tú a lo tuyo: solo haz la maleta.
         </p>
       </div>
     );

@@ -86,8 +86,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
               startDate={searchData.startDate}
               endDate={searchData.endDate}
               onChange={({ startDate, endDate }) => update({ startDate, endDate })}
-              startPlaceholder="Fecha de llegada"
-              endPlaceholder="Fecha de salida"
+              startPlaceholder="¿Cuándo llegas?"
+              endPlaceholder="¿Cuándo vuelves?"
               className="flex-1"
               triggerClassName="block w-full text-sm text-gray-800 font-medium truncate"
               anchorSelector="[data-date-block]"
@@ -111,7 +111,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
               className="w-6 h-6 flex-shrink-0"
             />
             <span className="text-sm font-bold whitespace-nowrap" style={{ color: BRAND_BLUE }}>
-              Personalizar
+              Personalízalo
             </span>
           </button>
 

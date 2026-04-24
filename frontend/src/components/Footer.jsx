@@ -38,8 +38,8 @@ export const Footer = () => {
               />
             </div>
             <p className="text-sm mb-6 max-w-md opacity-80">
-              Tu asistente inteligente para encontrar los mejores viajes desde España.
-              Ahorra tiempo y dinero en cada escapada.
+              Plataforma española de planificación de viajes. Itinerarios personalizados, actividades
+              verificadas y reserva centralizada en una única herramienta.
             </p>
             <div className="flex gap-3">
               <a
