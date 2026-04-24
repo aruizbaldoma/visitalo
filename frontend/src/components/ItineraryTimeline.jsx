@@ -280,6 +280,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails, o
 };
 
 const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete, onRestore, destination, getActivityType, hotelInfo, onHotelDelete, onHotelRestore, onHotelAlternative }) => {
+  const { t } = useTranslation();
   return (
     <div className="relative">
       {/* Línea de Conexión Mejorada */}
