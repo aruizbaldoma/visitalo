@@ -1,9 +1,11 @@
 import { Info, RefreshCw, Trash2, Clock, MapPin, Euro, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getCivitatisUrl } from "../config/affiliates";
 import { DeleteConfirmPopover } from "./DeleteConfirmPopover";
 
 export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative, onDelete }) => {
+  const { t } = useTranslation();
   const [showTooltip, setShowTooltip] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -69,12 +71,12 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
               onMouseLeave={() => setShowTooltip(null)}
               className="relative p-2 hover:bg-blue-50 transition-colors"
               style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-              title="Ver información completa"
+              title={t("card.viewInfoFull")}
             >
               <Info className="w-4 h-4 text-gray-600 hover:text-blue-600" />
               {showTooltip === 'info' && (
                 <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                  Ver información
+                  {t("card.viewInfo")}
                 </div>
               )}
             </button>
@@ -86,12 +88,12 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
               onMouseLeave={() => setShowTooltip(null)}
               className="relative p-2 hover:bg-green-50 transition-colors"
               style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-              title="Buscar alternativa"
+              title={t("card.findAlternative")}
             >
               <RefreshCw className="w-4 h-4 text-gray-600 hover:text-[#3ccca4]" />
               {showTooltip === 'alt' && (
                 <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                  Cambiar plan
+                  {t("card.changePlan")}
                 </div>
               )}
             </button>
@@ -103,13 +105,13 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
               onMouseLeave={() => setShowTooltip(null)}
               className="relative p-2 hover:bg-red-50 transition-colors"
               style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-              title="Eliminar actividad"
+              title={t("card.removeActivity")}
               data-testid={`delete-activity-${activity.activityId}`}
             >
               <Trash2 className="w-4 h-4 text-gray-600 hover:text-red-600" />
               {showTooltip === 'delete' && (
                 <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                  Eliminar
+                  {t("card.remove")}
                 </div>
               )}
             </button>
@@ -118,7 +120,7 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
 
         {/* Precio y Provider */}
         <div className="flex flex-wrap items-center justify-between gap-3 mt-3 pt-3" style={{ borderTop: '1px solid #E5E7EB' }}>
-          <span className="text-xs text-gray-500">Por {activity.provider}</span>
+          <span className="text-xs text-gray-500">{t("card.by", { provider: activity.provider })}</span>
 
           <div className="flex items-center gap-3 flex-wrap">
             {/* Precio SIEMPRE visible */}
@@ -135,7 +137,7 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:shadow-lg transition-all"
               style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
             >
-              Reservar
+              {t("card.book")}
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>

@@ -1,6 +1,8 @@
 import { Euro, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const TotalPricePanel = ({ itinerary, isAuthenticated, onConfirm }) => {
+  const { t } = useTranslation();
   // Calcular precio total de todas las actividades
   const calculateTotalPrice = () => {
     if (!itinerary || !itinerary.days) return 0;
@@ -41,16 +43,16 @@ export const TotalPricePanel = ({ itinerary, isAuthenticated, onConfirm }) => {
           {/* Información del Itinerario */}
           <div className="flex items-center gap-6">
             <div>
-              <p className="text-sm text-gray-500">Total de actividades</p>
+              <p className="text-sm text-gray-500">{t("totalPrice.totalActivities")}</p>
               <p className="text-lg font-bold" style={{ color: '#031834' }}>
-                {totalActivities} {totalActivities === 1 ? 'actividad' : 'actividades'}
+                {t("confirmation.activityCount", { count: totalActivities })}
               </p>
             </div>
             
             <div className="h-12 w-px bg-gray-300"></div>
             
             <div>
-              <p className="text-sm text-gray-500">Precio total estimado</p>
+              <p className="text-sm text-gray-500">{t("totalPrice.estimatedPrice")}</p>
               {isAuthenticated ? (
                 <div className="flex items-center gap-2">
                   <Euro className="w-5 h-5" style={{ color: '#031834' }} />
@@ -64,7 +66,7 @@ export const TotalPricePanel = ({ itinerary, isAuthenticated, onConfirm }) => {
                     €{totalPrice.toFixed(2)}
                   </div>
                   <p className="text-xs text-gray-500 ml-2">
-                    Inicia sesión para ver precios
+                    {t("totalPrice.signInToSee")}
                   </p>
                 </div>
               )}
@@ -85,7 +87,7 @@ export const TotalPricePanel = ({ itinerary, isAuthenticated, onConfirm }) => {
             style={isAuthenticated ? { backgroundColor: '#3ccca4', borderRadius: '8px' } : { borderRadius: '8px' }}
           >
             <Check className="w-5 h-5" />
-            Confirmar Itinerario
+            {t("totalPrice.confirm")}
           </button>
         </div>
 
@@ -93,7 +95,7 @@ export const TotalPricePanel = ({ itinerary, isAuthenticated, onConfirm }) => {
         {!isAuthenticated && (
           <div className="mt-3 text-center">
             <p className="text-sm text-gray-600">
-              <span className="font-semibold">Inicia sesión</span> para ver los precios actualizados y confirmar tu itinerario
+              {t("totalPrice.signInNotice")}
             </p>
           </div>
         )}

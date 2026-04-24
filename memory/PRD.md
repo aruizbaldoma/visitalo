@@ -42,7 +42,13 @@
 - ✅ Limpieza de código muerto: eliminados `App_old.js`, `Hero.jsx`, `Benefits.jsx`
 - ✅ **P0 sección PLUS condicional**: oculta para suscriptores de pago (`subscription_active`); CTA abre AuthModal si no auth, llama Stripe checkout si auth+no-sub
 - ✅ **P1 Stripe Checkout (Fase 1 - one-off mensual)**: endpoints checkout-session + checkout-status + webhook + colección payment_transactions + polling post-redirect + activación idempotente +30 días
-- ✅ **P2 i18n ES/EN**: `i18next` + `react-i18next` + `i18next-browser-languagedetector`. Archivos en `src/locales/{es,en}.json`. Selector en Header ES/EN (FR/IT eliminados) con persistencia en localStorage (`visitalo_lang`). Componentes traducidos: Header, Footer, HeroItinerary (hero, benefits, PLUS, activities), ItinerarySearchBar, RangeDatePicker (meses y días según idioma), WelcomePromoModal, AuthModal, CookieBanner, ItineraryTimeline, ItinerarySidebar, MyTrips, Route. Validado E2E en los 2 idiomas.
+- ✅ **P2 i18n ES/EN**: `i18next` + `react-i18next` + `i18next-browser-languagedetector`. Archivos en `src/locales/{es,en}.json`. Selector en Header ES/EN (FR/IT eliminados) con persistencia en localStorage (`visitalo_lang`).
+  - **TIER 1** (chrome principal): Header, Footer, HeroItinerary, ItinerarySearchBar, RangeDatePicker, WelcomePromoModal, AuthModal, CookieBanner, ItineraryTimeline, ItinerarySidebar, MyTrips, Route.
+  - **TIER 2** (post-búsqueda y páginas secundarias): ActivityCard, HotelCard, DeleteConfirmPopover, ActivityInfoModal, AlternativesModal, ConfirmationModal, TotalPricePanel, ItineraryLoading, WelcomeModal, AuthCallback, BlogList, BlogPost, Legal (chrome — contenido legal se mantiene en ES por validez jurídica).
+  - Validado E2E en los 2 idiomas.
+
+### ⏭️ Pendiente opcional i18n
+- `TravelDetailsModal` (859 líneas): modal de personalización avanzada con muchos campos de formulario. Si el usuario lo pide, se traduce en siguiente iteración.
 
 ## Backlog priorizado
 

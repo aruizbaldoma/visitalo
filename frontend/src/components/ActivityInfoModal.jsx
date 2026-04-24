@@ -1,30 +1,32 @@
 import { X, MapPin, Clock, CheckCircle, XCircle, Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 
 export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
+  const { t } = useTranslation();
   if (!isOpen || !activity) return null;
 
   // Mock de información detallada
   const detailedInfo = {
-    fullDescription: activity.description + ". Esta es una experiencia completa que incluye todo lo necesario para disfrutar al máximo de tu visita.",
+    fullDescription: activity.description + t("activityInfo.fullDescriptionSuffix"),
     highlights: [
-      "Guía experto en español",
-      "Grupo reducido (máximo 15 personas)",
-      "Auriculares incluidos",
-      "Acceso prioritario sin colas"
+      t("activityInfo.highlight1"),
+      t("activityInfo.highlight2"),
+      t("activityInfo.highlight3"),
+      t("activityInfo.highlight4"),
     ],
     includes: [
-      "Entradas a todos los puntos del tour",
-      "Guía profesional certificado",
-      "Seguro de responsabilidad civil"
+      t("activityInfo.include1"),
+      t("activityInfo.include2"),
+      t("activityInfo.include3"),
     ],
     notIncludes: [
-      "Comidas y bebidas",
-      "Transporte hasta punto de encuentro",
-      "Propinas (opcionales)"
+      t("activityInfo.notInclude1"),
+      t("activityInfo.notInclude2"),
+      t("activityInfo.notInclude3"),
     ],
-    meetingPoint: activity.location || "Por confirmar",
-    cancellation: "Cancelación gratuita hasta 24 horas antes"
+    meetingPoint: activity.location || t("activityInfo.meetingPointTBD"),
+    cancellation: t("activityInfo.cancellation"),
   };
 
   return (
@@ -60,7 +62,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
           {/* Descripción */}
           <div>
             <h3 className="text-lg font-bold mb-3" style={{ color: '#031834' }}>
-              Descripción Completa
+              {t("activityInfo.fullDescriptionTitle")}
             </h3>
             <p className="text-gray-700 leading-relaxed">
               {detailedInfo.fullDescription}
@@ -71,7 +73,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
           <div>
             <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: '#031834' }}>
               <Info className="w-5 h-5" style={{ color: '#3ccca4' }} />
-              Puntos Destacados
+              {t("activityInfo.highlightsTitle")}
             </h3>
             <ul className="space-y-2">
               {detailedInfo.highlights.map((item, index) => (
@@ -87,7 +89,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <h3 className="text-lg font-bold mb-3" style={{ color: '#031834' }}>
-                ✓ Incluye
+                ✓ {t("activityInfo.includesTitle")}
               </h3>
               <ul className="space-y-2">
                 {detailedInfo.includes.map((item, index) => (
@@ -101,7 +103,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
 
             <div>
               <h3 className="text-lg font-bold mb-3" style={{ color: '#031834' }}>
-                ✗ No Incluye
+                ✗ {t("activityInfo.notIncludesTitle")}
               </h3>
               <ul className="space-y-2">
                 {detailedInfo.notIncludes.map((item, index) => (
@@ -117,7 +119,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
           {/* Punto de Encuentro */}
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <h3 className="text-sm font-bold mb-2" style={{ color: '#031834' }}>
-              Punto de Encuentro
+              {t("activityInfo.meetingPoint")}
             </h3>
             <div className="flex items-start gap-2 text-sm text-gray-700">
               <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#3ccca4' }} />
@@ -134,7 +136,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
 
           {/* Provider */}
           <div className="text-center text-sm text-gray-500 pt-4 border-t border-gray-200">
-            Actividad proporcionada por <span className="font-semibold">{activity.provider}</span>
+            {t("activityInfo.providedBy")} <span className="font-semibold">{activity.provider}</span>
           </div>
         </div>
 
@@ -145,7 +147,7 @@ export const ActivityInfoModal = ({ activity, isOpen, onClose }) => {
             className="text-white font-semibold px-6"
             style={{ backgroundColor: '#031834' }}
           >
-            Cerrar
+            {t("activityInfo.close")}
           </Button>
         </div>
       </div>

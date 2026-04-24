@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { ArrowLeft, FileText, Lock, Cookie } from "lucide-react";
@@ -134,16 +135,17 @@ const PAGES = {
   },
 };
 
-const NAV = [
-  { slug: "terminos", label: "Términos", Icon: FileText },
-  { slug: "privacidad", label: "Privacidad", Icon: Lock },
-  { slug: "cookies", label: "Cookies", Icon: Cookie },
-];
-
 export default function Legal() {
+  const { t } = useTranslation();
   const { slug } = useParams();
   const page = PAGES[slug] || PAGES.terminos;
   const { Icon } = page;
+
+  const NAV_ITEMS = [
+    { slug: "terminos", label: t("legal.tabTerms"), Icon: FileText },
+    { slug: "privacidad", label: t("legal.tabPrivacy"), Icon: Lock },
+    { slug: "cookies", label: t("legal.tabCookies"), Icon: Cookie },
+  ];
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -168,7 +170,7 @@ export default function Legal() {
             data-testid="legal-back-home"
           >
             <ArrowLeft className="w-4 h-4" />
-            Volver al inicio
+            {t("legal.backHome")}
           </Link>
           <div
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4"
@@ -179,7 +181,7 @@ export default function Legal() {
               className="text-xs font-bold uppercase tracking-widest"
               style={{ color: BRAND_GREEN, letterSpacing: "0.16em" }}
             >
-              Legal
+              {t("legal.eyebrow")}
             </span>
           </div>
           <h1
@@ -190,7 +192,7 @@ export default function Legal() {
             {page.title}
           </h1>
           <p className="text-white/70 text-base md:text-lg max-w-2xl">{page.description}</p>
-          <p className="text-white/50 text-xs mt-4">Última actualización: {LAST_UPDATE}</p>
+          <p className="text-white/50 text-xs mt-4">{t("legal.lastUpdated")}</p>
         </div>
       </section>
 
@@ -198,7 +200,7 @@ export default function Legal() {
       <div className="border-b border-gray-200 sticky top-0 bg-white z-20">
         <div className="max-w-5xl mx-auto px-4 md:px-8">
           <nav className="flex gap-1 overflow-x-auto" data-testid="legal-tabs">
-            {NAV.map(({ slug: s, label, Icon: TabIcon }) => {
+            {NAV_ITEMS.map(({ slug: s, label, Icon: TabIcon }) => {
               const active = slug === s || (!slug && s === "terminos");
               return (
                 <Link

@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
-const SUBTITLES = [
-  "Seleccionando los mejores spots…",
-  "Cruzando rutas con locales…",
-  "Afinando horarios y traslados…",
-  "Ajustando cada detalle a tu ritmo…",
-  "Últimos retoques, casi listo…",
-];
-
 export const ItineraryLoading = () => {
+  const { t } = useTranslation();
+  const SUBTITLES = [
+    t("loading.s1"),
+    t("loading.s2"),
+    t("loading.s3"),
+    t("loading.s4"),
+    t("loading.s5"),
+  ];
   const [i, setI] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setI((x) => (x + 1) % SUBTITLES.length), 1800);
+    const id = setInterval(() => setI((x) => (x + 1) % 5), 1800);
     return () => clearInterval(id);
   }, []);
 
@@ -41,7 +42,7 @@ export const ItineraryLoading = () => {
             fontFamily: '"Montserrat", system-ui, sans-serif',
           }}
         >
-          Buscando experiencias increíbles
+          {t("loading.eyebrow")}
         </p>
       </div>
 

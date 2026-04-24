@@ -1,8 +1,10 @@
 import { X, RefreshCw, Euro, Clock, MapPin } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 
 export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternative, isAuthenticated }) => {
+  const { t } = useTranslation();
   const [alternatives, setAlternatives] = useState([]);
   const [loading, setLoading] = useState(false);
   const [attemptCount, setAttemptCount] = useState(0);
@@ -20,8 +22,8 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
         {
           ...activity,
           activityId: `${activity.activityId}_alt_${attemptCount + 1}`,
-          title: activity.title + ` - Opción ${attemptCount + 2}`,
-          description: `Alternativa similar con diferente proveedor o horario`,
+          title: activity.title + t("alternatives.altTitleSuffix", { n: attemptCount + 2 }),
+          description: t("alternatives.altDescription"),
           price: activity.price + (Math.random() * 20 - 10),
           provider: attemptCount % 2 === 0 ? "Viator" : "GetYourGuide"
         },
@@ -29,7 +31,7 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
           ...activity,
           activityId: `${activity.activityId}_alt2_${attemptCount + 1}`,
           title: activity.title.replace(/Tour|Visita/, "Experiencia"),
-          description: `Versión premium de la actividad con extras incluidos`,
+          description: t("alternatives.altPremiumDescription"),
           price: activity.price + 15,
           provider: "Civitatis"
         }
@@ -49,10 +51,10 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-xl">
           <div>
             <h2 className="text-2xl font-bold" style={{ color: '#031834' }}>
-              Buscar Alternativa
+              {t("alternatives.title")}
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              Encuentra opciones similares para: <span className="font-semibold">{activity.title}</span>
+              {t("alternatives.subtitlePrefix")} <span className="font-semibold">{activity.title}</span>
             </p>
           </div>
           <button
@@ -67,7 +69,7 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
         <div className="p-6">
           {/* Actividad Original */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-500 mb-3 uppercase">Actividad Original</h3>
+            <h3 className="text-sm font-semibold text-gray-500 mb-3 uppercase">{t("alternatives.originalLabel")}</h3>
             <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-4">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -98,10 +100,10 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
             <div className="text-center py-12">
               <RefreshCw className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                Busca opciones similares
+                {t("alternatives.findCta")}
               </h3>
               <p className="text-sm text-gray-500 mb-6">
-                Te mostramos hasta {maxAttempts} alternativas para esta actividad
+                {t("alternatives.description", { max: maxAttempts })}
               </p>
               <Button
                 onClick={generateAlternatives}
@@ -110,7 +112,7 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
                 disabled={attemptCount >= maxAttempts}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Buscar Alternativas
+                {t("alternatives.findCta")}
               </Button>
             </div>
           ) : (
@@ -118,7 +120,7 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
               {/* Lista de Alternativas */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-500 mb-3 uppercase">
-                  Alternativas Encontradas ({alternatives.length})
+                  {t("alternatives.found", { count: alternatives.length })}
                 </h3>
                 <div className="space-y-3">
                   {alternatives.map((alt, index) => (
@@ -134,9 +136,9 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-xs font-semibold px-2 py-1 rounded" style={{ backgroundColor: '#3ccca420', color: '#3ccca4' }}>
-                              Opción {index + 1}
+                              {t("alternatives.optionTag", { n: index + 1 })}
                             </span>
-                            <span className="text-xs text-gray-500">por {alt.provider}</span>
+                            <span className="text-xs text-gray-500">{t("alternatives.byProvider", { provider: alt.provider })}</span>
                           </div>
                           <h4 className="font-semibold text-gray-900 mb-1">{alt.title}</h4>
                           <p className="text-sm text-gray-600 mb-2">{alt.description}</p>
@@ -172,17 +174,17 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
                     disabled={loading}
                   >
                     {loading ? (
-                      <>Buscando...</>
+                      <>{t("alternatives.searching")}</>
                     ) : (
                       <>
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        Buscar Más Alternativas ({maxAttempts - attemptCount} restantes)
+                        {t("alternatives.searchMore", { remaining: maxAttempts - attemptCount })}
                       </>
                     )}
                   </Button>
                 ) : (
                   <p className="text-sm text-gray-500 italic">
-                    No hay más planes disponibles para ti
+                    {t("alternatives.noMore")}
                   </p>
                 )}
               </div>
@@ -197,7 +199,7 @@ export const AlternativesModal = ({ activity, isOpen, onClose, onSelectAlternati
             variant="outline"
             className="border-gray-300"
           >
-            Cancelar
+            {t("alternatives.cancel")}
           </Button>
         </div>
       </div>

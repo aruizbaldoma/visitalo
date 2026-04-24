@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 
 const API = process.env.REACT_APP_BACKEND_URL;
@@ -9,6 +10,7 @@ const API = process.env.REACT_APP_BACKEND_URL;
  * REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
  */
 export const AuthCallback = () => {
+  const { t } = useTranslation();
   const { setSessionFromCallback } = useAuth();
   const hasProcessed = useRef(false);
 
@@ -47,7 +49,7 @@ export const AuthCallback = () => {
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="text-center">
         <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-[#3ccca4] mb-4"></div>
-        <p className="text-gray-700 font-medium">Iniciando sesión...</p>
+        <p className="text-gray-700 font-medium">{t("loading.signingIn")}</p>
       </div>
     </div>
   );

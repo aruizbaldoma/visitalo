@@ -1,8 +1,10 @@
 import { Hotel, MapPin, Info, RefreshCw, Trash2, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DeleteConfirmPopover } from "./DeleteConfirmPopover";
 
 export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onAlternative, onDelete }) => {
+  const { t } = useTranslation();
   const [showTooltip, setShowTooltip] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -82,8 +84,8 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
         <DeleteConfirmPopover
           onConfirm={confirmDelete}
           onCancel={() => setConfirmOpen(false)}
-          title="¿Quitar el alojamiento?"
-          message="Seguro que aquí tienes otro plan super molón para dormir, pero si al final se te cae, puedes reactivar el que teníamos pensado para ti sin problema."
+          title={t("deleteConfirm.hotelTitle")}
+          message={t("deleteConfirm.hotelMessage")}
         />
       )}
       {/* Icono */}
@@ -122,7 +124,7 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
               style={{ backgroundColor: "#3ccca4", color: "#031834" }}
               data-testid="hotel-booking-link"
             >
-              Reservar
+              {t("card.book")}
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
 
@@ -134,12 +136,12 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
                 onMouseLeave={() => setShowTooltip(null)}
                 className="relative p-2 hover:bg-blue-50 transition-colors"
                 style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-                title="Ver información completa"
+                title={t("card.viewInfoFull")}
               >
                 <Info className="w-4 h-4 text-gray-600 hover:text-blue-600" />
                 {showTooltip === 'info' && (
                   <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                    Ver información
+                    {t("card.viewInfo")}
                   </div>
                 )}
               </button>
@@ -153,12 +155,12 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
                 onMouseLeave={() => setShowTooltip(null)}
                 className="relative p-2 hover:bg-green-50 transition-colors"
                 style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-                title="Buscar alternativa"
+                title={t("card.findAlternative")}
               >
                 <RefreshCw className="w-4 h-4 text-gray-600 hover:text-[#3ccca4]" />
                 {showTooltip === 'alt' && (
                   <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                    Cambiar hotel
+                    {t("card.changeStay")}
                   </div>
                 )}
               </button>
@@ -172,12 +174,12 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
                 onMouseLeave={() => setShowTooltip(null)}
                 className="relative p-2 hover:bg-red-50 transition-colors"
                 style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}
-                title="Eliminar hotel"
+                title={t("card.removeStay")}
               >
                 <Trash2 className="w-4 h-4 text-gray-600 hover:text-red-600" />
                 {showTooltip === 'delete' && (
                   <div className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                    Eliminar
+                    {t("card.remove")}
                   </div>
                 )}
               </button>

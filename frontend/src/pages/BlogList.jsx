@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Calendar, ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { getAllPosts, formatDate } from "../lib/blog";
@@ -8,20 +9,21 @@ import { getAllPosts, formatDate } from "../lib/blog";
 const BRAND_BLUE = "#031834";
 
 export default function BlogList() {
+  const { t } = useTranslation();
   const posts = getAllPosts();
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Helmet>
-        <title>Blog de viajes | Visítalo.es</title>
+        <title>{t("blog.title")}</title>
         <meta
           name="description"
-          content="Guías de viaje, rutas, consejos y los mejores destinos para planificar tus vacaciones con Visítalo.es"
+          content={t("blog.subtitle")}
         />
-        <meta property="og:title" content="Blog de viajes | Visítalo.es" />
+        <meta property="og:title" content={t("blog.title")} />
         <meta
           property="og:description"
-          content="Guías de viaje, rutas y consejos para planificar tus vacaciones"
+          content={t("blog.subtitle")}
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://visitalo.es/blog" />
@@ -36,10 +38,10 @@ export default function BlogList() {
             className="text-4xl md:text-5xl font-bold mb-3 font-heading"
             style={{ color: BRAND_BLUE, letterSpacing: "-0.02em" }}
           >
-            Blog de viajes
+            {t("blog.heading")}
           </h1>
           <p className="text-base md:text-lg text-gray-600 max-w-2xl">
-            Guías, rutas y consejos para sacar el máximo a cada escapada.
+            {t("blog.subtitle")}
           </p>
         </div>
 
@@ -76,7 +78,7 @@ export default function BlogList() {
                     className="inline-flex items-center gap-2 text-sm font-semibold"
                     style={{ color: BRAND_BLUE }}
                   >
-                    Leer más
+                    {t("blog.readMore")}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>

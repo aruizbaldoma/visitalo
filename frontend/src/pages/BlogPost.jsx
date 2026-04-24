@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Link, useParams, Navigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Calendar, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { getPostBySlug, formatDate } from "../lib/blog";
@@ -10,6 +11,7 @@ const BRAND_BLUE = "#031834";
 const SITE_URL = "https://visitalo.es";
 
 export default function BlogPost() {
+  const { t } = useTranslation();
   const { slug } = useParams();
   const post = getPostBySlug(slug);
 
@@ -68,7 +70,7 @@ export default function BlogPost() {
           data-testid="blog-post-back"
         >
           <ArrowLeft className="w-4 h-4" />
-          Volver al blog
+          {t("blog.backToBlog")}
         </Link>
 
         <article>

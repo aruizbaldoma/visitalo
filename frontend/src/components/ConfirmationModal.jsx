@@ -1,6 +1,8 @@
 import { X, Check, Calendar, MapPin, Euro } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onConfirmPayment }) => {
+  const { t } = useTranslation();
   if (!isOpen || !itinerary) return null;
 
   const totalActivities = itinerary.days.reduce((acc, day) => {
@@ -16,7 +18,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
         {/* Header */}
         <div className="sticky top-0 bg-white px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #E5E7EB' }}>
           <h3 className="text-2xl font-bold" style={{ color: '#031834' }}>
-            Confirmar Itinerario
+            {t("confirmation.title")}
           </h3>
           <button
             onClick={onClose}
@@ -43,7 +45,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
               </p>
               <span className="mx-2">•</span>
               <p className="text-sm font-semibold">
-                {itinerary.totalDays} {itinerary.totalDays === 1 ? 'día' : 'días'}
+                {t("confirmation.dayCount", { count: itinerary.totalDays })}
               </p>
             </div>
           </div>
@@ -51,7 +53,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
           {/* Resumen de Actividades por Día */}
           <div>
             <h5 className="font-bold text-lg mb-3" style={{ color: '#031834' }}>
-              Resumen de Actividades
+              {t("confirmation.summaryTitle")}
             </h5>
             <div className="space-y-3">
               {itinerary.days.map((day) => {
@@ -66,14 +68,14 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
                   <div key={day.day} className="bg-gray-50 p-4" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
                     <div className="flex items-center justify-between mb-2">
                       <p className="font-semibold text-gray-900">
-                        Día {day.day}
+                        {t("confirmation.dayLabel", { n: day.day })}
                       </p>
                       <p className="text-sm font-bold" style={{ color: '#031834' }}>
                         €{dayTotal.toFixed(2)}
                       </p>
                     </div>
                     <p className="text-xs text-gray-600">
-                      {dayActivities.length} {dayActivities.length === 1 ? 'actividad' : 'actividades'}
+                      {t("confirmation.activityCount", { count: dayActivities.length })}
                     </p>
                   </div>
                 );
@@ -85,13 +87,13 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
           <div className="border-t-2 border-gray-200 pt-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-sm text-gray-500">Total de actividades</p>
+                <p className="text-sm text-gray-500">{t("confirmation.totalActivities")}</p>
                 <p className="text-lg font-bold" style={{ color: '#031834' }}>
-                  {totalActivities} {totalActivities === 1 ? 'actividad' : 'actividades'}
+                  {t("confirmation.activityCount", { count: totalActivities })}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-500">Precio Total</p>
+                <p className="text-sm text-gray-500">{t("confirmation.totalPrice")}</p>
                 <div className="flex items-center gap-2">
                   <Euro className="w-6 h-6" style={{ color: '#3ccca4' }} />
                   <p className="text-3xl font-bold" style={{ color: '#031834' }}>
@@ -104,8 +106,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
             {/* Nota Legal */}
             <div className="bg-yellow-50 p-3 mb-4" style={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
               <p className="text-xs text-gray-700">
-                <span className="font-semibold">Importante:</span> Los precios mostrados son estimados y pueden variar según disponibilidad. 
-                La confirmación final y el pago se realizarán con cada proveedor de actividades.
+                <span className="font-semibold">{t("confirmation.legalTitle")}</span> {t("confirmation.legalText")}
               </p>
             </div>
 
@@ -116,7 +117,7 @@ export const ConfirmationModal = ({ itinerary, totalPrice, isOpen, onClose, onCo
               style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
             >
               <Check className="w-5 h-5" />
-              Proceder a Confirmar y Pagar
+              {t("confirmation.confirmCta")}
             </button>
           </div>
         </div>
