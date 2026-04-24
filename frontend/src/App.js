@@ -79,7 +79,6 @@ function MainApp() {
   const handleSearch = async (searchData) => {
     setIsLoading(true);
     setSearchParams(searchData);
-    toast.loading("Generando tu itinerario personalizado...");
 
     let effectivePlan = userPlan;
     try {
