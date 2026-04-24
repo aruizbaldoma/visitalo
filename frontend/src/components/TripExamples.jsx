@@ -11,24 +11,18 @@ export const TripExamples = () => {
   const trips = [
     {
       id: "barcelona",
-      flag: t("examples.trips.barcelona.flag"),
-      region: t("examples.trips.barcelona.region"),
       destination: t("examples.trips.barcelona.destination"),
       duration: t("examples.trips.barcelona.duration"),
       days: t("examples.trips.barcelona.days", { returnObjects: true }),
     },
     {
       id: "rome",
-      flag: t("examples.trips.rome.flag"),
-      region: t("examples.trips.rome.region"),
       destination: t("examples.trips.rome.destination"),
       duration: t("examples.trips.rome.duration"),
       days: t("examples.trips.rome.days", { returnObjects: true }),
     },
     {
       id: "japan",
-      flag: t("examples.trips.japan.flag"),
-      region: t("examples.trips.japan.region"),
       destination: t("examples.trips.japan.destination"),
       duration: t("examples.trips.japan.duration"),
       days: t("examples.trips.japan.days", { returnObjects: true }),
@@ -77,15 +71,8 @@ export const TripExamples = () => {
               className="bg-white rounded-2xl p-6 md:p-7 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-transparent hover:border-[#3ccca4]/30 flex flex-col"
               data-testid={`example-trip-${trip.id}`}
             >
-              {/* Header: region + duration pill */}
-              <div className="flex items-start justify-between mb-4">
-                <span
-                  className="text-xs font-bold uppercase tracking-widest inline-flex items-center gap-1.5"
-                  style={{ color: BRAND_GREEN, letterSpacing: "0.16em" }}
-                >
-                  <span aria-hidden="true">{trip.flag}</span>
-                  {trip.region}
-                </span>
+              {/* Header: only duration pill (destination below) */}
+              <div className="flex items-center justify-end mb-4">
                 <span
                   className="text-[11px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1"
                   style={{

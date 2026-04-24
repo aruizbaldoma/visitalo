@@ -232,41 +232,35 @@
     "eyebrow": "Real examples",
     "titleLine1": "See what we'll",
     "titleLine2": "build for you.",
-    "subtitle": "A few examples so you get the vibe: from a weekend escape to a month across Asia. All curated down to the detail.",
+    "subtitle": "Three quick examples so you get the vibe: from an express weekend to a whole month across Asia. You just grab the backpack.",
     "trips": {
       "barcelona": {
-        "flag": "🇪🇸",
-        "region": "Spain",
         "destination": "Barcelona",
         "duration": "2 days",
         "days": [
-          { "label": "Day 1", "plan": "Sagrada Familia + walk through Gràcia + dinner at a proper local spot" },
-          { "label": "Day 2", "plan": "Morning at the beach, El Born for lunch and sunset at the Búnquers del Carmel" }
+          { "label": "Day 1", "plan": "Sagrada Familia + stroll through Gràcia + dinner at a proper non-touristy spot" },
+          { "label": "Day 2", "plan": "Beach in the morning + vermouth in El Born + sunset at Búnkers" }
         ]
       },
       "rome": {
-        "flag": "🇪🇺",
-        "region": "Europe",
         "destination": "Rome",
         "duration": "3 days",
         "days": [
-          { "label": "Day 1", "plan": "Colosseum + city center + night out in Trastevere" },
-          { "label": "Day 2", "plan": "Vatican, museums and a slow walk along the Tiber at dusk" },
-          { "label": "Day 3", "plan": "Neighborhood cafés, secret viewpoints and a final chill plan" }
+          { "label": "Day 1", "plan": "Colosseum + getting lost in the city center + dinner in Trastevere" },
+          { "label": "Day 2", "plan": "Vatican + an aimless walk through Rome + gelato at sunset" },
+          { "label": "Day 3", "plan": "Charming cafés + viewpoints + one last unhurried walk" }
         ]
       },
       "japan": {
-        "flag": "🌏",
-        "region": "Asia",
         "destination": "Japan",
         "duration": "10 days",
         "days": [
-          { "label": "Days 1-2", "plan": "Tokyo: Shibuya, Shinjuku and the best food spots" },
-          { "label": "Day 3", "plan": "Hakone with views of Mount Fuji" },
-          { "label": "Days 4-5", "plan": "Kyoto: temples and traditional districts" },
-          { "label": "Day 6", "plan": "Day trip to Nara" },
-          { "label": "Days 7-8", "plan": "Osaka: street food and nightlife" },
-          { "label": "Days 9-10", "plan": "Free exploration + hidden spots nobody tells you about" }
+          { "label": "Days 1-2", "plan": "Tokyo: Shibuya, lights, food and first impressions" },
+          { "label": "Day 3", "plan": "Hakone + views of Fuji + disconnect" },
+          { "label": "Days 4-5", "plan": "Kyoto: temples, traditional streets and calm" },
+          { "label": "Day 6", "plan": "Nara + a different kind of day trip" },
+          { "label": "Days 7-8", "plan": "Osaka: eat well + atmosphere + nightlife" },
+          { "label": "Days 9-10", "plan": "Open days + discovering spots you weren't expecting" }
         ]
       }
     }

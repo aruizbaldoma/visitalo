@@ -232,41 +232,35 @@
     "eyebrow": "Ejemplos reales",
     "titleLine1": "Mira lo que",
     "titleLine2": "te vamos a montar.",
-    "subtitle": "Un par de ejemplos para que veas el nivel: desde una escapada de fin de semana hasta un mes por Asia. Todo curado al detalle.",
+    "subtitle": "Tres ejemplos para que pilles el rollo: desde un finde exprés hasta un mesazo por Asia. Tú solo pones la mochila.",
     "trips": {
       "barcelona": {
-        "flag": "🇪🇸",
-        "region": "España",
         "destination": "Barcelona",
         "duration": "2 días",
         "days": [
-          { "label": "Día 1", "plan": "Sagrada Familia + paseo por Gràcia + cena en un local sin foto de turista" },
-          { "label": "Día 2", "plan": "Playa por la mañana, El Born al mediodía y atardecer en los Búnquers del Carmel" }
+          { "label": "Día 1", "plan": "Sagrada Familia + paseo por Gràcia + cena en un sitio que no es para turistas" },
+          { "label": "Día 2", "plan": "Playa por la mañana + vermut en el Born + atardecer en Bunkers" }
         ]
       },
       "rome": {
-        "flag": "🇪🇺",
-        "region": "Europa",
         "destination": "Roma",
         "duration": "3 días",
         "days": [
-          { "label": "Día 1", "plan": "Coliseo + centro + noche por Trastevere" },
-          { "label": "Día 2", "plan": "Vaticano, Museos y paseo suave por el Tíber al caer la tarde" },
-          { "label": "Día 3", "plan": "Cafés de barrio, miradores secretos y un último plan sin prisas" }
+          { "label": "Día 1", "plan": "Coliseo + perderse por el centro + cena en Trastevere" },
+          { "label": "Día 2", "plan": "Vaticano + paseo sin rumbo por Roma + helado al atardecer" },
+          { "label": "Día 3", "plan": "Cafés con encanto + miradores + último paseo sin prisas" }
         ]
       },
       "japan": {
-        "flag": "🌏",
-        "region": "Asia",
         "destination": "Japón",
         "duration": "10 días",
         "days": [
-          { "label": "Días 1-2", "plan": "Tokio: Shibuya, Shinjuku y los mejores spots de comida" },
-          { "label": "Día 3", "plan": "Hakone con vistas al Monte Fuji" },
-          { "label": "Días 4-5", "plan": "Kioto: templos y barrios tradicionales" },
-          { "label": "Día 6", "plan": "Escapada de un día a Nara" },
-          { "label": "Días 7-8", "plan": "Osaka: comida callejera y ambiente nocturno" },
-          { "label": "Días 9-10", "plan": "Exploración libre + rincones que nadie te cuenta" }
+          { "label": "Días 1-2", "plan": "Tokio: Shibuya, luces, comida y primeras sensaciones" },
+          { "label": "Día 3", "plan": "Hakone + vistas al Fuji + desconectar" },
+          { "label": "Días 4-5", "plan": "Kioto: templos, calles tradicionales y calma" },
+          { "label": "Día 6", "plan": "Nara + excursión diferente" },
+          { "label": "Días 7-8", "plan": "Osaka: comer bien + ambiente + noche" },
+          { "label": "Días 9-10", "plan": "Días abiertos + descubrir sitios que no tenías en mente" }
         ]
       }
     }
