@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Star } from "lucide-react";
+import { Star, Sparkles } from "lucide-react";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
@@ -57,6 +57,22 @@ export const Reviews = () => {
           </h2>
         </div>
 
+        {/* Context line above the cards */}
+        <div className="mb-6 md:mb-8">
+          <span
+            className="inline-flex items-center gap-1.5 text-xs md:text-sm font-medium"
+            style={{ color: "#6b7a8a" }}
+            data-testid="reviews-context"
+          >
+            <Sparkles
+              className="w-3.5 h-3.5"
+              style={{ color: BRAND_GREEN }}
+              strokeWidth={2.2}
+            />
+            {t("reviews.context")}
+          </span>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
           {reviews.map((review) => (
             <article
@@ -100,6 +116,13 @@ export const Reviews = () => {
                   {review.author}
                 </p>
                 <p className="text-xs text-gray-500 mt-0.5">{review.meta}</p>
+                <p
+                  className="text-[11px] mt-2 font-medium uppercase tracking-wider"
+                  style={{ color: BRAND_GREEN, letterSpacing: "0.1em" }}
+                  data-testid={`review-${review.id}-proof`}
+                >
+                  {t("reviews.proofLabel")}
+                </p>
               </div>
             </article>
           ))}

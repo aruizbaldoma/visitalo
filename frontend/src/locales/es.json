@@ -267,21 +267,23 @@
   },
   "reviews": {
     "eyebrow": "Lo que dicen",
-    "titleLine1": "Gente como tú,",
-    "titleLine2": "viajando mejor.",
+    "titleLine1": "Así le está quedando",
+    "titleLine2": "el viaje a la gente.",
+    "context": "Planes reales generados en segundos",
+    "proofLabel": "Plan generado con Visítalo",
     "items": {
       "r1": {
-        "quote": "Me organizó el viaje entero en un momento. Yo ya tenía claro lo de Bangkok, pero no sabía cómo repartir los días. Al final me encajó todo perfecto.",
+        "quote": "Tenía claro que quería ir a Bangkok, pero no sabía cómo montar los días. Me lo dejó hecho en nada y todo encajaba.",
         "author": "Carlos M., 26",
         "meta": "Bangkok · 9 días"
       },
       "r2": {
-        "quote": "Normalmente me tiro horas planificando y aquí fue literal en nada. Y los planes tenían bastante sentido, la verdad.",
+        "quote": "Siempre acabo perdiendo horas organizando viajes. Aquí fue en un momento y encima tenía sentido todo.",
         "author": "Lucía G., 24",
         "meta": "Roma · 4 días"
       },
       "r3": {
-        "quote": "Me sorprendió más de lo que esperaba. No eran los planes genéricos de siempre, estaba todo bastante bien hilado.",
+        "quote": "No me esperaba mucho y la verdad es que me sorprendió. No eran los típicos planes de siempre, estaba todo bastante bien pensado.",
         "author": "Javier R., 28",
         "meta": "Barcelona · 3 días"
       }
@@ -299,12 +301,17 @@
     "s3": "Afinando horarios y traslados…",
     "s4": "Ajustando cada detalle a tu ritmo…",
     "s5": "Últimos retoques, casi listo…",
-    "m1": "Buscando algo que te va a molar…",
-    "m2": "Cruzando destinos con buen rollo ✨",
-    "m3": "Comparando las mejores opciones…",
-    "m4": "Afinando horarios para que encaje todo",
-    "m5": "Ya casi lo tengo…",
-    "helper": "Solo tardará unos segundos",
+    "m1": "Mirando destinos que encajen contigo",
+    "m2": "Organizando los días para que tenga sentido",
+    "m3": "Ajustando planes y tiempos",
+    "m4": "Buscando sitios que merezcan la pena",
+    "m5": "Evitando lo típico y lo turístico de siempre",
+    "m6": "Dejando hueco para improvisar",
+    "m7": "Conectando todo en un plan claro",
+    "m8": "Dándole forma a tu viaje",
+    "m9": "Revisando que todo encaje bien",
+    "m10": "Casi listo",
+    "helper": "Esto tarda unos segundos",
     "signingIn": "Iniciando sesión…"
   },
   "card": {

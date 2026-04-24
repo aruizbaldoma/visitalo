@@ -267,21 +267,23 @@
   },
   "reviews": {
     "eyebrow": "What people say",
-    "titleLine1": "People like you,",
-    "titleLine2": "traveling smarter.",
+    "titleLine1": "Here's how people's",
+    "titleLine2": "trips are turning out.",
+    "context": "Real plans generated in seconds",
+    "proofLabel": "Plan generated with Visítalo",
     "items": {
       "r1": {
-        "quote": "It planned my whole trip in seconds. I already knew I wanted Bangkok, I just had no clue how to split the days. Ended up fitting together perfectly.",
+        "quote": "I knew I wanted to go to Bangkok, I just had no idea how to split the days. Got it done in no time and everything fit.",
         "author": "Carlos M., 26",
         "meta": "Bangkok · 9 days"
       },
       "r2": {
-        "quote": "I usually spend hours planning and this took literally no time. And the plans actually made sense, to be fair.",
+        "quote": "I always end up wasting hours planning trips. Here it was done in a moment and it actually made sense.",
         "author": "Lucía G., 24",
         "meta": "Rome · 4 days"
       },
       "r3": {
-        "quote": "Honestly surprised me more than I expected. They weren't the generic plans you always see — everything felt pretty well pieced together.",
+        "quote": "I wasn't expecting much and honestly it surprised me. Not the usual generic plans — everything felt pretty well thought out.",
         "author": "Javier R., 28",
         "meta": "Barcelona · 3 days"
       }
@@ -299,11 +301,16 @@
     "s3": "Tuning schedules and transfers…",
     "s4": "Tweaking every detail to your vibe…",
     "s5": "Final touches, almost there…",
-    "m1": "Looking for something you'll love…",
-    "m2": "Scouting cool spots for you ✨",
-    "m3": "Comparing the best options…",
-    "m4": "Fine-tuning the schedule to fit it all",
-    "m5": "Almost there…",
+    "m1": "Finding destinations that fit you",
+    "m2": "Organizing your days so everything makes sense",
+    "m3": "Adjusting plans and timing",
+    "m4": "Looking for places worth your time",
+    "m5": "Skipping the typical tourist stuff",
+    "m6": "Leaving room to explore",
+    "m7": "Connecting everything into a clear plan",
+    "m8": "Shaping your trip",
+    "m9": "Making sure everything fits together",
+    "m10": "Almost ready",
     "helper": "This will only take a few seconds",
     "signingIn": "Signing you in…"
   },

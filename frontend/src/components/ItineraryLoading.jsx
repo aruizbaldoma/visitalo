@@ -14,6 +14,11 @@ export const ItineraryLoading = () => {
     t("loading.m3"),
     t("loading.m4"),
     t("loading.m5"),
+    t("loading.m6"),
+    t("loading.m7"),
+    t("loading.m8"),
+    t("loading.m9"),
+    t("loading.m10"),
   ];
 
   const [msgIdx, setMsgIdx] = useState(0);

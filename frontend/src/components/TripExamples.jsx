@@ -71,10 +71,21 @@ export const TripExamples = () => {
               className="bg-white rounded-2xl p-6 md:p-7 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-transparent hover:border-[#3ccca4]/30 flex flex-col"
               data-testid={`example-trip-${trip.id}`}
             >
-              {/* Header: only duration pill (destination below) */}
-              <div className="flex items-center justify-end mb-4">
+              {/* Destination + duration pill on the same line */}
+              <div className="flex items-center justify-between gap-3 mb-5">
+                <h3
+                  className="text-2xl md:text-[26px] font-bold font-heading flex items-center gap-2 min-w-0"
+                  style={{ color: BRAND_BLUE, letterSpacing: "-0.01em" }}
+                >
+                  <MapPin
+                    className="w-5 h-5 flex-shrink-0"
+                    style={{ color: BRAND_GREEN }}
+                    strokeWidth={2.2}
+                  />
+                  <span className="truncate">{trip.destination}</span>
+                </h3>
                 <span
-                  className="text-[11px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1"
+                  className="text-[11px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1 flex-shrink-0"
                   style={{
                     backgroundColor: "rgba(60, 204, 164, 0.14)",
                     color: BRAND_GREEN,
@@ -84,19 +95,6 @@ export const TripExamples = () => {
                   {trip.duration}
                 </span>
               </div>
-
-              {/* Destination */}
-              <h3
-                className="text-2xl md:text-[26px] font-bold mb-5 font-heading flex items-center gap-2"
-                style={{ color: BRAND_BLUE, letterSpacing: "-0.01em" }}
-              >
-                <MapPin
-                  className="w-5 h-5 flex-shrink-0"
-                  style={{ color: BRAND_GREEN }}
-                  strokeWidth={2.2}
-                />
-                {trip.destination}
-              </h3>
 
               {/* Days breakdown */}
               <ul className="space-y-3 flex-1">
