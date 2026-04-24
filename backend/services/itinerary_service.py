@@ -185,30 +185,75 @@ IMPORTANTE: Devuelve SOLO el JSON válido, sin texto adicional antes o después.
 
 JSON:"""
         
+        # Escalar maxOutputTokens según días: viajes largos generan JSON mucho más grande.
+        # Gemini 3 Flash soporta hasta ~65k tokens de output. Reservamos margen amplio.
+        # Heurística: 2500 base + 2500 por día. 2d->7500, 7d->20000, 14d->37500, tope 48000.
+        max_tokens = min(48000, 2500 + total_days * 2500)
+
+        base_generation_config = {
+            "temperature": 0.7,
+            "maxOutputTokens": max_tokens,
+        }
+
         try:
             headers = {'Content-Type': 'application/json'}
             payload = {
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {
-                    "temperature": 0.7,
-                    "maxOutputTokens": 4096
-                }
+                "generationConfig": base_generation_config,
             }
 
-            result = self._call_gemini_with_retry(headers, payload)
+            itinerary = self._call_and_parse(headers, payload)
 
-            text = result['candidates'][0]['content']['parts'][0]['text']
-            
-            # Limpiar y parsear
-            clean_text = self._clean_json(text)
-            itinerary = json.loads(clean_text)
-            
+            # Si el parseo falla por JSON truncado/inválido, reintentamos con más tokens
+            # y temperatura más baja para obtener una respuesta más determinista.
+            if itinerary is None:
+                print(
+                    f"⚠️  JSON parse falló en 1er intento (days={total_days}, "
+                    f"max_tokens={max_tokens}). Reintentando con config más estricta…"
+                )
+                retry_max_tokens = min(60000, max_tokens * 2)
+                payload["generationConfig"] = {
+                    "temperature": 0.3,
+                    "maxOutputTokens": retry_max_tokens,
+                }
+                itinerary = self._call_and_parse(headers, payload)
+
+            if itinerary is None:
+                raise Exception(
+                    "Gemini devolvió JSON inválido tras 2 intentos "
+                    f"(days={total_days}, max_tokens hasta {retry_max_tokens if 'retry_max_tokens' in locals() else max_tokens})"
+                )
+
             print(f"✅ ITINERARIO GENERADO: {destination}, {total_days} días\n")
             return itinerary
-            
+
         except Exception as e:
             print(f"❌ ERROR: {str(e)}")
             raise Exception(f"Error generando itinerario: {str(e)}")
+
+    def _call_and_parse(self, headers: Dict, payload: Dict) -> Optional[Dict]:
+        """
+        Llama a Gemini con retry/fallback y parsea el JSON.
+        Devuelve None si Gemini respondió 200 pero el JSON es inválido
+        (para que el caller pueda reintentar con otra config).
+        Propaga cualquier otra excepción (GEMINI_UNAVAILABLE, 4xx, etc.).
+        """
+        result = self._call_gemini_with_retry(headers, payload)
+        text = result['candidates'][0]['content']['parts'][0]['text']
+
+        clean_text = self._clean_json(text)
+        try:
+            return json.loads(clean_text)
+        except json.JSONDecodeError as je:
+            # Intento de rescate: reparar JSON truncado cerrando brackets
+            repaired = self._repair_truncated_json(clean_text)
+            if repaired is not None:
+                try:
+                    return json.loads(repaired)
+                except json.JSONDecodeError:
+                    pass
+            print(f"⚠️  JSON inválido: {je} (len={len(clean_text)})")
+            return None
 
     def _call_gemini_with_retry(
         self,
@@ -612,6 +657,98 @@ JSON:"""
             return text[start_brace:end_brace]
         
         return text
+
+    def _repair_truncated_json(self, text: str) -> Optional[str]:
+        """
+        Intenta reparar un JSON truncado por maxOutputTokens:
+        - Recorta hasta el último ',' o '}' válido dentro de un array de days
+        - Cierra brackets/braces pendientes contando los abiertos/cerrados
+        - Ignora strings (comillas) y caracteres escapados al contar
+
+        Devuelve el JSON reparado o None si no se pudo reparar.
+        """
+        if not text:
+            return None
+
+        # Truncar en el último caracter "seguro" (} o ]), no dentro de un string
+        # Estrategia: recorrer el texto contando llaves/corchetes/comillas.
+        # Si al final hay brackets abiertos, los cerramos.
+        in_string = False
+        escape = False
+        stack = []  # lista de '{' y '['
+        last_safe_pos = -1  # última posición donde el estado era "entre elementos"
+
+        for i, ch in enumerate(text):
+            if escape:
+                escape = False
+                continue
+            if ch == '\\' and in_string:
+                escape = True
+                continue
+            if ch == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+
+            if ch == '{' or ch == '[':
+                stack.append(ch)
+            elif ch == '}':
+                if stack and stack[-1] == '{':
+                    stack.pop()
+                    last_safe_pos = i
+                else:
+                    return None  # estructura rota
+            elif ch == ']':
+                if stack and stack[-1] == '[':
+                    stack.pop()
+                    last_safe_pos = i
+                else:
+                    return None
+            elif ch == ',' and not stack:
+                last_safe_pos = i
+
+        if last_safe_pos < 0:
+            return None
+
+        # Recortamos al último carácter seguro y cerramos lo que falte
+        truncated = text[: last_safe_pos + 1]
+
+        # Recalcular el stack sobre el texto truncado para saber qué cerrar
+        in_string = False
+        escape = False
+        stack = []
+        for ch in truncated:
+            if escape:
+                escape = False
+                continue
+            if ch == '\\' and in_string:
+                escape = True
+                continue
+            if ch == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+            if ch == '{' or ch == '[':
+                stack.append(ch)
+            elif ch == '}' and stack and stack[-1] == '{':
+                stack.pop()
+            elif ch == ']' and stack and stack[-1] == '[':
+                stack.pop()
+
+        # Si el último carácter es ',' quitarlo (coma colgante no es válida en JSON)
+        truncated = truncated.rstrip()
+        if truncated.endswith(','):
+            truncated = truncated[:-1]
+
+        # Cerrar los brackets pendientes en orden inverso
+        closers = {'{': '}', '[': ']'}
+        while stack:
+            truncated += closers[stack.pop()]
+
+        print(f"🔧 JSON reparado: añadidos {truncated.count('}') - text.count('}')} cierres")
+        return truncated
     
     def _add_time(self, time_str: str, hours: int) -> str:
         """Suma horas a formato HH:MM"""
