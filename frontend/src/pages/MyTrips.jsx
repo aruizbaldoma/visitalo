@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Helmet } from "react-helmet-async";
 import { Link, Navigate } from "react-router-dom";
-import { Luggage, MapPin, Calendar, Trash2, Plus } from "lucide-react";
+import { Luggage, MapPin, Calendar, Trash2, Plus, Crown, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Header } from "../components/Header";
@@ -25,9 +25,28 @@ const formatDate = (iso) => {
 
 export default function MyTrips() {
   const { t } = useTranslation();
-  const { isAuthenticated, loading, refresh } = useAuth();
+  const { isAuthenticated, loading, refresh, user } = useAuth();
   const [trips, setTrips] = useState([]);
   const [fetching, setFetching] = useState(true);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const handleOpenPortal = async () => {
+    if (portalLoading) return;
+    setPortalLoading(true);
+    try {
+      const token = localStorage.getItem("session_token");
+      const { data } = await axios.post(
+        `${API}/api/stripe/portal`,
+        { origin_url: window.location.origin },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (data?.url) window.location.href = data.url;
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || "No se pudo abrir el portal");
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   // Post-checkout Stripe: detectar ?checkout=success&session_id=... y hacer polling
   useEffect(() => {
@@ -154,16 +173,44 @@ export default function MyTrips() {
               {t("myTrips.subtitle")}
             </p>
           </div>
-          <Link
-            to="/"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all hover:opacity-90"
-            style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
-            data-testid="mytrips-new-button"
-          >
-            <Plus className="w-4 h-4" />
-            {t("myTrips.emptyCta")}
-          </Link>
+          <div className="flex items-center gap-2">
+            {user?.subscription_active && (
+              <button
+                onClick={handleOpenPortal}
+                disabled={portalLoading}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm border transition-all hover:bg-gray-50 disabled:opacity-60"
+                style={{ borderColor: BRAND_BLUE, color: BRAND_BLUE }}
+                data-testid="mytrips-portal-button"
+                title="Gestionar suscripción PLUS"
+              >
+                <Settings className="w-4 h-4" />
+                {portalLoading ? t("common.loading") : "Mi suscripción"}
+              </button>
+            )}
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all hover:opacity-90"
+              style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
+              data-testid="mytrips-new-button"
+            >
+              <Plus className="w-4 h-4" />
+              {t("myTrips.emptyCta")}
+            </Link>
+          </div>
         </div>
+
+        {user?.subscription_active && (
+          <div
+            className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full"
+            style={{ backgroundColor: "rgba(60, 204, 164, 0.15)" }}
+            data-testid="mytrips-plus-badge"
+          >
+            <Crown className="w-4 h-4" style={{ color: BRAND_BLUE }} />
+            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: BRAND_BLUE, letterSpacing: "0.16em" }}>
+              PLUS activo
+            </span>
+          </div>
+        )}
 
         {fetching ? (
           <div className="py-20 text-center">
