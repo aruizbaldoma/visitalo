@@ -33,6 +33,12 @@
 - Google Gemini AI (**MOCK MODE ACTIVO**, `USE_MOCK_DATA=true`)
 
 ## Cambios recientes (Febrero 2026)
+- ✅ **Home: 2 nuevas secciones** entre buscador y "¿Por qué Visítalo?":
+  - `TripExamples.jsx` → "Mira lo que te vamos a montar" con 3 cards (Barcelona 2d, Roma 3d, Japón 10d), desglose por días con etiqueta y plan. Flags + región + badge de duración.
+  - `Reviews.jsx` → "Gente como tú, viajando mejor" con 3 testimonios (5 estrellas verdes, nombres españoles + edad, meta destino·días, sin avatares, tono natural Gen Z).
+  - Diseño consistente: rounded-2xl, hover:shadow-lg, hover:-translate-y-1, eyebrow verde, heading azul+verde. i18n ES/EN.
+  - Borrados `ExampleTrips.jsx` y `Testimonials.jsx` antiguos (dead code con mock data).
+- ✅ **P0 Fix ventana de carga modal popup**: `ItineraryLoading.jsx` reescrito como modal centrado (no full-screen). Overlay blur, card blanca, brújula + sparkles animados, mensajes rotativos ES/EN cada 1.8s, barra de progreso simulada (tope 94%), helper "Solo tardará unos segundos". Fade-in 260ms + pop-in cubic-bezier.
 - ✅ **P0 Fix JSON truncado en viajes largos**: Gemini devolvía JSON inválido en itinerarios de 5+ días porque `maxOutputTokens=4096` cortaba la respuesta. Ahora se escala dinámicamente: `min(48000, 2500 + días*2500)`. Añadido `_repair_truncated_json` para recuperar JSONs cortados cerrando brackets. Retry automático con temperatura 0.3 y tokens duplicados si el primer parseo falla. Probado E2E: Paris 7 días → 200 OK en 42s.
 - ✅ **P0 Fix "Error al generar el itinerario"**: Gemini estaba devolviendo 503 (modelo preview saturado). Añadido retry con backoff exponencial (3 intentos por modelo) + fallback en cascada: `gemini-flash-latest` → `gemini-2.5-flash`. Mapeo de `GEMINI_UNAVAILABLE` a HTTP 503 con mensaje amable. Toast diferenciado en frontend (503 vs 429 vs genérico). Borrado `AppNew.js` (código muerto).
 - ✅ Reescritura completa copy Home Page Gen-Z / Millennial

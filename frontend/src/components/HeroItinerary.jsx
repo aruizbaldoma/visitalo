@@ -15,6 +15,8 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { ItinerarySearchBar } from "./ItinerarySearchBar";
+import { TripExamples } from "./TripExamples";
+import { Reviews } from "./Reviews";
 import { useAuth } from "../contexts/AuthContext";
 
 const API = process.env.REACT_APP_BACKEND_URL;
@@ -120,6 +122,12 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
           }}
         />
       </div>
+
+      {/* EJEMPLOS DE ITINERARIOS */}
+      <TripExamples />
+
+      {/* REVIEWS */}
+      <Reviews />
 
       {/* 3 BENEFICIOS */}
       <section className="bg-white py-12 md:py-20 px-4" data-testid="benefits-section">

@@ -228,6 +228,71 @@
     "minRead": "min de lectura",
     "backToBlog": "Volver al blog"
   },
+  "examples": {
+    "eyebrow": "Ejemplos reales",
+    "titleLine1": "Mira lo que",
+    "titleLine2": "te vamos a montar.",
+    "subtitle": "Un par de ejemplos para que veas el nivel: desde una escapada de fin de semana hasta un mes por Asia. Todo curado al detalle.",
+    "trips": {
+      "barcelona": {
+        "flag": "🇪🇸",
+        "region": "España",
+        "destination": "Barcelona",
+        "duration": "2 días",
+        "days": [
+          { "label": "Día 1", "plan": "Sagrada Familia + paseo por Gràcia + cena en un local sin foto de turista" },
+          { "label": "Día 2", "plan": "Playa por la mañana, El Born al mediodía y atardecer en los Búnquers del Carmel" }
+        ]
+      },
+      "rome": {
+        "flag": "🇪🇺",
+        "region": "Europa",
+        "destination": "Roma",
+        "duration": "3 días",
+        "days": [
+          { "label": "Día 1", "plan": "Coliseo + centro + noche por Trastevere" },
+          { "label": "Día 2", "plan": "Vaticano, Museos y paseo suave por el Tíber al caer la tarde" },
+          { "label": "Día 3", "plan": "Cafés de barrio, miradores secretos y un último plan sin prisas" }
+        ]
+      },
+      "japan": {
+        "flag": "🌏",
+        "region": "Asia",
+        "destination": "Japón",
+        "duration": "10 días",
+        "days": [
+          { "label": "Días 1-2", "plan": "Tokio: Shibuya, Shinjuku y los mejores spots de comida" },
+          { "label": "Día 3", "plan": "Hakone con vistas al Monte Fuji" },
+          { "label": "Días 4-5", "plan": "Kioto: templos y barrios tradicionales" },
+          { "label": "Día 6", "plan": "Escapada de un día a Nara" },
+          { "label": "Días 7-8", "plan": "Osaka: comida callejera y ambiente nocturno" },
+          { "label": "Días 9-10", "plan": "Exploración libre + rincones que nadie te cuenta" }
+        ]
+      }
+    }
+  },
+  "reviews": {
+    "eyebrow": "Lo que dicen",
+    "titleLine1": "Gente como tú,",
+    "titleLine2": "viajando mejor.",
+    "items": {
+      "r1": {
+        "quote": "Me organizó el viaje entero en un momento. Yo ya tenía claro lo de Bangkok, pero no sabía cómo repartir los días. Al final me encajó todo perfecto.",
+        "author": "Carlos M., 26",
+        "meta": "Bangkok · 9 días"
+      },
+      "r2": {
+        "quote": "Normalmente me tiro horas planificando y aquí fue literal en nada. Y los planes tenían bastante sentido, la verdad.",
+        "author": "Lucía G., 24",
+        "meta": "Roma · 4 días"
+      },
+      "r3": {
+        "quote": "Me sorprendió más de lo que esperaba. No eran los planes genéricos de siempre, estaba todo bastante bien hilado.",
+        "author": "Javier R., 28",
+        "meta": "Barcelona · 3 días"
+      }
+    }
+  },
   "loading": {
     "title": "Montando tu ruta a medida…",
     "step1": "Cruzando datos de alojamiento",

@@ -228,6 +228,71 @@
     "minRead": "min read",
     "backToBlog": "Back to blog"
   },
+  "examples": {
+    "eyebrow": "Real examples",
+    "titleLine1": "See what we'll",
+    "titleLine2": "build for you.",
+    "subtitle": "A few examples so you get the vibe: from a weekend escape to a month across Asia. All curated down to the detail.",
+    "trips": {
+      "barcelona": {
+        "flag": "🇪🇸",
+        "region": "Spain",
+        "destination": "Barcelona",
+        "duration": "2 days",
+        "days": [
+          { "label": "Day 1", "plan": "Sagrada Familia + walk through Gràcia + dinner at a proper local spot" },
+          { "label": "Day 2", "plan": "Morning at the beach, El Born for lunch and sunset at the Búnquers del Carmel" }
+        ]
+      },
+      "rome": {
+        "flag": "🇪🇺",
+        "region": "Europe",
+        "destination": "Rome",
+        "duration": "3 days",
+        "days": [
+          { "label": "Day 1", "plan": "Colosseum + city center + night out in Trastevere" },
+          { "label": "Day 2", "plan": "Vatican, museums and a slow walk along the Tiber at dusk" },
+          { "label": "Day 3", "plan": "Neighborhood cafés, secret viewpoints and a final chill plan" }
+        ]
+      },
+      "japan": {
+        "flag": "🌏",
+        "region": "Asia",
+        "destination": "Japan",
+        "duration": "10 days",
+        "days": [
+          { "label": "Days 1-2", "plan": "Tokyo: Shibuya, Shinjuku and the best food spots" },
+          { "label": "Day 3", "plan": "Hakone with views of Mount Fuji" },
+          { "label": "Days 4-5", "plan": "Kyoto: temples and traditional districts" },
+          { "label": "Day 6", "plan": "Day trip to Nara" },
+          { "label": "Days 7-8", "plan": "Osaka: street food and nightlife" },
+          { "label": "Days 9-10", "plan": "Free exploration + hidden spots nobody tells you about" }
+        ]
+      }
+    }
+  },
+  "reviews": {
+    "eyebrow": "What people say",
+    "titleLine1": "People like you,",
+    "titleLine2": "traveling smarter.",
+    "items": {
+      "r1": {
+        "quote": "It planned my whole trip in seconds. I already knew I wanted Bangkok, I just had no clue how to split the days. Ended up fitting together perfectly.",
+        "author": "Carlos M., 26",
+        "meta": "Bangkok · 9 days"
+      },
+      "r2": {
+        "quote": "I usually spend hours planning and this took literally no time. And the plans actually made sense, to be fair.",
+        "author": "Lucía G., 24",
+        "meta": "Rome · 4 days"
+      },
+      "r3": {
+        "quote": "Honestly surprised me more than I expected. They weren't the generic plans you always see — everything felt pretty well pieced together.",
+        "author": "Javier R., 28",
+        "meta": "Barcelona · 3 days"
+      }
+    }
+  },
   "loading": {
     "title": "Building your custom route…",
     "step1": "Cross-checking accommodation data",
