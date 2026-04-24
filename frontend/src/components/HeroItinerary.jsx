@@ -10,12 +10,27 @@ import {
   UtensilsCrossed,
   Check,
 } from "lucide-react";
+import { toast } from "sonner";
 import { ItinerarySearchBar } from "./ItinerarySearchBar";
+import { useAuth } from "../contexts/AuthContext";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
 export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
+  const { user, isAuthenticated } = useAuth();
+  const isPaidPlus = !!user?.subscription_active;
+
+  const handlePlusClick = () => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(new Event("visitalo:open-auth"));
+      return;
+    }
+    // Autenticado pero sin suscripción pagada → placeholder hasta integrar Stripe
+    toast.info("Pasarela de pago próximamente", {
+      description: "Estamos ultimando los detalles del checkout. Te avisaremos en cuanto esté listo.",
+    });
+  };
   const benefits = [
     {
       Icon: Zap,
@@ -136,7 +151,9 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
         </div>
       </section>
 
-      {/* SECCIÓN PLUS */}
+      {/* SECCIÓN PLUS — solo visible para visitantes, usuarios Basic y PLUS gratuito.
+          Oculta para suscriptores de pago activos (subscription_active === true). */}
+      {!isPaidPlus && (
       <section
         className="relative py-14 md:py-20 px-4 overflow-hidden"
         style={{ backgroundColor: BRAND_BLUE }}
@@ -204,7 +221,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <button
-                  onClick={() => window.dispatchEvent(new Event("visitalo:open-auth"))}
+                  onClick={handlePlusClick}
                   className="inline-flex items-center gap-2 px-7 py-4 rounded-full font-bold text-base transition-all hover:scale-[1.03] hover:shadow-xl"
                   style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
                   data-testid="plus-cta-button"
@@ -261,6 +278,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
           </div>
         </div>
       </section>
+      )}
 
       {/* ACTIVIDADES */}
       <section className="bg-white py-14 md:py-20 px-4" data-testid="activities-hook-section">
