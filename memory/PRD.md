@@ -33,6 +33,7 @@
 - Google Gemini AI (**MOCK MODE ACTIVO**, `USE_MOCK_DATA=true`)
 
 ## Cambios recientes (Febrero 2026)
+- ✅ **P0 Fix "Error al generar el itinerario"**: Gemini estaba devolviendo 503 (modelo preview saturado). Añadido retry con backoff exponencial (3 intentos por modelo) + fallback en cascada: `gemini-flash-latest` → `gemini-2.5-flash`. Mapeo de `GEMINI_UNAVAILABLE` a HTTP 503 con mensaje amable. Toast diferenciado en frontend (503 vs 429 vs genérico). Borrado `AppNew.js` (código muerto).
 - ✅ Reescritura completa copy Home Page Gen-Z / Millennial
 - ✅ Botón "Buscar" → "¡Montar mi plan!"
 - ✅ Páginas legales `/legal/terminos`, `/legal/privacidad`, `/legal/cookies` con sistema de tabs y contenido RGPD completo

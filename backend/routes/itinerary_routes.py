@@ -159,8 +159,20 @@ async def generate_itinerary(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ ERROR: {str(e)}")
+        error_msg = str(e)
+        print(f"❌ ERROR: {error_msg}")
+
+        # Gemini saturado o caído: devolver 503 con mensaje amable para el usuario
+        if "GEMINI_UNAVAILABLE" in error_msg:
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "El servicio de planificación está saturado en este momento. "
+                    "Vuelve a intentarlo en unos segundos."
+                )
+            )
+
         raise HTTPException(
             status_code=500,
-            detail=f"Error generando itinerario: {str(e)}"
+            detail=f"Error generando itinerario: {error_msg}"
         )

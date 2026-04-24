@@ -132,7 +132,18 @@ function MainApp() {
     } catch (error) {
       toast.dismiss();
       console.error("Error:", error);
-      toast.error("Error al generar el itinerario. Inténtalo de nuevo.");
+      const status = error?.response?.status;
+      const serverDetail = error?.response?.data?.detail;
+      if (status === 503) {
+        toast.error(
+          serverDetail ||
+            "El servicio está saturado. Espera unos segundos y vuelve a intentarlo.",
+        );
+      } else if (status === 429) {
+        toast.error("Demasiadas peticiones. Prueba otra vez en un momento.");
+      } else {
+        toast.error("Error al generar el itinerario. Inténtalo de nuevo.");
+      }
     } finally {
       setIsLoading(false);
     }

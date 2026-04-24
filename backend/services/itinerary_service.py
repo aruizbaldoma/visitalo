@@ -5,8 +5,20 @@ Sin precios, sin ofertas - Solo planificación de actividades
 import requests
 import os
 import json
+import time
+import random
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
+
+
+# Modelos Gemini en cascada: preview (más reciente) -> estable (fallback)
+GEMINI_MODELS = [
+    "gemini-flash-latest",   # alias -> gemini-3-flash-preview (puede dar 503 si saturado)
+    "gemini-2.5-flash",      # fallback estable si el preview está saturado
+]
+
+# Códigos transitorios que justifican retry / fallback de modelo
+RETRIABLE_STATUS_CODES = {429, 500, 502, 503, 504}
 
 
 class ItineraryService:
@@ -18,7 +30,7 @@ class ItineraryService:
     def __init__(self):
         self.api_key = os.environ.get('GEMINI_API_KEY')
         self.use_mock = os.environ.get('USE_MOCK_DATA', 'false').lower() == 'true'
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
+        self.base_url_template = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     
     async def generate_itinerary(
         self,
@@ -182,14 +194,9 @@ JSON:"""
                     "maxOutputTokens": 4096
                 }
             }
-            
-            url = f"{self.base_url}?key={self.api_key}"
-            response = requests.post(url, headers=headers, json=payload, timeout=50)
-            
-            if response.status_code != 200:
-                raise Exception(f"Gemini API error {response.status_code}")
-            
-            result = response.json()
+
+            result = self._call_gemini_with_retry(headers, payload)
+
             text = result['candidates'][0]['content']['parts'][0]['text']
             
             # Limpiar y parsear
@@ -202,6 +209,65 @@ JSON:"""
         except Exception as e:
             print(f"❌ ERROR: {str(e)}")
             raise Exception(f"Error generando itinerario: {str(e)}")
+
+    def _call_gemini_with_retry(
+        self,
+        headers: Dict,
+        payload: Dict,
+        max_retries_per_model: int = 2,
+    ) -> Dict:
+        """
+        Llama a Gemini intentando múltiples modelos en cascada con backoff exponencial.
+        - Por cada modelo, reintenta hasta `max_retries_per_model` veces en códigos transitorios (429/5xx).
+        - Si el modelo agota sus reintentos, pasa al siguiente modelo del fallback.
+        - Si todos fallan con transitorios, lanza 'GEMINI_UNAVAILABLE' para que la capa HTTP
+          pueda mapearlo a un 503 con mensaje amable al usuario.
+        """
+        last_status = None
+        last_error_text = ""
+
+        for model in GEMINI_MODELS:
+            url = f"{self.base_url_template.format(model=model)}?key={self.api_key}"
+
+            for attempt in range(max_retries_per_model + 1):
+                try:
+                    response = requests.post(url, headers=headers, json=payload, timeout=50)
+                except requests.exceptions.RequestException as req_err:
+                    last_status = None
+                    last_error_text = f"network_error: {req_err}"
+                    print(f"⚠️  [{model}] intento {attempt + 1}: network error — {req_err}")
+                    if attempt < max_retries_per_model:
+                        sleep_s = (2 ** attempt) + random.uniform(0, 0.5)
+                        time.sleep(sleep_s)
+                        continue
+                    break  # siguiente modelo
+
+                if response.status_code == 200:
+                    return response.json()
+
+                last_status = response.status_code
+                last_error_text = response.text[:300] if response.text else ""
+
+                # 4xx no-transitorio (400, 401, 403, 404) -> no reintentar, no cambiar modelo
+                if response.status_code not in RETRIABLE_STATUS_CODES:
+                    raise Exception(
+                        f"Gemini API error {response.status_code}: {last_error_text}"
+                    )
+
+                print(
+                    f"⚠️  [{model}] intento {attempt + 1} devolvió {response.status_code} — reintentando"
+                )
+
+                if attempt < max_retries_per_model:
+                    sleep_s = (2 ** attempt) + random.uniform(0, 0.5)
+                    time.sleep(sleep_s)
+                else:
+                    print(f"↪️  [{model}] agotado. Probando siguiente modelo de fallback…")
+
+        # Si llegamos aquí, todos los modelos fallaron con errores transitorios
+        raise Exception(
+            f"GEMINI_UNAVAILABLE: last_status={last_status} detail={last_error_text}"
+        )
     
     def _generate_mock_itinerary(
         self,
