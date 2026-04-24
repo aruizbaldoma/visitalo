@@ -10,26 +10,49 @@ import {
   UtensilsCrossed,
   Check,
 } from "lucide-react";
+import { useState } from "react";
+import axios from "axios";
 import { toast } from "sonner";
 import { ItinerarySearchBar } from "./ItinerarySearchBar";
 import { useAuth } from "../contexts/AuthContext";
 
+const API = process.env.REACT_APP_BACKEND_URL;
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
 export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
   const { user, isAuthenticated } = useAuth();
   const isPaidPlus = !!user?.subscription_active;
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const handlePlusClick = () => {
+  const handlePlusClick = async () => {
     if (!isAuthenticated) {
       window.dispatchEvent(new Event("visitalo:open-auth"));
       return;
     }
-    // Autenticado pero sin suscripción pagada → placeholder hasta integrar Stripe
-    toast.info("Pasarela de pago próximamente", {
-      description: "Estamos ultimando los detalles del checkout. Te avisaremos en cuanto esté listo.",
-    });
+    if (checkoutLoading) return;
+    setCheckoutLoading(true);
+    try {
+      const token = localStorage.getItem("session_token");
+      const { data } = await axios.post(
+        `${API}/api/stripe/checkout-session`,
+        { origin_url: window.location.origin },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error("No se pudo iniciar el pago. Inténtalo de nuevo.");
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.detail || "No se pudo iniciar el pago. Inténtalo de nuevo.";
+      toast.error(msg);
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
   const benefits = [
     {
@@ -222,11 +245,12 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <button
                   onClick={handlePlusClick}
-                  className="inline-flex items-center gap-2 px-7 py-4 rounded-full font-bold text-base transition-all hover:scale-[1.03] hover:shadow-xl"
+                  disabled={checkoutLoading}
+                  className="inline-flex items-center gap-2 px-7 py-4 rounded-full font-bold text-base transition-all hover:scale-[1.03] hover:shadow-xl disabled:opacity-70 disabled:cursor-wait"
                   style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
                   data-testid="plus-cta-button"
                 >
-                  Unirme a PLUS
+                  {checkoutLoading ? "Abriendo pago…" : "Unirme a PLUS"}
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <div className="text-white/70 text-sm">

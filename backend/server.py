@@ -15,6 +15,7 @@ from routes.itinerary_routes import itinerary_router
 from routes.auth_routes import auth_router
 from routes.trips_routes import trips_router
 from routes.subscription_routes import subscription_router
+from routes.stripe_routes import stripe_router
 from routes.insights_routes import insights_router
 
 
@@ -113,6 +114,7 @@ app.include_router(itinerary_router, prefix="/api")
 app.include_router(auth_router, prefix="/api/auth")  # Rutas de autenticación
 app.include_router(trips_router, prefix="/api/trips")  # Viajes guardados
 app.include_router(subscription_router, prefix="/api/subscription")  # Suscripción PLUS (Stripe-ready)
+app.include_router(stripe_router, prefix="/api")  # Stripe Checkout + webhooks
 app.include_router(insights_router, prefix="/api/insights")  # Captura de datos para análisis
 
 # Almacenar DB en app.state para acceso en dependencies

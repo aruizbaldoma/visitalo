@@ -23,9 +23,71 @@ const formatDate = (iso) => {
 };
 
 export default function MyTrips() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, refresh } = useAuth();
   const [trips, setTrips] = useState([]);
   const [fetching, setFetching] = useState(true);
+
+  // Post-checkout Stripe: detectar ?checkout=success&session_id=... y hacer polling
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkoutStatus = params.get("checkout");
+    const sessionId = params.get("session_id");
+
+    if (!sessionId) {
+      if (checkoutStatus === "cancelled") {
+        toast.info("Pago cancelado. Puedes volver a intentarlo cuando quieras.");
+        const url = new URL(window.location.href);
+        url.searchParams.delete("checkout");
+        window.history.replaceState({}, "", url.toString());
+      }
+      return;
+    }
+    if (!isAuthenticated) return;
+
+    let cancelled = false;
+    const maxAttempts = 8;
+    const pollIntervalMs = 2000;
+    const loadingToast = toast.loading("Confirmando pago…");
+
+    (async () => {
+      const token = localStorage.getItem("session_token");
+      for (let attempt = 0; attempt < maxAttempts && !cancelled; attempt++) {
+        try {
+          const { data } = await axios.get(
+            `${API}/api/stripe/checkout-status/${sessionId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          if (data.payment_status === "paid" && data.activated) {
+            toast.success("¡Bienvenido a PLUS!", {
+              id: loadingToast,
+              description: "Tu suscripción está activa. Ya puedes disfrutar del Modo Dios.",
+            });
+            if (typeof refresh === "function") await refresh();
+            break;
+          }
+          if (data.status === "expired") {
+            toast.error("La sesión de pago expiró. Vuelve a intentarlo.", { id: loadingToast });
+            break;
+          }
+          await new Promise((r) => setTimeout(r, pollIntervalMs));
+        } catch (err) {
+          toast.error("No pudimos verificar el pago. Si se cobró, contacta con info@visitalo.es.", {
+            id: loadingToast,
+          });
+          break;
+        }
+      }
+      // Limpiar query params
+      const url = new URL(window.location.href);
+      url.searchParams.delete("checkout");
+      url.searchParams.delete("session_id");
+      window.history.replaceState({}, "", url.toString());
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, refresh]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
