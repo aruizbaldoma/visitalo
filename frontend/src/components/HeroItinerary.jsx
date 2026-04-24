@@ -20,7 +20,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
     {
       Icon: Zap,
       eyebrow: "Rapidez",
-      title: "Segundos, no semanas.",
+      title: "Despídete del FOMO en segundos.",
       text: "Olvídate de perder 3 noches entre pestañas, foros y Excels. Tu ruta está lista antes de que termines el café.",
     },
     {
