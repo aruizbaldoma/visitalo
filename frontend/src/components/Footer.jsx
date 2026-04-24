@@ -54,7 +54,7 @@ export const Footer = () => {
                 <Instagram className="w-5 h-5" style={{ color: BRAND_BLUE }} />
               </a>
               <a
-                href="https://x.com/visitalo_es"
+                href="https://x.com/visitalo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"

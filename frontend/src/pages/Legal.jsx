@@ -7,7 +7,7 @@ import { ArrowLeft, FileText, Lock, Cookie } from "lucide-react";
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 const COMPANY = "Visitalo.es";
-const CONTACT_EMAIL = "hola@visitalo.es";
+const CONTACT_EMAIL = "info@visitalo.es";
 const LAST_UPDATE = "Febrero 2026";
 
 const PAGES = {

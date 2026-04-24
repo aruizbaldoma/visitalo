@@ -1,4 +1,4 @@
-// Mock data para RutaBarata travel planner
+// Mock data para Visitalo.es travel planner
 // NOTA: Este archivo YA NO se usa para mostrar viajes
 // Los viajes se generan dinámicamente con Gemini AI
 
