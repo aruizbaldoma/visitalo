@@ -8,7 +8,7 @@ import { ConfirmationModal } from "./ConfirmationModal";
 import { FlightCard } from "./FlightCard";
 import { HotelCard } from "./HotelCard";
 
-export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails }) => {
+export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails, onInterested, isInterestedLoading }) => {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showAlternativesModal, setShowAlternativesModal] = useState(false);
@@ -268,6 +268,8 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails })
           <ItinerarySidebar
             itinerary={itineraryData}
             isAuthenticated={isAuthenticated}
+            onInterested={onInterested}
+            isInterestedLoading={isInterestedLoading}
           />
         </div>
       </div>

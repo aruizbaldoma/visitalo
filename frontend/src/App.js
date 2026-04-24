@@ -7,6 +7,7 @@ import { Header } from "./components/Header";
 import { HeroItinerary } from "./components/HeroItinerary";
 import { TravelDetailsModal } from "./components/TravelDetailsModal";
 import { ItineraryLoading } from "./components/ItineraryLoading";
+import { WelcomePromoModal } from "./components/WelcomePromoModal";
 import { Footer } from "./components/Footer";
 import { AuthCallback } from "./components/AuthCallback";
 import { useAuth } from "./contexts/AuthContext";
@@ -175,6 +176,8 @@ function MainApp() {
       <Toaster position="top-center" richColors />
 
       {isLoading && <ItineraryLoading />}
+
+      <WelcomePromoModal />
 
       <Header />
 

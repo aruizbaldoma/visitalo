@@ -30,7 +30,7 @@ export default function RoutePage() {
 
   if (!itinerary) return null;
 
-  const handleSaveTrip = async () => {
+  const handleInterested = async () => {
     if (!isAuthenticated) {
       window.dispatchEvent(new Event("visitalo:open-auth"));
       return;
@@ -40,14 +40,15 @@ export default function RoutePage() {
       const token = localStorage.getItem("session_token");
       const payload = {
         destination: itinerary.destination,
-        start_date: searchParams?.startDate || null,
-        end_date: searchParams?.endDate || null,
+        startDate: searchParams?.startDate || "",
+        endDate: searchParams?.endDate || "",
         itinerary,
       };
       await axios.post(`${API}/api/trips/save`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Viaje guardado en Mis Viajes");
+      toast.success("¡Guardado en Mis Viajes!");
+      navigate("/misviajes");
     } catch (err) {
       console.error("save trip error", err);
       toast.error("No se pudo guardar el viaje");
@@ -55,6 +56,9 @@ export default function RoutePage() {
       setSavingTrip(false);
     }
   };
+
+  // Alias mantenido para el botón del Hero (misma lógica)
+  const handleSaveTrip = handleInterested;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -142,6 +146,8 @@ export default function RoutePage() {
             itinerary={itinerary}
             isAuthenticated={isAuthenticated}
             travelDetails={travelDetails}
+            onInterested={handleInterested}
+            isInterestedLoading={savingTrip}
           />
         </div>
       </main>

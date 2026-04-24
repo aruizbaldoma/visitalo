@@ -1,8 +1,8 @@
-import { Euro, Info } from "lucide-react";
+import { Euro, Info, Heart } from "lucide-react";
 import { useState } from "react";
 import { AnimatedNumber } from "./AnimatedNumber";
 
-export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
+export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isInterestedLoading }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Recuento y suma excluyendo actividades eliminadas (soft-delete).
@@ -104,6 +104,21 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated }) => {
             Los precios mostrados son estimados. Confirma los precios finales en las webs de reserva.
           </p>
         </div>
+
+        {/* CTA ¡Me interesa! */}
+        {onInterested && (
+          <button
+            type="button"
+            onClick={onInterested}
+            disabled={isInterestedLoading}
+            className="mt-5 w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{ backgroundColor: "#3ccca4", color: "#031834" }}
+            data-testid="interested-button"
+          >
+            <Heart className="w-4 h-4" strokeWidth={2.5} />
+            {isInterestedLoading ? "Guardando..." : "¡Me interesa!"}
+          </button>
+        )}
       </div>
     </div>
   );
