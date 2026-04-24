@@ -154,20 +154,24 @@ export const RangeDatePicker = ({
   // Recalcular posición del popover cuando se abre o scroll/resize
   const computePosition = () => {
     if (!triggerRef.current) return;
-    // Si el caller pasó un selector de anchor, lo usamos para alinear el popover (p. ej. al bloque completo de fecha).
     const anchorEl =
       (anchorSelector && rootRef.current && rootRef.current.closest(anchorSelector)) ||
       triggerRef.current;
     const rect = anchorEl.getBoundingClientRect();
-    const popoverHeight = 420;
-    const popoverWidth = 620;
     const viewportH = window.innerHeight;
     const viewportW = window.innerWidth;
+    const isMobile = viewportW < 640;
+    // En móvil mostramos 1 mes (popover más compacto), en desktop 2 meses.
+    const popoverWidth = isMobile ? Math.min(viewportW - 16, 340) : Math.min(viewportW - 16, 620);
+    const popoverHeight = isMobile ? 460 : 420;
     const spaceBelow = viewportH - rect.bottom;
     const openUp = spaceBelow < popoverHeight + 24 && rect.top > popoverHeight;
 
     let left;
-    if (align === "right") {
+    if (isMobile) {
+      // Centrado horizontal respecto al trigger
+      left = rect.left + rect.width / 2 - popoverWidth / 2;
+    } else if (align === "right") {
       left = rect.right - popoverWidth;
     } else {
       left = rect.left;
@@ -176,7 +180,7 @@ export const RangeDatePicker = ({
     if (left + popoverWidth > viewportW - 8) left = viewportW - popoverWidth - 8;
 
     const top = openUp ? rect.top - popoverHeight - 8 : rect.bottom + 8;
-    setPopoverPos({ top, left, openUp });
+    setPopoverPos({ top, left, openUp, width: popoverWidth, isMobile });
   };
 
   useLayoutEffect(() => {
@@ -277,7 +281,9 @@ export const RangeDatePicker = ({
               top: popoverPos.top,
               left: popoverPos.left,
               zIndex: 500,
-              width: "min(620px, calc(100vw - 16px))",
+              width: popoverPos.width || "min(620px, calc(100vw - 16px))",
+              maxHeight: "calc(100vh - 24px)",
+              overflowY: "auto",
             }}
             data-testid="range-date-popover"
           >
@@ -313,7 +319,7 @@ export const RangeDatePicker = ({
               </button>
             </div>
 
-            {/* 2 meses lado a lado */}
+            {/* 2 meses lado a lado (en móvil solo se muestra 1) */}
             <div
               className="flex gap-5 flex-col sm:flex-row"
               onMouseLeave={() => setHovered(null)}
@@ -330,18 +336,20 @@ export const RangeDatePicker = ({
                 monthNames={monthNames}
                 dayLabels={dayLabels}
               />
-              <MonthGrid
-                month={addMonths(viewMonth, 1)}
-                start={start}
-                end={end}
-                hovered={hovered}
-                onPick={handlePick}
-                onHover={setHovered}
-                minDate={minD}
-                maxDate={maxDate}
-                monthNames={monthNames}
-                dayLabels={dayLabels}
-              />
+              {!popoverPos.isMobile && (
+                <MonthGrid
+                  month={addMonths(viewMonth, 1)}
+                  start={start}
+                  end={end}
+                  hovered={hovered}
+                  onPick={handlePick}
+                  onHover={setHovered}
+                  minDate={minD}
+                  maxDate={maxDate}
+                  monthNames={monthNames}
+                  dayLabels={dayLabels}
+                />
+              )}
             </div>
 
             {/* Footer */}
