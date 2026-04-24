@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { Link, Navigate } from "react-router-dom";
 import { Luggage, MapPin, Calendar, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { useAuth } from "../contexts/AuthContext";
@@ -23,6 +24,7 @@ const formatDate = (iso) => {
 };
 
 export default function MyTrips() {
+  const { t } = useTranslation();
   const { isAuthenticated, loading, refresh } = useAuth();
   const [trips, setTrips] = useState([]);
   const [fetching, setFetching] = useState(true);
@@ -35,7 +37,7 @@ export default function MyTrips() {
 
     if (!sessionId) {
       if (checkoutStatus === "cancelled") {
-        toast.info("Pago cancelado. Puedes volver a intentarlo cuando quieras.");
+        toast.info(t("plus.paymentCancelled"));
         const url = new URL(window.location.href);
         url.searchParams.delete("checkout");
         window.history.replaceState({}, "", url.toString());
@@ -47,7 +49,7 @@ export default function MyTrips() {
     let cancelled = false;
     const maxAttempts = 8;
     const pollIntervalMs = 2000;
-    const loadingToast = toast.loading("Confirmando pago…");
+    const loadingToast = toast.loading(t("plus.confirmingPayment"));
 
     (async () => {
       const token = localStorage.getItem("session_token");
@@ -58,20 +60,20 @@ export default function MyTrips() {
             { headers: { Authorization: `Bearer ${token}` } }
           );
           if (data.payment_status === "paid" && data.activated) {
-            toast.success("¡Bienvenido a PLUS!", {
+            toast.success(t("plus.welcomeTitle"), {
               id: loadingToast,
-              description: "Tu suscripción está activa. Ya puedes disfrutar del Modo Dios.",
+              description: t("plus.welcomeDescription"),
             });
             if (typeof refresh === "function") await refresh();
             break;
           }
           if (data.status === "expired") {
-            toast.error("La sesión de pago expiró. Vuelve a intentarlo.", { id: loadingToast });
+            toast.error(t("plus.paymentExpired"), { id: loadingToast });
             break;
           }
           await new Promise((r) => setTimeout(r, pollIntervalMs));
         } catch (err) {
-          toast.error("No pudimos verificar el pago. Si se cobró, contacta con info@visitalo.es.", {
+          toast.error(t("plus.paymentUnverified"), {
             id: loadingToast,
           });
           break;
@@ -87,7 +89,7 @@ export default function MyTrips() {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, refresh]);
+  }, [isAuthenticated, refresh, t]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -100,24 +102,24 @@ export default function MyTrips() {
         setTrips(data.trips || []);
       } catch (err) {
         console.error("Error loading trips:", err);
-        toast.error("No se pudieron cargar tus viajes");
+        toast.error(t("myTrips.loadError"));
       } finally {
         setFetching(false);
       }
     })();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, t]);
 
   const handleDelete = async (tripId) => {
-    if (!confirm("¿Seguro que quieres eliminar este viaje?")) return;
+    if (!confirm(t("myTrips.deleteConfirm"))) return;
     try {
       const token = localStorage.getItem("session_token");
       await axios.delete(`${API}/api/trips/${tripId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTrips((prev) => prev.filter((t) => t.trip_id !== tripId));
-      toast.success("Viaje eliminado");
+      setTrips((prev) => prev.filter((t2) => t2.trip_id !== tripId));
+      toast.success(t("myTrips.deleteSuccess"));
     } catch {
-      toast.error("No se pudo eliminar el viaje");
+      toast.error(t("myTrips.deleteError"));
     }
   };
 
@@ -133,7 +135,7 @@ export default function MyTrips() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Helmet>
-        <title>Mis Viajes | Visítalo.es</title>
+        <title>{t("myTrips.title")}</title>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
@@ -146,10 +148,10 @@ export default function MyTrips() {
               className="text-3xl md:text-4xl font-bold mb-1 font-heading"
               style={{ color: BRAND_BLUE, letterSpacing: "-0.02em" }}
             >
-              Mis Viajes
+              {t("myTrips.heading")}
             </h1>
             <p className="text-gray-600 text-sm">
-              Aquí se guardan todos los itinerarios que hayas creado y guardado.
+              {t("myTrips.subtitle")}
             </p>
           </div>
           <Link
@@ -159,14 +161,14 @@ export default function MyTrips() {
             data-testid="mytrips-new-button"
           >
             <Plus className="w-4 h-4" />
-            Nuevo viaje
+            {t("myTrips.emptyCta")}
           </Link>
         </div>
 
         {fetching ? (
           <div className="py-20 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#3ccca4] mb-4"></div>
-            <p className="text-gray-500">Cargando tus viajes...</p>
+            <p className="text-gray-500">{t("common.loading")}</p>
           </div>
         ) : trips.length === 0 ? (
           <div
@@ -182,11 +184,10 @@ export default function MyTrips() {
               className="text-xl font-bold mb-2 font-heading"
               style={{ color: BRAND_BLUE }}
             >
-              Aún no tienes viajes guardados
+              {t("myTrips.empty")}
             </h2>
             <p className="text-gray-500 text-sm mb-6 max-w-md mx-auto">
-              Genera un itinerario desde la home y pulsa{" "}
-              <strong>"Guardar"</strong> para verlo aquí siempre que quieras.
+              {t("myTrips.subtitle")}
             </p>
             <Link
               to="/"
@@ -194,7 +195,7 @@ export default function MyTrips() {
               style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
             >
               <Plus className="w-4 h-4" />
-              Crear mi primer viaje
+              {t("myTrips.emptyCta")}
             </Link>
           </div>
         ) : (
@@ -228,14 +229,14 @@ export default function MyTrips() {
                   <button
                     onClick={() => handleDelete(trip.trip_id)}
                     className="p-2 rounded-lg hover:bg-red-50 transition-colors flex-shrink-0"
-                    aria-label="Eliminar viaje"
+                    aria-label={t("common.delete")}
                     data-testid={`trip-delete-${trip.trip_id}`}
                   >
                     <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-600" />
                   </button>
                 </div>
                 <p className="text-xs text-gray-400">
-                  Guardado el {formatDate(trip.createdAt?.substring(0, 10))}
+                  {t("myTrips.savedOn", { date: formatDate(trip.createdAt?.substring(0, 10)) })}
                 </p>
               </div>
             ))}

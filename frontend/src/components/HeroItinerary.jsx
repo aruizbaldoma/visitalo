@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { ItinerarySearchBar } from "./ItinerarySearchBar";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -21,6 +22,7 @@ const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
 export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
+  const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const isPaidPlus = !!user?.subscription_active;
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -45,10 +47,10 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
       if (data?.url) {
         window.location.href = data.url;
       } else {
-        toast.error("No se pudo iniciar el pago. Inténtalo de nuevo.");
+        toast.error(t("plus.paymentError"));
       }
     } catch (err) {
-      const msg = err?.response?.data?.detail || "No se pudo iniciar el pago. Inténtalo de nuevo.";
+      const msg = err?.response?.data?.detail || t("plus.paymentError");
       toast.error(msg);
     } finally {
       setCheckoutLoading(false);
@@ -57,21 +59,21 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
   const benefits = [
     {
       Icon: Zap,
-      eyebrow: "Rapidez",
-      title: "Despídete del FOMO en segundos.",
-      text: "Olvídate de perder 3 noches entre pestañas, foros y Excels. Tu ruta está lista antes de que termines el café.",
+      eyebrow: t("benefits.item1.eyebrow"),
+      title: t("benefits.item1.title"),
+      text: t("benefits.item1.text"),
     },
     {
       Icon: Eye,
-      eyebrow: "Descubrimiento",
-      title: "Rutas sin puntos ciegos.",
-      text: "Cruzamos los spots virales con los rincones que solo conocen los locales. Visitas lo imprescindible y descubres lo que casi nadie encuentra.",
+      eyebrow: t("benefits.item2.eyebrow"),
+      title: t("benefits.item2.title"),
+      text: t("benefits.item2.text"),
     },
     {
       Icon: SlidersHorizontal,
-      eyebrow: "Personalización",
-      title: "Tu viaje, tu vibra.",
-      text: "¿Más de brunch lento o ruta sin parar? ¿Playa chill o museos hasta cerrar? Lo montamos a tu medida, sin clichés turísticos.",
+      eyebrow: t("benefits.item3.eyebrow"),
+      title: t("benefits.item3.title"),
+      text: t("benefits.item3.text"),
     },
   ];
 
@@ -90,17 +92,16 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
               style={{ color: BRAND_BLUE, letterSpacing: "-0.03em", lineHeight: "1.05" }}
               data-testid="hero-title"
             >
-              Visítalo todo.
+              {t("hero.titleLine1")}
               <br />
-              <span style={{ color: BRAND_GREEN }}>No te dejes nada atrás.</span>
+              <span style={{ color: BRAND_GREEN }}>{t("hero.titleLine2")}</span>
             </h1>
             <p
               className="text-base md:text-lg text-gray-600 max-w-2xl"
               style={{ lineHeight: "1.6" }}
               data-testid="hero-subtitle"
             >
-              Tu próximo viaje, montado en segundos. Sin foros, sin Excel, sin dramas.
-              Solo hacer la maleta.
+              {t("hero.subtitle")}
             </p>
           </div>
 
@@ -128,15 +129,15 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
               className="inline-block text-xs font-semibold uppercase tracking-widest mb-3"
               style={{ color: BRAND_GREEN, letterSpacing: "0.18em" }}
             >
-              ¿Por qué Visítalo?
+              {t("benefits.eyebrow")}
             </span>
             <h2
               className="text-3xl md:text-4xl font-bold font-heading"
               style={{ color: BRAND_BLUE, letterSpacing: "-0.02em", lineHeight: "1.1" }}
             >
-              Planificar viajes era un rollo.
+              {t("benefits.title1")}
               <br />
-              <span style={{ color: BRAND_GREEN }}>Lo hemos arreglado.</span>
+              <span style={{ color: BRAND_GREEN }}>{t("benefits.title2")}</span>
             </h2>
           </div>
 
@@ -203,7 +204,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                   className="text-xs font-bold uppercase tracking-widest"
                   style={{ color: BRAND_GREEN, letterSpacing: "0.16em" }}
                 >
-                  Visítalo PLUS
+                  {t("plus.badge")}
                 </span>
               </div>
               <h2
@@ -211,24 +212,23 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 style={{ letterSpacing: "-0.02em", lineHeight: "1.05" }}
                 data-testid="plus-title"
               >
-                Desbloquea el
+                {t("plus.titleLine1")}
                 <br />
-                <span style={{ color: BRAND_GREEN }}>Modo Dios.</span>
+                <span style={{ color: BRAND_GREEN }}>{t("plus.titleLine2")}</span>
               </h2>
               <p
                 className="text-base md:text-lg mb-7"
                 style={{ color: "rgba(255,255,255,0.78)", lineHeight: "1.65" }}
               >
-                Hoteles boutique que no encuentras en las webs de siempre. Casas rurales mágicas.
-                Restaurantes con alma. Actividades secretas. Todo lo bueno, solo para los que van en serio.
+                {t("plus.description")}
               </p>
 
               <ul className="space-y-3 mb-8">
                 {[
-                  "Alojamientos únicos (boutique, rural, premium)",
-                  "Actividades curadas que nadie más te va a enseñar",
-                  "Itinerarios sin límites, personalización al 100%",
-                  "Sin ads. Sin ruido. Solo tu viaje.",
+                  t("plus.bullet1"),
+                  t("plus.bullet2"),
+                  t("plus.bullet3"),
+                  t("plus.bullet4"),
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-white/85 text-sm md:text-base">
                     <span
@@ -250,13 +250,13 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                   style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
                   data-testid="plus-cta-button"
                 >
-                  {checkoutLoading ? "Abriendo pago…" : "Unirme a PLUS"}
+                  {checkoutLoading ? t("plus.ctaLoading") : t("plus.cta")}
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <div className="text-white/70 text-sm">
-                  <span className="text-white font-bold text-lg">1€ / mes</span>
+                  <span className="text-white font-bold text-lg">{t("plus.priceLabel")}</span>
                   <span className="mx-2 opacity-60">·</span>
-                  cancela cuando quieras
+                  {t("plus.cancelLabel")}
                 </div>
               </div>
             </div>
@@ -272,14 +272,14 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                     className="text-xs font-bold uppercase tracking-widest"
                     style={{ color: BRAND_GREEN, letterSpacing: "0.18em" }}
                   >
-                    PLUS · Preview
+                    {t("plus.previewEyebrow")}
                   </span>
                   <Crown className="w-5 h-5" style={{ color: BRAND_GREEN }} />
                 </div>
                 {[
-                  { title: "Casa rural en la Alpujarra", meta: "Única · Sin masificación" },
-                  { title: "Cena privada en Lisboa", meta: "Solo PLUS" },
-                  { title: "Hotel boutique · Cinque Terre", meta: "Selección única" },
+                  { title: t("plus.preview1Title"), meta: t("plus.preview1Meta") },
+                  { title: t("plus.preview2Title"), meta: t("plus.preview2Meta") },
+                  { title: t("plus.preview3Title"), meta: t("plus.preview3Meta") },
                 ].map((row) => (
                   <div
                     key={row.title}
@@ -293,7 +293,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                       className="text-xs font-bold px-2.5 py-1 rounded-full"
                       style={{ backgroundColor: "rgba(60, 204, 164, 0.18)", color: BRAND_GREEN }}
                     >
-                      PLUS
+                      {t("plus.tag")}
                     </span>
                   </div>
                 ))}
@@ -313,23 +313,22 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 className="inline-block text-xs font-semibold uppercase tracking-widest mb-3"
                 style={{ color: BRAND_GREEN, letterSpacing: "0.18em" }}
               >
-                Actividades
+                {t("activities.eyebrow")}
               </span>
               <h2
                 className="text-3xl md:text-5xl font-bold font-heading mb-5"
                 style={{ color: BRAND_BLUE, letterSpacing: "-0.02em", lineHeight: "1.05" }}
                 data-testid="activities-title"
               >
-                Más que ver.
+                {t("activities.titleLine1")}
                 <br />
-                <span style={{ color: BRAND_GREEN }}>Para vivir.</span>
+                <span style={{ color: BRAND_GREEN }}>{t("activities.titleLine2")}</span>
               </h2>
               <p
                 className="text-base md:text-lg text-gray-600 max-w-xl mb-8"
                 style={{ lineHeight: "1.65" }}
               >
-                Reserva actividades brutales directamente desde tu itinerario. Sin saltar
-                entre 15 webs, sin precios inflados, sin letra pequeña. Todo en un scroll.
+                {t("activities.description")}
               </p>
               <button
                 onClick={handleScrollToSearch}
@@ -337,7 +336,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
                 style={{ backgroundColor: BRAND_BLUE, color: "#fff" }}
                 data-testid="activities-cta-button"
               >
-                Montar mi plan
+                {t("activities.cta")}
                 <ArrowRight className="w-5 h-5" />
               </button>
             </div>
@@ -345,10 +344,10 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
             <div className="lg:col-span-5">
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { Icon: Landmark, tag: "Top 1%", title: "Tour secreto por la Alhambra" },
-                  { Icon: Wine, tag: "Solo PLUS", title: "Cena maridada en La Rioja" },
-                  { Icon: Waves, tag: "Solo aquí", title: "Kayak al atardecer · Ibiza" },
-                  { Icon: UtensilsCrossed, tag: "Tendencia", title: "Street food tour · Nápoles" },
+                  { Icon: Landmark, tag: t("activities.card1Tag"), title: t("activities.card1Title") },
+                  { Icon: Wine, tag: t("activities.card2Tag"), title: t("activities.card2Title") },
+                  { Icon: Waves, tag: t("activities.card3Tag"), title: t("activities.card3Title") },
+                  { Icon: UtensilsCrossed, tag: t("activities.card4Tag"), title: t("activities.card4Title") },
                 ].map((act, idx) => {
                   const { Icon } = act;
                   return (

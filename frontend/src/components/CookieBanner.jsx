@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Cookie, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const STORAGE_KEY = "visitalo_cookie_consent_v1";
 const BRAND_BLUE = "#031834";
@@ -25,6 +26,7 @@ export const getCookieConsent = () => {
 };
 
 export const CookieBanner = () => {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
   const [prefs, setPrefs] = useState(DEFAULT_CONSENT);
@@ -78,18 +80,16 @@ export const CookieBanner = () => {
                   className="font-bold mb-1 font-heading text-base md:text-lg"
                   style={{ color: BRAND_BLUE }}
                 >
-                  Usamos cookies para mejorar tu experiencia
+                  {t("cookies.title")}
                 </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Utilizamos cookies propias y de terceros para el correcto funcionamiento
-                  de la web, analizar el tráfico y mostrarte recomendaciones de viajes
-                  personalizadas. Puedes aceptar todas o configurar tus preferencias.{" "}
+                  {t("cookies.description")}{" "}
                   <a
                     href="/legal/cookies"
                     className="underline font-medium"
                     style={{ color: BRAND_BLUE }}
                   >
-                    Más información
+                    {t("cookies.moreInfo")}
                   </a>
                 </p>
               </div>
@@ -101,7 +101,7 @@ export const CookieBanner = () => {
                 style={{ borderColor: BRAND_BLUE, color: BRAND_BLUE }}
                 data-testid="cookie-reject-button"
               >
-                Rechazar todas
+                {t("cookies.reject")}
               </button>
               <button
                 onClick={() => setShowPrefs(true)}
@@ -109,7 +109,7 @@ export const CookieBanner = () => {
                 style={{ borderColor: BRAND_BLUE, color: BRAND_BLUE }}
                 data-testid="cookie-prefs-button"
               >
-                Configurar
+                {t("cookies.configure")}
               </button>
               <button
                 onClick={acceptAll}
@@ -117,7 +117,7 @@ export const CookieBanner = () => {
                 style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
                 data-testid="cookie-accept-button"
               >
-                Aceptar todas
+                {t("cookies.accept")}
               </button>
             </div>
           </div>
@@ -128,12 +128,12 @@ export const CookieBanner = () => {
                 className="font-bold font-heading text-lg"
                 style={{ color: BRAND_BLUE }}
               >
-                Preferencias de cookies
+                {t("cookies.prefsTitle")}
               </h3>
               <button
                 onClick={() => setShowPrefs(false)}
                 className="p-1 hover:bg-gray-100 rounded"
-                aria-label="Cerrar"
+                aria-label={t("common.close")}
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
@@ -141,20 +141,20 @@ export const CookieBanner = () => {
 
             <div className="space-y-4 mb-5 max-h-96 overflow-y-auto">
               <CookieCategory
-                title="Necesarias"
-                description="Imprescindibles para el funcionamiento del sitio (sesión de usuario, preferencias básicas, seguridad). No se pueden desactivar."
+                title={t("cookies.catNecessaryTitle")}
+                description={t("cookies.catNecessaryDesc")}
                 enabled={true}
                 disabled
               />
               <CookieCategory
-                title="Analíticas"
-                description="Nos ayudan a entender cómo usas la web con herramientas de analítica, para mejorar el servicio. Los datos son anónimos."
+                title={t("cookies.catAnalyticsTitle")}
+                description={t("cookies.catAnalyticsDesc")}
                 enabled={prefs.analytics}
                 onChange={(v) => setPrefs({ ...prefs, analytics: v })}
               />
               <CookieCategory
-                title="Marketing y afiliados"
-                description="Usadas para mostrarte destinos y ofertas relevantes, y medir reservas a través de nuestros partners de alojamiento y actividades."
+                title={t("cookies.catMarketingTitle")}
+                description={t("cookies.catMarketingDesc")}
                 enabled={prefs.marketing}
                 onChange={(v) => setPrefs({ ...prefs, marketing: v })}
               />
@@ -166,7 +166,7 @@ export const CookieBanner = () => {
                 className="px-4 py-2.5 text-sm font-semibold rounded-lg border transition-colors hover:bg-gray-50"
                 style={{ borderColor: BRAND_BLUE, color: BRAND_BLUE }}
               >
-                Rechazar todas
+                {t("cookies.reject")}
               </button>
               <button
                 onClick={savePrefs}
@@ -174,7 +174,7 @@ export const CookieBanner = () => {
                 style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
                 data-testid="cookie-save-prefs"
               >
-                Guardar preferencias
+                {t("cookies.savePrefs")}
               </button>
             </div>
           </div>

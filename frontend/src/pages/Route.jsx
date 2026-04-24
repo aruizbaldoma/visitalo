@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import axios from "axios";
 import { toast } from "sonner";
 import { ArrowLeft, Bookmark } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
@@ -16,6 +17,7 @@ const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
 export default function RoutePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { itinerary, isMockMode, searchParams, travelDetails } = useItinerary();
@@ -47,11 +49,11 @@ export default function RoutePage() {
       await axios.post(`${API}/api/trips/save`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("¡Guardado en Mis Viajes!");
+      toast.success(t("route.savedSuccess"));
       navigate("/misviajes");
     } catch (err) {
       console.error("save trip error", err);
-      toast.error("No se pudo guardar el viaje");
+      toast.error(t("route.saveError"));
     } finally {
       setSavingTrip(false);
     }
@@ -98,7 +100,7 @@ export default function RoutePage() {
             data-testid="route-back-home"
           >
             <ArrowLeft className="w-4 h-4" />
-            Volver al buscador
+            {t("route.goBackHome")}
           </button>
 
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
@@ -107,7 +109,7 @@ export default function RoutePage() {
                 className="inline-block text-xs font-bold uppercase tracking-widest mb-3"
                 style={{ color: BRAND_GREEN, letterSpacing: "0.2em" }}
               >
-                Tu ruta
+                {t("route.title").split(" · ")[0]}
               </span>
               <h1
                 className="text-3xl md:text-5xl font-bold font-heading text-white"
@@ -118,7 +120,7 @@ export default function RoutePage() {
               </h1>
               {searchParams?.startDate && searchParams?.endDate && (
                 <p className="text-white/70 text-sm md:text-base mt-2">
-                  {searchParams.startDate} — {searchParams.endDate} · {itinerary.totalDays} días
+                  {searchParams.startDate} — {searchParams.endDate} · {itinerary.totalDays} {t("common.days")}
                 </p>
               )}
             </div>
@@ -132,7 +134,7 @@ export default function RoutePage() {
                 data-testid="save-trip-button"
               >
                 <Bookmark className="w-4 h-4" />
-                {savingTrip ? "Guardando..." : "Guardar en Mis Viajes"}
+                {savingTrip ? t("common.saving") : t("sidebar.interested")}
               </button>
             )}
           </div>

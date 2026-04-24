@@ -1,8 +1,10 @@
 import { Euro, Info, Heart } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AnimatedNumber } from "./AnimatedNumber";
 
 export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isInterestedLoading }) => {
+  const { t } = useTranslation();
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Recuento y suma excluyendo actividades eliminadas (soft-delete).
@@ -37,12 +39,12 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
       >
         {/* Header */}
         <h3 className="text-xl font-bold mb-6" style={{ color: '#031834' }}>
-          Resumen del viaje
+          {t("sidebar.title")}
         </h3>
 
         {/* Total de actividades */}
         <div className="mb-6">
-          <p className="text-sm text-gray-500 mb-1">Total de actividades</p>
+          <p className="text-sm text-gray-500 mb-1">{t("sidebar.totalActivities")}</p>
           <AnimatedNumber
             value={totalActivities}
             decimals={0}
@@ -58,7 +60,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
         {/* Precio total - SIEMPRE visible */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <p className="text-sm text-gray-500">Precio total estimado</p>
+            <p className="text-sm text-gray-500">{t("sidebar.estimatedPrice")}</p>
             <div 
               className="relative"
               onMouseEnter={() => setShowTooltip(true)}
@@ -72,7 +74,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                   className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-gray-800 text-white text-xs rounded py-2 px-3 z-50"
                   style={{ whiteSpace: 'normal' }}
                 >
-                  Estos precios pueden variar ligeramente en las webs
+                  {t("sidebar.priceTooltip")}
                   <div 
                     className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0"
                     style={{
@@ -101,7 +103,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
         {/* Nota adicional */}
         <div className="mt-6 pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-500 leading-relaxed">
-            Los precios mostrados son estimados. Confirma los precios finales en las webs de reserva.
+            {t("sidebar.priceDisclaimer")}
           </p>
         </div>
 
@@ -116,7 +118,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
             data-testid="interested-button"
           >
             <Heart className="w-4 h-4" strokeWidth={2.5} />
-            {isInterestedLoading ? "Guardando..." : "¡Me interesa!"}
+            {isInterestedLoading ? t("sidebar.interestedSaving") : t("sidebar.interested")}
           </button>
         )}
       </div>

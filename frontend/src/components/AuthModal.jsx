@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Mail, Lock, User as UserIcon } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -8,6 +9,7 @@ const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
 export const AuthModal = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const { loginWithEmail, registerWithEmail, loginWithGoogle } = useAuth();
   const [mode, setMode] = useState("login"); // 'login' | 'register'
   const [name, setName] = useState("");
@@ -25,17 +27,17 @@ export const AuthModal = ({ isOpen, onClose }) => {
       if (!userBefore && newUser && newUser.first_trip_used === false) {
         window.dispatchEvent(new Event("visitalo:welcome"));
       } else {
-        toast.success("¡Bienvenido!");
+        toast.success(t("auth.welcome"));
       }
       onClose();
     } catch (err) {
-      const msg = err?.response?.data?.detail || "Error al iniciar sesión con Google";
+      const msg = err?.response?.data?.detail || t("auth.googleLoginError");
       toast.error(msg);
     }
   };
 
   const handleGoogleError = () => {
-    toast.error("No se pudo completar el login con Google");
+    toast.error(t("auth.googleError"));
   };
 
   const handleSubmit = async (e) => {
@@ -44,7 +46,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
     try {
       if (mode === "login") {
         await loginWithEmail(email, password);
-        toast.success("¡Bienvenido de nuevo!");
+        toast.success(t("auth.welcomeBack"));
       } else {
         await registerWithEmail(email, password, name);
         // Al registrarse por primera vez, disparar welcome modal
@@ -54,7 +56,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
     } catch (err) {
       const message =
         err?.response?.data?.detail ||
-        (mode === "login" ? "Credenciales incorrectas" : "Error al registrarse");
+        (mode === "login" ? t("auth.badCredentials") : t("auth.registerError"));
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -75,7 +77,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
-          aria-label="Cerrar"
+          aria-label={t("common.close")}
           data-testid="auth-modal-close"
         >
           <X className="w-5 h-5 text-gray-500" />
@@ -90,12 +92,10 @@ export const AuthModal = ({ isOpen, onClose }) => {
             className="text-2xl font-bold text-center mb-2 font-heading"
             style={{ color: BRAND_BLUE }}
           >
-            {mode === "login" ? "Inicia sesión" : "Crea tu cuenta"}
+            {mode === "login" ? t("auth.loginTitle") : t("auth.registerTitle")}
           </h2>
           <p className="text-sm text-center text-gray-500 mb-6">
-            {mode === "login"
-              ? "Accede para guardar tus itinerarios"
-              : "Regístrate y empieza a planificar tu viaje"}
+            {mode === "login" ? t("auth.loginSubtitle") : t("auth.registerSubtitle")}
           </p>
 
           {/* Botón oficial de Google Identity Services */}
@@ -107,14 +107,14 @@ export const AuthModal = ({ isOpen, onClose }) => {
               size="large"
               shape="rectangular"
               text={mode === "login" ? "signin_with" : "signup_with"}
-              locale="es"
+              locale={t("auth.googleLocale")}
               width="368"
             />
           </div>
 
           <div className="flex items-center my-5">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="px-3 text-xs text-gray-400 uppercase tracking-wide">o</span>
+            <span className="px-3 text-xs text-gray-400 uppercase tracking-wide">{t("auth.dividerOr")}</span>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
@@ -125,7 +125,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                 <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Tu nombre"
+                  placeholder={t("auth.namePlaceholder")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -139,7 +139,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="email"
-                placeholder="tu@email.com"
+                placeholder={t("auth.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -151,7 +151,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="password"
-                placeholder="Contraseña (mín. 6)"
+                placeholder={t("auth.passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -169,36 +169,36 @@ export const AuthModal = ({ isOpen, onClose }) => {
               data-testid="auth-submit-button"
             >
               {submitting
-                ? "Procesando…"
+                ? t("common.processing")
                 : mode === "login"
-                ? "Iniciar sesión"
-                : "Crear cuenta"}
+                ? t("auth.submitLogin")
+                : t("auth.submitRegister")}
             </button>
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-5">
             {mode === "login" ? (
               <>
-                ¿No tienes cuenta?{" "}
+                {t("auth.noAccount")}{" "}
                 <button
                   onClick={() => setMode("register")}
                   className="font-bold"
                   style={{ color: BRAND_BLUE }}
                   data-testid="auth-toggle-register"
                 >
-                  Regístrate
+                  {t("auth.register")}
                 </button>
               </>
             ) : (
               <>
-                ¿Ya tienes cuenta?{" "}
+                {t("auth.haveAccount")}{" "}
                 <button
                   onClick={() => setMode("login")}
                   className="font-bold"
                   style={{ color: BRAND_BLUE }}
                   data-testid="auth-toggle-login"
                 >
-                  Inicia sesión
+                  {t("auth.login")}
                 </button>
               </>
             )}

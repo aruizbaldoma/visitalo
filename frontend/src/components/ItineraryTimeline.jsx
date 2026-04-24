@@ -1,5 +1,6 @@
 import { Clock, MapPin, Sun, Sunset, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityCard } from "./ActivityCard";
 import { ActivityInfoModal } from "./ActivityInfoModal";
 import { AlternativesModal } from "./AlternativesModal";
@@ -9,6 +10,7 @@ import { FlightCard } from "./FlightCard";
 import { HotelCard } from "./HotelCard";
 
 export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails, onInterested, isInterestedLoading }) => {
+  const { t } = useTranslation();
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showAlternativesModal, setShowAlternativesModal] = useState(false);
@@ -151,10 +153,10 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails, o
           <MapPin className="w-16 h-16 mx-auto" />
         </div>
         <h3 className="text-2xl font-bold text-gray-700 mb-2">
-          Aquí va a aparecer tu planazo ✨
+          {t("timeline.emptyTitle")}
         </h3>
         <p className="text-gray-500">
-          Rellena el buscador de arriba y te lo montamos en segundos. Tú a lo tuyo: solo haz la maleta.
+          {t("timeline.emptyDescription")}
         </p>
       </div>
     );
@@ -321,7 +323,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
           {/* Mañana */}
           <MomentSection
             icon={<Sun className="w-6 h-6" />}
-            title="Mañana"
+            title={t("timeline.morning")}
             activities={day.morning.activities}
             color="#FFA500"
             isAuthenticated={isAuthenticated}
@@ -336,7 +338,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
           {/* Tarde */}
           <MomentSection
             icon={<Sunset className="w-6 h-6" />}
-            title="Tarde"
+            title={t("timeline.afternoon")}
             activities={day.afternoon.activities}
             color="#FF6347"
             isAuthenticated={isAuthenticated}
@@ -351,7 +353,7 @@ const DayCard = ({ day, isLast, isAuthenticated, onInfo, onAlternative, onDelete
           {/* Noche */}
           <MomentSection
             icon={<Moon className="w-6 h-6" />}
-            title="Noche"
+            title={t("timeline.night")}
             activities={day.night.activities}
             color="#4169E1"
             isAuthenticated={isAuthenticated}

@@ -1,15 +1,20 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
-const MONTH_NAMES = [
-  "enero", "febrero", "marzo", "abril", "mayo", "junio",
-  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
-];
-const DAY_LABELS = ["L", "M", "X", "J", "V", "S", "D"];
+const MONTH_NAMES_BY_LANG = {
+  es: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+  en: ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"],
+};
+const DAY_LABELS_BY_LANG = {
+  es: ["L", "M", "X", "J", "V", "S", "D"],
+  en: ["M", "T", "W", "T", "F", "S", "S"],
+};
+const LOCALE_BY_LANG = { es: "es-ES", en: "en-GB" };
 
 /* ---------- utils ---------- */
 const pad = (n) => String(n).padStart(2, "0");
@@ -29,7 +34,7 @@ const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1);
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 
 /* ---------- Single month grid ---------- */
-const MonthGrid = ({ month, start, end, hovered, onPick, onHover, minDate, maxDate }) => {
+const MonthGrid = ({ month, start, end, hovered, onPick, onHover, minDate, maxDate, monthNames, dayLabels }) => {
   const first = startOfMonth(month);
   const jsFirstWeekday = first.getDay(); // 0=Sun
   const leading = (jsFirstWeekday + 6) % 7; // convert to Mon=0
@@ -44,11 +49,11 @@ const MonthGrid = ({ month, start, end, hovered, onPick, onHover, minDate, maxDa
   return (
     <div className="flex-1 min-w-[260px]">
       <div className="text-center font-bold capitalize mb-3" style={{ color: BRAND_BLUE }}>
-        {MONTH_NAMES[month.getMonth()]} {month.getFullYear()}
+        {monthNames[month.getMonth()]} {month.getFullYear()}
       </div>
       <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-gray-500 mb-1.5">
-        {DAY_LABELS.map((l) => (
-          <div key={l}>{l}</div>
+        {dayLabels.map((l, i) => (
+          <div key={`${l}-${i}`}>{l}</div>
         ))}
       </div>
       <div className="grid grid-cols-7 gap-1">
@@ -114,8 +119,8 @@ export const RangeDatePicker = ({
   endDate,
   onChange,
   onOpenChange,
-  startPlaceholder = "¿Cuándo llegas?",
-  endPlaceholder = "¿Cuándo vuelves?",
+  startPlaceholder,
+  endPlaceholder,
   singleLabel,
   minDate,
   maxDate,
@@ -124,6 +129,13 @@ export const RangeDatePicker = ({
   anchorSelector,
   align = "left",
 }) => {
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.language || "es").toLowerCase().startsWith("en") ? "en" : "es";
+  const monthNames = MONTH_NAMES_BY_LANG[lang];
+  const dayLabels = DAY_LABELS_BY_LANG[lang];
+  const localeCode = LOCALE_BY_LANG[lang];
+  const startPh = startPlaceholder || t("search.dateStart");
+  const endPh = endPlaceholder || t("search.dateEnd");
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(null);
   const [viewMonth, setViewMonth] = useState(() => {
@@ -227,20 +239,20 @@ export const RangeDatePicker = ({
   const label = (() => {
     if (singleLabel && start && end) {
       const opt = { day: "2-digit", month: "short" };
-      return `${start.toLocaleDateString("es-ES", opt)} — ${end.toLocaleDateString("es-ES", opt)}`;
+      return `${start.toLocaleDateString(localeCode, opt)} — ${end.toLocaleDateString(localeCode, opt)}`;
     }
     if (singleLabel) {
       return singleLabel;
     }
     if (start && end) {
       const opt = { day: "2-digit", month: "short" };
-      return `${start.toLocaleDateString("es-ES", opt)} — ${end.toLocaleDateString("es-ES", opt)}`;
+      return `${start.toLocaleDateString(localeCode, opt)} — ${end.toLocaleDateString(localeCode, opt)}`;
     }
     if (start) {
       const opt = { day: "2-digit", month: "short" };
-      return `${start.toLocaleDateString("es-ES", opt)} — ${endPlaceholder}`;
+      return `${start.toLocaleDateString(localeCode, opt)} — ${endPh}`;
     }
-    return `${startPlaceholder}  —  ${endPlaceholder}`;
+    return `${startPh}  —  ${endPh}`;
   })();
 
   return (
@@ -315,6 +327,8 @@ export const RangeDatePicker = ({
                 onHover={setHovered}
                 minDate={minD}
                 maxDate={maxDate}
+                monthNames={monthNames}
+                dayLabels={dayLabels}
               />
               <MonthGrid
                 month={addMonths(viewMonth, 1)}
@@ -325,6 +339,8 @@ export const RangeDatePicker = ({
                 onHover={setHovered}
                 minDate={minD}
                 maxDate={maxDate}
+                monthNames={monthNames}
+                dayLabels={dayLabels}
               />
             </div>
 
@@ -339,7 +355,7 @@ export const RangeDatePicker = ({
                 className="text-xs font-semibold text-gray-500 hover:text-[#031834] transition-colors"
                 data-testid="range-date-clear"
               >
-                Limpiar
+                {t("search.clear")}
               </button>
               {start && end && (
                 <button
@@ -352,7 +368,7 @@ export const RangeDatePicker = ({
                   style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
                   data-testid="range-date-done"
                 >
-                  Hecho
+                  {t("search.done")}
                 </button>
               )}
             </div>

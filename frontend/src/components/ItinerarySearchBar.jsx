@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { MapPin, Calendar as CalendarIcon, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { RangeDatePicker } from "./RangeDatePicker";
 
 const BRAND_BLUE = "#031834";
 
 export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange }) => {
+  const { t } = useTranslation();
   const [searchData, setSearchData] = useState({
     destination: "",
     startDate: "",
@@ -64,7 +66,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
             <input
               type="text"
               name="destination"
-              placeholder="¿A dónde vas a viajar?"
+              placeholder={t("search.destinationPlaceholder")}
               value={searchData.destination}
               onChange={handleDestination}
               className="w-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none font-medium bg-transparent"
@@ -86,8 +88,8 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
               startDate={searchData.startDate}
               endDate={searchData.endDate}
               onChange={({ startDate, endDate }) => update({ startDate, endDate })}
-              startPlaceholder="¿Cuándo llegas?"
-              endPlaceholder="¿Cuándo vuelves?"
+              startPlaceholder={t("search.dateStart")}
+              endPlaceholder={t("search.dateEnd")}
               className="flex-1"
               triggerClassName="block w-full text-sm text-gray-800 font-medium truncate"
               anchorSelector="[data-date-block]"
@@ -111,7 +113,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
               className="w-6 h-6 flex-shrink-0"
             />
             <span className="text-sm font-bold whitespace-nowrap" style={{ color: BRAND_BLUE }}>
-              Personalízalo
+              {t("search.customize")}
             </span>
           </button>
 
@@ -131,7 +133,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
           >
             <Search className="w-5 h-5 md:hidden" style={{ color: BRAND_BLUE }} />
             <span className="whitespace-nowrap" style={{ color: BRAND_BLUE }}>
-              ¡Montar mi plan!
+              {t("search.submit")}
             </span>
           </button>
         </div>

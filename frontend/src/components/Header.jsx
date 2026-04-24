@@ -1,14 +1,13 @@
 import { User, LogOut, Luggage } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "./AuthModal";
 import { WelcomeModal } from "./WelcomeModal";
 
 const LANGUAGES = [
-  { code: "ES", name: "Español", cc: "es" },
-  { code: "EN", name: "English", cc: "gb" },
-  { code: "FR", name: "Français", cc: "fr" },
-  { code: "IT", name: "Italiano", cc: "it" },
+  { code: "ES", lng: "es", name: "Español", cc: "es" },
+  { code: "EN", lng: "en", name: "English", cc: "gb" },
 ];
 
 const FlagRound = ({ cc, size = 28 }) => (
@@ -34,12 +33,13 @@ const FlagRect = ({ cc }) => (
 );
 
 export const Header = () => {
+  const { t, i18n } = useTranslation();
   const { user, isAuthenticated, logout } = useAuth();
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
-  const [currentLang, setCurrentLang] = useState("ES");
+  const currentLang = (i18n.language || "es").toLowerCase().startsWith("en") ? "EN" : "ES";
 
   const langRef = useRef(null);
   const userRef = useRef(null);
@@ -71,8 +71,8 @@ export const Header = () => {
     };
   }, []);
 
-  const handleLangChange = (code) => {
-    setCurrentLang(code);
+  const handleLangChange = (lng) => {
+    i18n.changeLanguage(lng);
     setShowLangMenu(false);
   };
 
@@ -112,8 +112,8 @@ export const Header = () => {
                 className="p-1 rounded-full hover:bg-gray-100 transition-colors overflow-hidden flex items-center justify-center"
                 style={{ border: "1px solid #E5E7EB", width: "42px", height: "42px" }}
                 data-testid="lang-selector-button"
-                aria-label={`Idioma actual: ${current.name}`}
-                title={`Idioma: ${current.name}`}
+                aria-label={t("header.langAriaLabel", { name: current.name })}
+                title={t("header.langTitle", { name: current.name })}
               >
                 <FlagRound cc={current.cc} size={32} />
               </button>
@@ -127,7 +127,7 @@ export const Header = () => {
                   {LANGUAGES.map((lang) => (
                     <button
                       key={lang.code}
-                      onClick={() => handleLangChange(lang.code)}
+                      onClick={() => handleLangChange(lang.lng)}
                       className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${
                         currentLang === lang.code ? "bg-green-50" : ""
                       }`}
@@ -155,13 +155,13 @@ export const Header = () => {
                 onClick={handleUserClick}
                 className="rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center overflow-hidden"
                 style={{ border: "1px solid #E5E7EB", width: "42px", height: "42px" }}
-                title={isAuthenticated ? user?.name || "Mi cuenta" : "Iniciar sesión"}
+                title={isAuthenticated ? user?.name || t("header.myAccount") : t("header.signIn")}
                 data-testid="header-user-button"
               >
                 {isAuthenticated && user?.picture ? (
                   <img
                     src={user.picture}
-                    alt={user.name || "Usuario"}
+                    alt={user.name || t("header.user")}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -177,7 +177,7 @@ export const Header = () => {
                 >
                   <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-semibold text-gray-800 truncate">
-                      {user?.name || "Usuario"}
+                      {user?.name || t("header.user")}
                     </p>
                   </div>
                   <a
@@ -186,7 +186,7 @@ export const Header = () => {
                     data-testid="user-mytrips-link"
                   >
                     <Luggage className="w-4 h-4" style={{ color: "#031834" }} />
-                    Mis Viajes
+                    {t("header.myTrips")}
                   </a>
                   <button
                     onClick={handleLogout}
@@ -194,7 +194,7 @@ export const Header = () => {
                     data-testid="user-logout-button"
                   >
                     <LogOut className="w-4 h-4" />
-                    Cerrar sesión
+                    {t("header.logout")}
                   </button>
                 </div>
               )}

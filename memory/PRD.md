@@ -40,17 +40,21 @@
 - ✅ Rebranding total RutaBarata → Visitalo.es (comentarios, email `info@visitalo.es`, link X `x.com/visitalo`)
 - ✅ Doble registro tonal: copy fresco Gen-Z en app (buscador "¿Cuándo llegas?/¿Cuándo vuelves?", CTA "Personalízalo", empty state "Aquí va a aparecer tu planazo ✨") + corporativo en Footer/Legal
 - ✅ Limpieza de código muerto: eliminados `App_old.js`, `Hero.jsx`, `Benefits.jsx`
-- ✅ **P0 sección PLUS condicional**: oculta para suscriptores de pago (`subscription_active`); CTA abre AuthModal si no auth, llama Stripe checkout si auth+no-sub (validado en los 3 estados)
-- ✅ **P1 Stripe Checkout (Fase 1 - one-off mensual)**: `POST /api/stripe/checkout-session` + `GET /api/stripe/checkout-status/{session_id}` + webhook `/api/webhooks/stripe` + colección `payment_transactions`. Polling post-redirect en `/misviajes`. Modo dev: el proxy Emergent no soporta retrieve, se confía en el redirect de Stripe. Idempotente (no doble activación). E2E validado en preview.
+- ✅ **P0 sección PLUS condicional**: oculta para suscriptores de pago (`subscription_active`); CTA abre AuthModal si no auth, llama Stripe checkout si auth+no-sub
+- ✅ **P1 Stripe Checkout (Fase 1 - one-off mensual)**: endpoints checkout-session + checkout-status + webhook + colección payment_transactions + polling post-redirect + activación idempotente +30 días
+- ✅ **P2 i18n ES/EN**: `i18next` + `react-i18next` + `i18next-browser-languagedetector`. Archivos en `src/locales/{es,en}.json`. Selector en Header ES/EN (FR/IT eliminados) con persistencia en localStorage (`visitalo_lang`). Componentes traducidos: Header, Footer, HeroItinerary (hero, benefits, PLUS, activities), ItinerarySearchBar, RangeDatePicker (meses y días según idioma), WelcomePromoModal, AuthModal, CookieBanner, ItineraryTimeline, ItinerarySidebar, MyTrips, Route. Validado E2E en los 2 idiomas.
 
 ## Backlog priorizado
 
-### P1 — Monetización (EN CURSO)
+### P1 — Monetización
 - ✅ Fase 1: Pago único mensual 1€ que activa +30 días PLUS.
-- ⏳ Fase 2: Migrar a Stripe Subscription recurrente cuando el usuario pase su key Stripe real (ver `test_credentials.md` sección "Fase 2").
+- ⏳ Fase 2: Migrar a Stripe Subscription recurrente cuando el usuario pase su key Stripe real.
 
-### P2 — Internacionalización ES / EN
-- Quitar opciones FR/IT del selector de idioma. Implementar i18n real con `react-i18next`. Traducir toda la web (Home, buscador, benefits, PLUS, actividades, blog, legal, footer, sidebar, timeline, modales de auth y personalización).
+### P2 — i18n (FASE 2 - componentes menores)
+- Traducir componentes post-búsqueda: ActivityCard, HotelCard, ActivityInfoModal, AlternativesModal, TravelDetailsModal, TotalPricePanel, ConfirmationModal, DeleteConfirmPopover.
+- Traducir páginas Blog (BlogList, BlogPost) y chrome de páginas Legal (el contenido legal se mantiene en ES siempre por validez jurídica).
+- ItineraryLoading (mensajes de progreso durante generación).
+- AuthCallback.
 
 ### P3 — Core
 - Desactivar Mock Mode de Gemini cuando el usuario esté listo para consumir créditos API.

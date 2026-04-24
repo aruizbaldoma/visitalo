@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { X, Sparkles, ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 
 const BRAND_BLUE = "#031834";
@@ -7,6 +8,7 @@ const BRAND_GREEN = "#3ccca4";
 const STORAGE_KEY = "visitalo:welcome_seen";
 
 export const WelcomePromoModal = () => {
+  const { t } = useTranslation();
   const { isAuthenticated, loading } = useAuth();
   const [open, setOpen] = useState(false);
 
@@ -67,7 +69,7 @@ export const WelcomePromoModal = () => {
         <button
           onClick={dismiss}
           className="absolute top-3 right-3 z-10 p-2 rounded-full hover:bg-white/10 transition-colors"
-          aria-label="Cerrar"
+          aria-label={t("common.close")}
           data-testid="welcome-promo-close"
         >
           <X className="w-4 h-4 text-white/70" />
@@ -84,7 +86,7 @@ export const WelcomePromoModal = () => {
               className="text-[11px] font-bold uppercase tracking-widest"
               style={{ color: BRAND_GREEN, letterSpacing: "0.18em" }}
             >
-              Regalo de bienvenida
+              {t("welcomePromo.badge")}
             </span>
           </div>
 
@@ -93,19 +95,18 @@ export const WelcomePromoModal = () => {
             style={{ letterSpacing: "-0.02em", lineHeight: "1.1" }}
             data-testid="welcome-promo-title"
           >
-            5 búsquedas
+            {t("welcomePromo.titleLine1")}
             <br />
-            <span style={{ color: BRAND_GREEN }}>totalmente personalizadas</span>
+            <span style={{ color: BRAND_GREEN }}>{t("welcomePromo.titleLine2")}</span>
             <br />
-            gratis.
+            {t("welcomePromo.titleLine3")}
           </h2>
 
           <p
             className="text-white/75 text-sm md:text-base mb-7"
             style={{ lineHeight: "1.55" }}
           >
-            Regístrate en Visítalo y desbloquea 5 viajes a tu medida sin coste: alojamientos únicos,
-            experiencias curadas y cada detalle pensado para ti.
+            {t("welcomePromo.description")}
           </p>
 
           <button
@@ -114,7 +115,7 @@ export const WelcomePromoModal = () => {
             style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
             data-testid="welcome-promo-cta"
           >
-            Empezar gratis
+            {t("welcomePromo.cta")}
             <ArrowRight className="w-5 h-5" />
           </button>
 
@@ -123,7 +124,7 @@ export const WelcomePromoModal = () => {
             className="mt-4 text-xs text-white/50 hover:text-white/80 transition-colors"
             data-testid="welcome-promo-skip"
           >
-            Ahora no, gracias
+            {t("welcomePromo.skip")}
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { Mail, Instagram } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3bc8a1";
@@ -17,6 +18,7 @@ const XIcon = ({ className = "", style = {} }) => (
 );
 
 export const Footer = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -38,8 +40,7 @@ export const Footer = () => {
               />
             </div>
             <p className="text-sm mb-6 max-w-md opacity-80">
-              Plataforma española de planificación de viajes. Itinerarios personalizados, actividades
-              verificadas y reserva centralizada en una única herramienta.
+              {t("footer.description")}
             </p>
             <div className="flex gap-3">
               <a
@@ -70,27 +71,27 @@ export const Footer = () => {
           {/* Links */}
           <div>
             <h3 className="font-bold mb-4 font-heading" style={{ color: BRAND_BLUE }}>
-              Enlaces
+              {t("footer.links")}
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <a href="/" className="opacity-80 hover:opacity-100 transition-opacity">
-                  Inicio
+                  {t("footer.home")}
                 </a>
               </li>
               <li>
                 <a href="/blog" className="opacity-80 hover:opacity-100 transition-opacity">
-                  Blog
+                  {t("footer.blog")}
                 </a>
               </li>
               <li>
                 <a href="#como-funciona" className="opacity-80 hover:opacity-100 transition-opacity">
-                  Cómo funciona
+                  {t("footer.howItWorks")}
                 </a>
               </li>
               <li>
                 <a href="#contacto" className="opacity-80 hover:opacity-100 transition-opacity">
-                  Contacto
+                  {t("footer.contact")}
                 </a>
               </li>
             </ul>
@@ -99,7 +100,7 @@ export const Footer = () => {
           {/* Contact */}
           <div>
             <h3 className="font-bold mb-4 font-heading" style={{ color: BRAND_BLUE }}>
-              Contacto
+              {t("footer.contact")}
             </h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
@@ -123,34 +124,32 @@ export const Footer = () => {
         <div className="border-t border-gray-200 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs opacity-70">
-              © {currentYear} Visitalo.es. Todos los derechos reservados.
+              {t("footer.rights", { year: currentYear })}
             </p>
             <div className="flex gap-6 text-xs">
               <a
                 href="/legal/terminos"
                 className="opacity-70 hover:opacity-100 transition-opacity"
               >
-                Términos y Condiciones
+                {t("footer.terms")}
               </a>
               <a
                 href="/legal/privacidad"
                 className="opacity-70 hover:opacity-100 transition-opacity"
               >
-                Política de Privacidad
+                {t("footer.privacy")}
               </a>
               <a
                 href="/legal/cookies"
                 className="opacity-70 hover:opacity-100 transition-opacity"
               >
-                Política de Cookies
+                {t("footer.cookies")}
               </a>
             </div>
           </div>
 
           <p className="text-xs opacity-60 mt-4 text-center md:text-left">
-            * Visitalo.es puede recibir comisiones por reservas realizadas a través de
-            enlaces de afiliados. Esto no afecta al precio que pagas y nos ayuda a
-            mantener el servicio gratuito.
+            {t("footer.affiliates")}
           </p>
         </div>
       </div>
