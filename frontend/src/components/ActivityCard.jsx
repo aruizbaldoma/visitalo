@@ -1,10 +1,10 @@
 import { Info, RefreshCw, Trash2, Clock, MapPin, Euro, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getCivitatisUrl } from "../config/affiliates";
+import { getActivityBookingUrl } from "../config/affiliates";
 import { DeleteConfirmPopover } from "./DeleteConfirmPopover";
 
-export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative, onDelete }) => {
+export const ActivityCard = ({ activity, destination = "", isAuthenticated, onInfo, onAlternative, onDelete }) => {
   const { t } = useTranslation();
   const [showTooltip, setShowTooltip] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -131,11 +131,12 @@ export const ActivityCard = ({ activity, isAuthenticated, onInfo, onAlternative,
 
             {/* Botón Reservar Actividad */}
             <a
-              href={getCivitatisUrl(activity.title)}
+              href={getActivityBookingUrl(activity, destination)}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:shadow-lg transition-all"
               style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
+              data-testid={`book-activity-${activity.activityId}`}
             >
               {t("card.book")}
               <ExternalLink className="w-3 h-3" />

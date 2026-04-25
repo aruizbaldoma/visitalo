@@ -1,70 +1,47 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Camera,
-  Route,
-  Filter,
-  CheckCircle2,
-  Share2,
-  CalendarDays,
-  Ban,
-  Puzzle,
-  ListChecks,
-  Star,
-  Flame,
-  Compass,
-  TrendingUp,
-  Heart,
-  SlidersHorizontal,
-  Lock,
-  Layers,
-  Wand2,
-  ThumbsUp,
-  Check,
-} from "lucide-react";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
-// Each step pairs a phrase key with a matching icon component.
-// Icons are stroke-based, minimal and consistent with lucide-react set.
-const STEPS = [
-  { key: "loading.m1", Icon: Camera },
-  { key: "loading.m2", Icon: Route },
-  { key: "loading.m3", Icon: Filter },
-  { key: "loading.m4", Icon: CheckCircle2 },
-  { key: "loading.m5", Icon: Share2 },
-  { key: "loading.m6", Icon: CalendarDays },
-  { key: "loading.m7", Icon: Ban },
-  { key: "loading.m8", Icon: Puzzle },
-  { key: "loading.m9", Icon: ListChecks },
-  { key: "loading.m10", Icon: Star },
-  { key: "loading.m11", Icon: Flame },
-  { key: "loading.m12", Icon: Compass },
-  { key: "loading.m13", Icon: TrendingUp },
-  { key: "loading.m14", Icon: Heart },
-  { key: "loading.m15", Icon: SlidersHorizontal },
-  { key: "loading.m16", Icon: Lock },
-  { key: "loading.m17", Icon: Layers },
-  { key: "loading.m18", Icon: Wand2 },
-  { key: "loading.m19", Icon: ThumbsUp },
-  { key: "loading.m20", Icon: Check },
+// Loading messages rotate continuously while Gemini builds the trip.
+const MESSAGE_KEYS = [
+  "loading.m1",
+  "loading.m2",
+  "loading.m3",
+  "loading.m4",
+  "loading.m5",
+  "loading.m6",
+  "loading.m7",
+  "loading.m8",
+  "loading.m9",
+  "loading.m10",
+  "loading.m11",
+  "loading.m12",
+  "loading.m13",
+  "loading.m14",
+  "loading.m15",
+  "loading.m16",
+  "loading.m17",
+  "loading.m18",
+  "loading.m19",
+  "loading.m20",
 ];
 
 export const ItineraryLoading = () => {
   const { t } = useTranslation();
-  const [stepIdx, setStepIdx] = useState(0);
+  const [msgIdx, setMsgIdx] = useState(0);
   const [progress, setProgress] = useState(4);
 
-  // Rotate phrases (and icons) every 1.6s
+  // Rotate phrases every 1.6s
   useEffect(() => {
     const id = setInterval(() => {
-      setStepIdx((x) => (x + 1) % STEPS.length);
+      setMsgIdx((x) => (x + 1) % MESSAGE_KEYS.length);
     }, 1600);
     return () => clearInterval(id);
   }, []);
 
-  // Simulated progress (caps at 94% so it never visually finishes early)
+  // Simulated progress (caps at 94%)
   useEffect(() => {
     const id = setInterval(() => {
       setProgress((p) => {
@@ -77,8 +54,7 @@ export const ItineraryLoading = () => {
     return () => clearInterval(id);
   }, []);
 
-  const { Icon: CurrentIcon } = STEPS[stepIdx];
-  const currentPhrase = t(STEPS[stepIdx].key);
+  const currentPhrase = t(MESSAGE_KEYS[msgIdx]);
 
   return (
     <div
@@ -103,48 +79,57 @@ export const ItineraryLoading = () => {
           animation: "visitaloLoadingPop 280ms cubic-bezier(0.22,1,0.36,1) both",
         }}
       >
-        {/* Icon + phrase block: re-mounts on stepIdx change to replay slide-in */}
-        <div
-          className="overflow-hidden mx-auto"
-          style={{ minHeight: 96 }}
-          aria-hidden={false}
-        >
+        {/* Spinning brand favicon as compass — persistent across phrases */}
+        <div className="flex items-center justify-center mb-6">
           <div
-            key={stepIdx}
-            className="flex flex-col items-center justify-center gap-4"
+            className="relative flex items-center justify-center rounded-full"
             style={{
+              width: 96,
+              height: 96,
+              backgroundColor: "#eafaf4",
+            }}
+          >
+            {/* Outer subtle dashed ring acting as compass dial */}
+            <div
+              className="absolute inset-1 rounded-full"
+              style={{
+                border: `1.5px dashed ${BRAND_GREEN}55`,
+              }}
+              aria-hidden="true"
+            />
+            {/* Brand favicon spinning like a compass needle */}
+            <img
+              src="/favicon.png"
+              alt="Visitalo"
+              width="56"
+              height="56"
+              className="rounded-full"
+              style={{
+                width: 56,
+                height: 56,
+                animation: "visitaloLoadingCompassSpin 4s linear infinite",
+                transformOrigin: "center center",
+              }}
+              data-testid="loading-brand-spinner"
+            />
+          </div>
+        </div>
+
+        {/* Rotating phrase: slide-in from the right with fade */}
+        <div className="overflow-hidden" style={{ minHeight: 28 }}>
+          <p
+            key={msgIdx}
+            className="font-semibold leading-snug px-2"
+            style={{
+              color: BRAND_BLUE,
+              fontSize: 17,
               animation:
                 "visitaloLoadingSlideIn 420ms cubic-bezier(0.22,1,0.36,1) both",
             }}
-            data-testid="loading-step"
+            data-testid="loading-step-text"
           >
-            <div
-              className="flex items-center justify-center rounded-full"
-              style={{
-                width: 64,
-                height: 64,
-                backgroundColor: "#eafaf4",
-              }}
-            >
-              <CurrentIcon
-                size={30}
-                strokeWidth={1.9}
-                color={BRAND_GREEN}
-                data-testid="loading-step-icon"
-              />
-            </div>
-            <p
-              className="font-semibold leading-snug px-2"
-              style={{
-                color: BRAND_BLUE,
-                fontSize: 17,
-                minHeight: 24,
-              }}
-              data-testid="loading-step-text"
-            >
-              {currentPhrase}
-            </p>
-          </div>
+            {currentPhrase}
+          </p>
         </div>
 
         {/* Simulated progress bar */}
@@ -182,6 +167,10 @@ export const ItineraryLoading = () => {
         @keyframes visitaloLoadingPop {
           0% { opacity: 0; transform: translateY(8px) scale(0.97); }
           100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes visitaloLoadingCompassSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         @keyframes visitaloLoadingSlideIn {
           0% {

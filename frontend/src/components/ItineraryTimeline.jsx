@@ -199,6 +199,7 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails, o
 
       <AlternativesModal
         activity={selectedActivity}
+        destination={destination}
         isOpen={showAlternativesModal}
         onClose={() => setShowAlternativesModal(false)}
         onSelectAlternative={handleSelectAlternative}
@@ -438,6 +439,7 @@ const MomentSection = ({ icon, title, activities, color, isAuthenticated, onInfo
             return (
               <ActivityCard
                 activity={activity}
+                destination={destination}
                 isAuthenticated={isAuthenticated}
                 onInfo={onInfo}
                 onAlternative={onAlternative}
