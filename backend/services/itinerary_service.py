@@ -45,7 +45,9 @@ class ItineraryService:
         hotel_category: str = "standard",
         needs_hotel_recommendation: bool = False,
         user_plan: str = "basic",
-        preferences: Optional[Dict] = None
+        preferences: Optional[Dict] = None,
+        budget: Optional[str] = None,
+        budget_amount: Optional[float] = None,
     ) -> Dict:
         """
         Genera un itinerario profesional estructurado por días y momentos del día
@@ -100,7 +102,8 @@ class ItineraryService:
             destination, start_date, end_date, total_days,
             has_flights, arrival_time, departure_time,
             has_hotel, hotel_name, hotel_category,
-            needs_hotel_recommendation, user_plan, preferences
+            needs_hotel_recommendation, user_plan, preferences,
+            budget, budget_amount,
         )
     
     async def _generate_ai_itinerary(
@@ -117,7 +120,9 @@ class ItineraryService:
         hotel_category: str,
         needs_hotel_recommendation: bool,
         user_plan: str,
-        preferences: Optional[Dict]
+        preferences: Optional[Dict],
+        budget: Optional[str] = None,
+        budget_amount: Optional[float] = None,
     ) -> Dict:
         """
         Genera itinerario usando Gemini AI con nueva lógica Plus/Basic
@@ -128,6 +133,29 @@ class ItineraryService:
             has_hotel, hotel_name, hotel_category,
             needs_hotel_recommendation, user_plan, preferences
         )
+
+        # Rango de precio por actividad según presupuesto
+        # - Si el usuario eligió un modo de presupuesto (PLUS), lo usamos.
+        # - Si no eligió nada (Basic por defecto), aplicamos 10-30€ por actividad.
+        price_min, price_max, budget_label = self._derive_activity_price_range(
+            budget=budget,
+            budget_amount=budget_amount,
+            user_plan=user_plan,
+            total_days=total_days,
+        )
+
+        # Bloque de presupuesto que se inyecta en el prompt
+        budget_block = (
+            f"PRESUPUESTO POR ACTIVIDAD ({budget_label}):\n"
+            f"- Cada actividad turística debe costar entre {price_min:.0f}€ y {price_max:.0f}€.\n"
+            f"- NO incluyas actividades fuera de este rango.\n"
+            f"- Vuelos y hoteles siguen sin precio (price=null).\n"
+        )
+        if budget_amount and budget_amount > 0:
+            budget_block += (
+                f"- Presupuesto total orientativo por persona: ~{budget_amount:.0f}€ "
+                f"para todo el viaje (no lo sobrepases sumando actividades).\n"
+            )
         
         # Prompt profesional optimizado
         prompt = f"""Eres un experto en planificación de itinerarios de alta gama, especializado en crear experiencias personalizadas.
@@ -138,6 +166,7 @@ PERIODO: {start_date} a {end_date} ({total_days} días)
 CONTEXTO DEL VIAJE:
 {context}
 
+{budget_block}
 REGLAS CRÍTICAS DE FORMATO JSON:
 1. Cada día debe tener: MAÑANA, TARDE y NOCHE
 2. Cada actividad debe incluir: time, title, description, location, duration
@@ -639,6 +668,44 @@ JSON:"""
         
         return "\n".join(parts) if parts else ""
     
+    def _derive_activity_price_range(
+        self,
+        budget: Optional[str],
+        budget_amount: Optional[float],
+        user_plan: str,
+        total_days: int,
+    ):
+        """
+        Calcula el rango de precio por actividad (min, max, label) que se usará
+        en el prompt de Gemini para acotar los precios de las actividades.
+
+        Reglas:
+        - Si el usuario eligió un modo de presupuesto explícito → usar rangos por modo.
+        - Si no eligió nada (Basic por defecto) → 10-30€ por actividad.
+        - Si hay budget_amount, aplicamos un cap suave por actividad
+          (asumiendo ~3 actividades pagadas por día con margen).
+        """
+        mode_ranges = {
+            "saver":    (10.0, 25.0, "modo ahorro"),
+            "balanced": (25.0, 60.0, "equilibrado"),
+            "luxury":   (60.0, 200.0, "modo lujo, sin techo razonable"),
+        }
+
+        if budget and budget in mode_ranges:
+            pmin, pmax, label = mode_ranges[budget]
+        else:
+            # Default Basic / sin selección
+            pmin, pmax, label = 10.0, 30.0, "rango estándar"
+
+        # Cap suave a partir del budget total: ~3 actividades pagadas por día,
+        # dejando un 30% de margen para imprevistos / comida fuera del prompt.
+        if budget_amount and budget_amount > 0 and total_days > 0:
+            soft_cap_per_activity = (budget_amount * 0.7) / max(1, total_days * 3)
+            if soft_cap_per_activity < pmax:
+                pmax = max(pmin + 5.0, soft_cap_per_activity)
+
+        return pmin, pmax, label
+
     def _clean_json(self, text: str) -> str:
         """Limpia markdown y extrae JSON válido"""
         if '```json' in text:

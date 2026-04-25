@@ -1,39 +1,70 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Compass, Sparkles } from "lucide-react";
+import {
+  Camera,
+  Route,
+  Filter,
+  CheckCircle2,
+  Share2,
+  CalendarDays,
+  Ban,
+  Puzzle,
+  ListChecks,
+  Star,
+  Flame,
+  Compass,
+  TrendingUp,
+  Heart,
+  SlidersHorizontal,
+  Lock,
+  Layers,
+  Wand2,
+  ThumbsUp,
+  Check,
+} from "lucide-react";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
+// Each step pairs a phrase key with a matching icon component.
+// Icons are stroke-based, minimal and consistent with lucide-react set.
+const STEPS = [
+  { key: "loading.m1", Icon: Camera },
+  { key: "loading.m2", Icon: Route },
+  { key: "loading.m3", Icon: Filter },
+  { key: "loading.m4", Icon: CheckCircle2 },
+  { key: "loading.m5", Icon: Share2 },
+  { key: "loading.m6", Icon: CalendarDays },
+  { key: "loading.m7", Icon: Ban },
+  { key: "loading.m8", Icon: Puzzle },
+  { key: "loading.m9", Icon: ListChecks },
+  { key: "loading.m10", Icon: Star },
+  { key: "loading.m11", Icon: Flame },
+  { key: "loading.m12", Icon: Compass },
+  { key: "loading.m13", Icon: TrendingUp },
+  { key: "loading.m14", Icon: Heart },
+  { key: "loading.m15", Icon: SlidersHorizontal },
+  { key: "loading.m16", Icon: Lock },
+  { key: "loading.m17", Icon: Layers },
+  { key: "loading.m18", Icon: Wand2 },
+  { key: "loading.m19", Icon: ThumbsUp },
+  { key: "loading.m20", Icon: Check },
+];
+
 export const ItineraryLoading = () => {
   const { t } = useTranslation();
-
-  const MESSAGES = [
-    t("loading.m1"),
-    t("loading.m2"),
-    t("loading.m3"),
-    t("loading.m4"),
-    t("loading.m5"),
-    t("loading.m6"),
-    t("loading.m7"),
-    t("loading.m8"),
-    t("loading.m9"),
-    t("loading.m10"),
-  ];
-
-  const [msgIdx, setMsgIdx] = useState(0);
+  const [stepIdx, setStepIdx] = useState(0);
   const [progress, setProgress] = useState(4);
 
-  // Rotating messages every 1.8s
+  // Rotate phrases (and icons) every 1.6s
   useEffect(() => {
     const id = setInterval(() => {
-      setMsgIdx((x) => (x + 1) % MESSAGES.length);
-    }, 1800);
+      setStepIdx((x) => (x + 1) % STEPS.length);
+    }, 1600);
     return () => clearInterval(id);
-  }, [MESSAGES.length]);
+  }, []);
 
-  // Simulated progress: quick start, slows near 94% so it never visually "finishes"
-  // before the real response arrives.
+  // Simulated progress (caps at 94% so it never visually finishes early)
   useEffect(() => {
     const id = setInterval(() => {
       setProgress((p) => {
@@ -45,6 +76,9 @@ export const ItineraryLoading = () => {
     }, 380);
     return () => clearInterval(id);
   }, []);
+
+  const { Icon: CurrentIcon } = STEPS[stepIdx];
+  const currentPhrase = t(STEPS[stepIdx].key);
 
   return (
     <div
@@ -69,53 +103,49 @@ export const ItineraryLoading = () => {
           animation: "visitaloLoadingPop 280ms cubic-bezier(0.22,1,0.36,1) both",
         }}
       >
-        {/* Icon */}
-        <div className="flex items-center justify-center mb-6">
+        {/* Icon + phrase block: re-mounts on stepIdx change to replay slide-in */}
+        <div
+          className="overflow-hidden mx-auto"
+          style={{ minHeight: 96 }}
+          aria-hidden={false}
+        >
           <div
-            className="relative flex items-center justify-center rounded-full"
+            key={stepIdx}
+            className="flex flex-col items-center justify-center gap-4"
             style={{
-              width: 80,
-              height: 80,
-              backgroundColor: "#eafaf4",
+              animation:
+                "visitaloLoadingSlideIn 420ms cubic-bezier(0.22,1,0.36,1) both",
             }}
+            data-testid="loading-step"
           >
-            <Compass
-              size={38}
-              strokeWidth={1.8}
-              color={BRAND_GREEN}
+            <div
+              className="flex items-center justify-center rounded-full"
               style={{
-                animation: "visitaloLoadingSpin 7s linear infinite",
+                width: 64,
+                height: 64,
+                backgroundColor: "#eafaf4",
               }}
-              data-testid="loading-compass-icon"
-            />
-            <Sparkles
-              size={16}
-              strokeWidth={2}
-              color={BRAND_GREEN}
-              className="absolute"
+            >
+              <CurrentIcon
+                size={30}
+                strokeWidth={1.9}
+                color={BRAND_GREEN}
+                data-testid="loading-step-icon"
+              />
+            </div>
+            <p
+              className="font-semibold leading-snug px-2"
               style={{
-                top: -2,
-                right: -2,
-                animation: "visitaloLoadingTwinkle 1.8s ease-in-out infinite",
+                color: BRAND_BLUE,
+                fontSize: 17,
+                minHeight: 24,
               }}
-            />
+              data-testid="loading-step-text"
+            >
+              {currentPhrase}
+            </p>
           </div>
         </div>
-
-        {/* Rotating message (fades on change thanks to key + animation) */}
-        <p
-          key={msgIdx}
-          className="font-semibold leading-snug flex items-center justify-center"
-          style={{
-            color: BRAND_BLUE,
-            fontSize: 17,
-            minHeight: 52,
-            animation: "visitaloLoadingSwap 420ms ease-out both",
-          }}
-          data-testid="loading-rotating-message"
-        >
-          {MESSAGES[msgIdx]}
-        </p>
 
         {/* Simulated progress bar */}
         <div
@@ -153,17 +183,15 @@ export const ItineraryLoading = () => {
           0% { opacity: 0; transform: translateY(8px) scale(0.97); }
           100% { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes visitaloLoadingSpin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes visitaloLoadingTwinkle {
-          0%, 100% { opacity: 0.45; transform: scale(0.85); }
-          50% { opacity: 1; transform: scale(1.18); }
-        }
-        @keyframes visitaloLoadingSwap {
-          0% { opacity: 0; transform: translateY(6px); }
-          100% { opacity: 1; transform: translateY(0); }
+        @keyframes visitaloLoadingSlideIn {
+          0% {
+            opacity: 0;
+            transform: translateX(28px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0);
+          }
         }
       `}</style>
     </div>

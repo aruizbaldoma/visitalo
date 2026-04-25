@@ -44,6 +44,9 @@ class ItineraryRequest(BaseModel):
     needsHotelRecommendation: bool = False
     userPlan: str = "basic"  # basic or plus
     preferences: Optional[UserPreferences] = None
+    # Budget hints: drive Gemini to keep activity prices in a sensible range
+    budget: Optional[str] = None  # saver | balanced | luxury
+    budgetAmount: Optional[float] = None  # total trip cap per person (EUR)
 
 
 def get_db(req: Request) -> AsyncIOMotorDatabase:
@@ -121,7 +124,9 @@ async def generate_itinerary(
             hotel_category=request.hotelCategory,
             needs_hotel_recommendation=request.needsHotelRecommendation,
             user_plan=user_plan,
-            preferences=request.preferences.dict() if request.preferences else None
+            preferences=request.preferences.dict() if request.preferences else None,
+            budget=request.budget,
+            budget_amount=request.budgetAmount,
         )
         
         if not itinerary:

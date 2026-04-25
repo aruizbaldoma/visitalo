@@ -105,13 +105,25 @@ function MainApp() {
         refresh && refresh();
       }
 
+      const mergedDetails = searchData._preloadedDetails || travelDetails || {};
       const requestData = {
         destination: searchData.destination,
         startDate: searchData.startDate,
         endDate: searchData.endDate,
         userPlan: effectivePlan,
-        ...(searchData._preloadedDetails || travelDetails || {}),
+        ...mergedDetails,
       };
+
+      // Forward budget hints to backend if the user picked them in the modal
+      if (mergedDetails.budget) {
+        requestData.budget = mergedDetails.budget;
+      }
+      if (
+        mergedDetails.budgetAmount !== undefined &&
+        mergedDetails.budgetAmount !== null
+      ) {
+        requestData.budgetAmount = Number(mergedDetails.budgetAmount);
+      }
 
       const response = await axios.post(`${API}/api/generate-itinerary`, requestData);
 
