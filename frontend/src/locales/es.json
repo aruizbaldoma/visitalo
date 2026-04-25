@@ -253,14 +253,12 @@
       },
       "japan": {
         "destination": "Japón",
-        "duration": "10 días",
+        "duration": "20 días",
         "days": [
-          { "label": "Días 1-2", "plan": "Tokio: Shibuya, luces, comida y primeras sensaciones" },
-          { "label": "Día 3", "plan": "Hakone + vistas al Fuji + desconectar" },
-          { "label": "Días 4-5", "plan": "Kioto: templos, calles tradicionales y calma" },
-          { "label": "Día 6", "plan": "Nara + excursión diferente" },
-          { "label": "Días 7-8", "plan": "Osaka: comer bien + ambiente + noche" },
-          { "label": "Días 9-10", "plan": "Días abiertos + descubrir sitios que no tenías en mente" }
+          { "label": "Días 1-5", "plan": "Tokio: Shibuya, Shinjuku, comida callejera y primeras sensaciones" },
+          { "label": "Días 6-12", "plan": "Kioto: templos, calles tradicionales, día en Nara y excursión al Fuji" },
+          { "label": "Días 13-15", "plan": "Osaka: comer bien, ambiente y noches sin prisa" },
+          { "label": "Días 16-20", "plan": "Vuelta a Tokio: barrios sin filtros, tiendas pequeñas y rincones que descubres tú" }
         ]
       }
     }

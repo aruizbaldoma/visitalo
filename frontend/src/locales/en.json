@@ -253,14 +253,12 @@
       },
       "japan": {
         "destination": "Japan",
-        "duration": "10 days",
+        "duration": "20 days",
         "days": [
-          { "label": "Days 1-2", "plan": "Tokyo: Shibuya, lights, food and first impressions" },
-          { "label": "Day 3", "plan": "Hakone + views of Fuji + disconnect" },
-          { "label": "Days 4-5", "plan": "Kyoto: temples, traditional streets and calm" },
-          { "label": "Day 6", "plan": "Nara + a different kind of day trip" },
-          { "label": "Days 7-8", "plan": "Osaka: eat well + atmosphere + nightlife" },
-          { "label": "Days 9-10", "plan": "Open days + discovering spots you weren't expecting" }
+          { "label": "Days 1-5", "plan": "Tokyo: Shibuya, Shinjuku, street food and first impressions" },
+          { "label": "Days 6-12", "plan": "Kyoto: temples, traditional streets, a day in Nara and a Fuji side trip" },
+          { "label": "Days 13-15", "plan": "Osaka: eat well, atmosphere and unhurried nights" },
+          { "label": "Days 16-20", "plan": "Back to Tokyo: off-the-grid neighborhoods, tiny shops and corners you find yourself" }
         ]
       }
     }
