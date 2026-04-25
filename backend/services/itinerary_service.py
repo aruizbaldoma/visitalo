@@ -85,9 +85,12 @@ class ItineraryService:
         print(f"{'='*70}\n")
         
         # Calcular días
+        # Calcular días totales (rango inclusivo: del 8 al 9 de junio = 2 días)
         start = datetime.strptime(start_date, '%Y-%m-%d')
         end = datetime.strptime(end_date, '%Y-%m-%d')
-        total_days = (end - start).days
+        total_days = (end - start).days + 1
+        if total_days < 1:
+            total_days = 1
         
         if self.use_mock:
             return self._generate_mock_itinerary(
@@ -156,6 +159,19 @@ class ItineraryService:
                 f"- Presupuesto total orientativo por persona: ~{budget_amount:.0f}€ "
                 f"para todo el viaje (no lo sobrepases sumando actividades).\n"
             )
+
+        # Rango de precio del HOTEL según el modo de presupuesto.
+        # Si el usuario no eligió nada → modo "Equilibrado" por defecto.
+        hotel_min, hotel_max, hotel_label = self._derive_hotel_price_range(budget)
+        hotel_price_block = (
+            f"\nPRESUPUESTO POR HOTEL ({hotel_label}):\n"
+            f"- Si recomiendas hotel, su precio orientativo por persona y noche debe estar "
+            f"entre {hotel_min:.0f}€ y "
+            f"{(f'{hotel_max:.0f}€' if hotel_max is not None else 'sin techo (lujo)')}.\n"
+            f"- Refleja claramente este rango en `hotelRecommendation` "
+            f"(ej.: \"Hoteles 3-4★ en zona céntrica, ~80-150€/persona/noche\").\n"
+        )
+        budget_block += hotel_price_block
         
         # Prompt profesional optimizado
         prompt = f"""Eres un experto en planificación de itinerarios de alta gama, especializado en crear experiencias personalizadas.
@@ -170,11 +186,20 @@ CONTEXTO DEL VIAJE:
 REGLAS CRÍTICAS DE FORMATO JSON:
 1. Cada día debe tener: MAÑANA, TARDE y NOCHE
 2. Cada actividad debe incluir: time, title, description, location, duration
-3. **IMPORTANTE - PRECIOS**: 
+3. **IMPORTANTE - PRECIOS**:
    - Actividades turísticas: incluir campo "price" con valor numérico (ej: 45.50)
    - Vuelos y Hoteles: el campo "price" debe ser null o no incluirse
 4. Incluir campo "provider" en actividades (Civitatis, Viator, GetYourGuide)
 5. Nombres REALES de lugares y actividades específicas
+6. **DÍAS COMPLETOS — REGLA ESTRICTA**: el viaje son exactamente {total_days} días.
+   Tienes que generar {total_days} entradas en "days", una por cada día desde {start_date}
+   hasta {end_date} (rango inclusivo). NUNCA dejes ningún día con arrays vacíos.
+7. **DÍA DE LLEGADA**: si el usuario indicó hora de llegada, ajusta MAÑANA a esa hora;
+   si NO la indicó, asume llegada por la mañana y empieza con un plan suave (~10:00).
+8. **DÍA DE SALIDA / ÚLTIMO DÍA**: si el usuario indicó hora de regreso (departure_time),
+   acota el día a esa hora. Si NO la indicó, **trata el último día como un día completo
+   con actividades hasta las 20:00** — NO dejes el último día sólo con desayuno o
+   actividades de mañana.
 
 ESTRUCTURA JSON REQUERIDA:
 
@@ -705,6 +730,22 @@ JSON:"""
                 pmax = max(pmin + 5.0, soft_cap_per_activity)
 
         return pmin, pmax, label
+
+    def _derive_hotel_price_range(self, budget):
+        """
+        Rango de precio orientativo del hotel por persona/noche según el modo
+        de presupuesto. Si no se eligió nada → "Equilibrado".
+
+        - saver:    10-80€
+        - balanced: 70-200€  (default)
+        - luxury:   200€+ (sin techo)
+        """
+        ranges = {
+            "saver":    (10.0, 80.0,  "modo ahorro"),
+            "balanced": (70.0, 200.0, "equilibrado"),
+            "luxury":   (200.0, None, "modo lujo, sin techo"),
+        }
+        return ranges.get(budget) or ranges["balanced"]
 
     def _clean_json(self, text: str) -> str:
         """Limpia markdown y extrae JSON válido"""

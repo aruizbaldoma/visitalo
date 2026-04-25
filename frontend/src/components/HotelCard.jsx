@@ -11,10 +11,8 @@ export const HotelCard = ({ hotel, destination, isUserHotel = false, onInfo, onA
   if (!hotel) return null;
 
   const hotelName = hotel.name || "";
-  const bookingUrl =
-    hotel.website ||
-    hotel.hotel_url ||
-    `https://www.google.com/search?q=${encodeURIComponent(`${hotelName} ${destination || ""} reservar`)}`;
+  // Google search con SOLO el nombre del hotel + ciudad (sin "reservar")
+  const bookingUrl = `https://www.google.com/search?q=${encodeURIComponent(`${hotelName} ${destination || ""}`.trim())}`;
 
   const handleAlternative = () => {
     if (onAlternative) onAlternative(hotel);

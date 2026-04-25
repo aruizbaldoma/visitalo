@@ -63,7 +63,7 @@ const ACTIVITY_GROUPS = [
     items: [
       { id: "museums", label: "Museos y galerías", sub: "Lo imprescindible", Icon: Building2 },
       { id: "monuments", label: "Historia y monumentos", sub: "Los clásicos", Icon: Landmark },
-      { id: "instagram", label: "Sitios para stories de IG", sub: "Los mejores spots", Icon: Camera },
+      { id: "instagram", label: "Sitios para tus stories", sub: "Los mejores spots", Icon: Camera },
     ],
   },
   {
