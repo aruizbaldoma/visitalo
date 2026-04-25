@@ -95,7 +95,7 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
               data-testid="hero-title"
             >
               {isAuthenticated && user?.name
-                ? t("hero.titleLine1WithName", { name: user.name })
+                ? t("hero.titleLine1WithName", { name: String(user.name).trim().split(/\s+/)[0] })
                 : t("hero.titleLine1")}
               <br />
               <span style={{ color: BRAND_GREEN }}>{t("hero.titleLine2")}</span>
