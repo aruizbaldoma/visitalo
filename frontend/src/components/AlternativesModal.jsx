@@ -6,18 +6,19 @@ import { getActivityBookingUrl } from "../config/affiliates";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
+const DIFF_GREEN = "#0f9d6e"; // cheaper than original
+const DIFF_RED = "#d04141"; // pricier than original
 
-// Lightweight client-side mock that returns up to 2 alternatives:
-//  - "best value" (slightly cheaper, decent rating)
-//  - "best rated" (slightly pricier, top rating)
-// Replace with a real provider call (Civitatis / Viator / GetYourGuide) once available.
+// Random helper inclusive of both bounds, rounded to 2 decimals.
+const randInRange = (min, max) =>
+  Math.round((Math.random() * (max - min) + min) * 100) / 100;
+
+// Lightweight client-side mock that returns 2 alternatives with a wide
+// price range (0€ free → 100€). Replace with real provider API once available.
 const buildAlternatives = (activity) => {
   if (!activity) return [];
-  const basePrice =
-    typeof activity.price === "number" && activity.price > 0
-      ? activity.price
-      : 30;
 
+  // "Best value": tends to be cheaper. 0 € (free) up to ~60 €.
   const valueAlt = {
     ...activity,
     activityId: `${activity.activityId}_alt_value`,
@@ -26,9 +27,10 @@ const buildAlternatives = (activity) => {
     rating: 4.6,
     reviews: 1240,
     provider: activity.provider || "Civitatis",
-    price: Math.max(8, +(basePrice * 0.85).toFixed(2)),
+    price: randInRange(0, 60),
   };
 
+  // "Top rated": pricier on average. 20 € up to 100 €.
   const ratedAlt = {
     ...activity,
     activityId: `${activity.activityId}_alt_rated`,
@@ -40,7 +42,7 @@ const buildAlternatives = (activity) => {
       activity.provider && activity.provider.toLowerCase().includes("viator")
         ? "GetYourGuide"
         : "Viator",
-    price: +(basePrice * 1.12).toFixed(2),
+    price: randInRange(20, 100),
   };
 
   return [valueAlt, ratedAlt];
@@ -62,12 +64,59 @@ const StarRating = ({ rating }) => (
   </div>
 );
 
+/**
+ * Renders the alternative price + the diff vs the original activity:
+ *  - free  → "Gratis" (green)
+ *  - cheaper → green color  ("−12,00 € más barato")
+ *  - pricier → red color    ("+8,50 € más caro")
+ */
+const PriceDiff = ({ altPrice, basePrice, t }) => {
+  const isFree = !altPrice || altPrice <= 0;
+  const validBase = typeof basePrice === "number" && basePrice > 0;
+  const diff = validBase ? altPrice - basePrice : 0;
+  const isCheaper = diff < 0;
+  const diffAbs = Math.abs(diff).toFixed(2);
+
+  let priceColor = BRAND_BLUE;
+  if (validBase) priceColor = isCheaper ? DIFF_GREEN : DIFF_RED;
+  if (isFree) priceColor = DIFF_GREEN;
+
+  return (
+    <div className="flex flex-col items-end flex-shrink-0">
+      <div className="font-bold text-xl" style={{ color: priceColor }}>
+        {isFree ? t("alternatives.free") : `€${altPrice.toFixed(2)}`}
+      </div>
+      {validBase && !isFree && Math.abs(diff) >= 0.01 && (
+        <div
+          className="text-[11px] font-semibold mt-0.5"
+          style={{ color: priceColor }}
+          data-testid="alt-price-diff"
+        >
+          {isCheaper
+            ? t("alternatives.cheaperBy", { amount: diffAbs })
+            : t("alternatives.pricierBy", { amount: diffAbs })}
+        </div>
+      )}
+      {isFree && validBase && (
+        <div
+          className="text-[11px] font-semibold mt-0.5"
+          style={{ color: DIFF_GREEN }}
+          data-testid="alt-price-diff"
+        >
+          {t("alternatives.savingsFree", { amount: basePrice.toFixed(2) })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const AlternativesModal = ({
   activity,
   destination = "",
   isOpen,
   onClose,
   onSelectAlternative,
+  // eslint-disable-next-line no-unused-vars
   isAuthenticated,
 }) => {
   const { t } = useTranslation();
@@ -84,6 +133,10 @@ export const AlternativesModal = ({
   if (!isOpen || !activity) return null;
 
   const hasAlternatives = alternatives.length > 0;
+  const basePrice =
+    typeof activity.price === "number" && activity.price > 0
+      ? activity.price
+      : null;
 
   return (
     <div
@@ -104,6 +157,15 @@ export const AlternativesModal = ({
             <p className="text-sm text-gray-600 mt-1">
               {t("alternatives.subtitlePrefix")}{" "}
               <span className="font-semibold">{activity.title}</span>
+              {basePrice ? (
+                <span className="text-gray-500">
+                  {" "}
+                  ·{" "}
+                  {t("alternatives.originalPrice", {
+                    amount: basePrice.toFixed(2),
+                  })}
+                </span>
+              ) : null}
             </p>
           </div>
           <button
@@ -149,7 +211,7 @@ export const AlternativesModal = ({
                       <h4 className="font-semibold text-gray-900 leading-snug">
                         {alt.title}
                       </h4>
-                      <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-500 flex-wrap">
                         <StarRating rating={alt.rating} />
                         <span className="font-medium" style={{ color: BRAND_BLUE }}>
                           {alt.rating.toFixed(1)}
@@ -166,21 +228,7 @@ export const AlternativesModal = ({
                         </span>
                       </div>
                     </div>
-                    {isAuthenticated ? (
-                      <div
-                        className="font-bold text-xl flex-shrink-0"
-                        style={{ color: BRAND_BLUE }}
-                      >
-                        €{alt.price?.toFixed(2)}
-                      </div>
-                    ) : (
-                      <div
-                        className="blur-sm font-bold text-xl flex-shrink-0"
-                        style={{ color: BRAND_BLUE }}
-                      >
-                        €{alt.price?.toFixed(2)}
-                      </div>
-                    )}
+                    <PriceDiff altPrice={alt.price} basePrice={basePrice} t={t} />
                   </div>
 
                   <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100">
