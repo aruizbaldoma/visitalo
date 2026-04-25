@@ -309,32 +309,32 @@ export const seoItineraries = {
         "Si quieres saltarte el lío, abajo tienes la versión rápida.",
       ],
       days: [
-        { title: "Días 1–3: Aterrizaje y centro de Tokio.", periods: [
+        { dayLabel: "Días 1–3", title: "Aterrizaje y centro de Tokio.", periods: [
           { label: "Mañana", text: "Asakusa y Senso-ji para empezar suave. Café en un kissaten antiguo. Nada de prisa el primer día." },
           { label: "Tarde",  text: "Akihabara o Ueno según cuerpo. Parque de Ueno si quieres calma, Akiba si te flipa el caos." },
           { label: "Noche",  text: "Shinjuku con calma: Omoide Yokocho para cenar entre humo de yakitori y Golden Gai si te queda energía." },
         ]},
-        { title: "Días 4–5: Shibuya, Harajuku y vida cotidiana.", periods: [
+        { dayLabel: "Días 4–5", title: "Shibuya, Harajuku y vida cotidiana.", periods: [
           { label: "Mañana", text: "Cruce de Shibuya y subida al Shibuya Sky para ver la dimensión real de la ciudad. Brunch en Daikanyama." },
           { label: "Tarde",  text: "Harajuku, Takeshita Street y luego Omotesando para arquitectura. Yoyogi Park si hace bueno." },
           { label: "Noche",  text: "Izakaya por Ebisu o Nakameguro. Tokio se entiende en una mesa pequeña con cinco platos pequeños." },
         ]},
-        { title: "Días 6–7: Hakone + vistas al Fuji.", periods: [
+        { dayLabel: "Días 6–7", title: "Hakone + vistas al Fuji.", periods: [
           { label: "Mañana", text: "Tren a Hakone temprano. Pase Hakone Free Pass: ferry, teleférico y tren del valle del azufre." },
           { label: "Tarde",  text: "Onsen tradicional, kaiseki en ryokan. Si tienes suerte con el cielo, el Fuji se deja ver desde el lago Ashi." },
           { label: "Noche",  text: "Cena tradicional en el ryokan, baño de aguas termales y dormir como hace décadas." },
         ]},
-        { title: "Días 8–10: Kioto express (3 días).", periods: [
+        { dayLabel: "Días 8–10", title: "Kioto express (3 días).", periods: [
           { label: "Mañana", text: "Shinkansen Tokio–Kioto. Llegada y Fushimi Inari sin gente a primera hora del segundo día." },
           { label: "Tarde",  text: "Higashiyama, Kiyomizu-dera y un paseo lento por Gion. Café junto al canal Shirakawa." },
           { label: "Noche",  text: "Pontocho para cenar. Kioto de noche, con farolillos, es otra cosa." },
         ]},
-        { title: "Días 11–12: Día de Nara y vuelta a Tokio.", periods: [
+        { dayLabel: "Días 11–12", title: "Día de Nara y vuelta a Tokio.", periods: [
           { label: "Mañana", text: "Día en Nara: ciervos, Todai-ji y mochi recién hecho en Nakatanidou." },
           { label: "Tarde",  text: "Vuelta a Kioto y tarde en Arashiyama. Bambúes, paseo en barco si te apetece." },
           { label: "Noche",  text: "Cena tranquila y noche en Kioto. Mañana toca Shinkansen otra vez." },
         ]},
-        { title: "Días 13–14: Vuelta a Tokio: lo que dejaste pendiente.", periods: [
+        { dayLabel: "Días 13–14", title: "Vuelta a Tokio: lo que dejaste pendiente.", periods: [
           { label: "Mañana", text: "Tsukiji para desayunar (sí, el mercado exterior aún funciona). Sushi al filo del frío." },
           { label: "Tarde",  text: "Ginza para arquitectura y un capricho. Roppongi Hills para vista al atardecer." },
           { label: "Noche",  text: "Última cena donde te apetezca: ramen de Tonkotsu, sushi-ya pequeño o izakaya escondida. Brindis y a casa." },
@@ -364,32 +364,32 @@ export const seoItineraries = {
         "Want to skip the planning? Scroll to the bottom.",
       ],
       days: [
-        { title: "Days 1–3: Landing and central Tokyo.", periods: [
+        { dayLabel: "Days 1–3", title: "Landing and central Tokyo.", periods: [
           { label: "Morning",   text: "Asakusa and Senso-ji to ease in. Coffee at an old-school kissaten. No rush on day one." },
           { label: "Afternoon", text: "Akihabara or Ueno depending on energy. Ueno Park for calm, Akiba if you love the chaos." },
           { label: "Evening",   text: "Shinjuku slowly: Omoide Yokocho for dinner in yakitori smoke, Golden Gai if you've still got energy." },
         ]},
-        { title: "Days 4–5: Shibuya, Harajuku and everyday life.", periods: [
+        { dayLabel: "Days 4–5", title: "Shibuya, Harajuku and everyday life.", periods: [
           { label: "Morning",   text: "Shibuya Crossing and up Shibuya Sky to see the city's real scale. Brunch in Daikanyama." },
           { label: "Afternoon", text: "Harajuku, Takeshita Street, then Omotesando for architecture. Yoyogi Park if the sun's out." },
           { label: "Evening",   text: "Izakaya in Ebisu or Nakameguro. Tokyo makes sense on a tiny table with five small plates." },
         ]},
-        { title: "Days 6–7: Hakone + Fuji views.", periods: [
+        { dayLabel: "Days 6–7", title: "Hakone + Fuji views.", periods: [
           { label: "Morning",   text: "Early train to Hakone. Hakone Free Pass: ferry, ropeway and the sulfur valley train." },
           { label: "Afternoon", text: "Traditional onsen, kaiseki at a ryokan. If the sky is on your side, Fuji shows up from Lake Ashi." },
           { label: "Evening",   text: "Ryokan dinner, hot spring soak and sleep like decades ago." },
         ]},
-        { title: "Days 8–10: Kyoto express (3 days).", periods: [
+        { dayLabel: "Days 8–10", title: "Kyoto express (3 days).", periods: [
           { label: "Morning",   text: "Shinkansen Tokyo–Kyoto. Arrival, then Fushimi Inari empty at first light on day two." },
           { label: "Afternoon", text: "Higashiyama, Kiyomizu-dera and a slow walk through Gion. Coffee by the Shirakawa canal." },
           { label: "Evening",   text: "Pontocho for dinner. Kyoto at night with the lanterns is something else." },
         ]},
-        { title: "Days 11–12: Nara day and back to Tokyo.", periods: [
+        { dayLabel: "Days 11–12", title: "Nara day and back to Tokyo.", periods: [
           { label: "Morning",   text: "Day in Nara: deer, Todai-ji and fresh mochi at Nakatanidou." },
           { label: "Afternoon", text: "Back to Kyoto and an afternoon in Arashiyama. Bamboo and boat ride if you fancy." },
           { label: "Evening",   text: "Quiet dinner and night in Kyoto. Tomorrow: Shinkansen again." },
         ]},
-        { title: "Days 13–14: Back to Tokyo, the unfinished list.", periods: [
+        { dayLabel: "Days 13–14", title: "Back to Tokyo, the unfinished list.", periods: [
           { label: "Morning",   text: "Tsukiji for breakfast (yes, the outer market still rocks). Sushi on the edge of cold." },
           { label: "Afternoon", text: "Ginza for architecture and a small splurge. Roppongi Hills for sunset views." },
           { label: "Evening",   text: "Final dinner wherever calls — Tonkotsu ramen, tiny sushi-ya, hidden izakaya. Toast and home." },
@@ -423,32 +423,32 @@ export const seoItineraries = {
         "Si lo quieres más fácil, abajo te lo montamos en segundos.",
       ],
       days: [
-        { title: "Días 1–2: Aterrizaje, Wat Pho y primer khao soi.", periods: [
+        { dayLabel: "Días 1–2", title: "Aterrizaje, Wat Pho y primer khao soi.", periods: [
           { label: "Mañana", text: "Llegada y caída suave: Lumpini Park, café decente en Sathorn y respirar humedad." },
           { label: "Tarde",  text: "Gran Palacio + Wat Pho. Cuidado con timos a la entrada — solo informaciones oficiales." },
           { label: "Noche",  text: "Cena en un street food de barrio (Soi Polo Fried Chicken si tienes hambre real). Primera Chang fría." },
         ]},
-        { title: "Días 3–5: Templos, Chinatown y mercados.", periods: [
+        { dayLabel: "Días 3–5", title: "Templos, Chinatown y mercados.", periods: [
           { label: "Mañana", text: "Wat Arun al amanecer cruzando en barco. Foto sin mochileros si vas pronto." },
           { label: "Tarde",  text: "Chinatown (Yaowarat) — el mejor street food de la ciudad. Pad thai, mango sticky rice y todo lo que pidas." },
           { label: "Noche",  text: "Rooftop al atardecer (Octave o Vertigo). Bangkok vista desde arriba justifica la paliza del día." },
         ]},
-        { title: "Días 6–7: Escapada a Ayutthaya.", periods: [
+        { dayLabel: "Días 6–7", title: "Escapada a Ayutthaya.", periods: [
           { label: "Mañana", text: "Tren o minibus a Ayutthaya. Ruinas, templos y bicicleta entre piedras viejas." },
           { label: "Tarde",  text: "Wat Mahathat y la cabeza de Buda en raíces. Un puesto local para comer y descanso." },
           { label: "Noche",  text: "Vuelta a Bangkok o noche en Ayutthaya — barata y tranquila." },
         ]},
-        { title: "Días 8–9: Khao Yai (parque nacional).", periods: [
+        { dayLabel: "Días 8–9", title: "Khao Yai (parque nacional).", periods: [
           { label: "Mañana", text: "Salida temprano hacia Khao Yai (3h). Trekking suave, cascadas, monos y gibones." },
           { label: "Tarde",  text: "Bodega tailandesa (sí, existen y están bien) o café-granja. Pernocta en una casa de campo." },
           { label: "Noche",  text: "Cena al aire libre, cielo estrellado y silencio. Reset total." },
         ]},
-        { title: "Días 10–11: Vuelta a Bangkok, masajes y vida nocturna.", periods: [
+        { dayLabel: "Días 10–11", title: "Vuelta a Bangkok, masajes y vida nocturna.", periods: [
           { label: "Mañana", text: "Mañana de spa tailandés en serio (Health Land o algo similar). Reset físico." },
           { label: "Tarde",  text: "Mercado de Chatuchak (sábado/domingo). Maratón de compras y comida — lleva agua." },
           { label: "Noche",  text: "Khao San Road si quieres ver el caos turístico. Soi 11 o Thonglor para algo más adulto." },
         ]},
-        { title: "Día 12: Día abierto + despedida.", periods: [
+        { dayLabel: "Día 12", title: "Día abierto + despedida.", periods: [
           { label: "Mañana", text: "Mercado flotante (Damnoen Saduak) si no lo viste. Salida muy temprano para evitar tour buses." },
           { label: "Tarde",  text: "Última comida en un sitio que descubriste tú. Aquí no hay reglas." },
           { label: "Noche",  text: "Cóctel final y aeropuerto. Bangkok te despide caliente, ruidosa y un poco enganchosa." },
@@ -478,32 +478,32 @@ export const seoItineraries = {
         "Want it easier? Scroll down — we'll build it in seconds.",
       ],
       days: [
-        { title: "Days 1–2: Landing, Wat Pho and first khao soi.", periods: [
+        { dayLabel: "Days 1–2", title: "Landing, Wat Pho and first khao soi.", periods: [
           { label: "Morning",   text: "Land and ease in: Lumpini Park, decent coffee in Sathorn, breathe the humidity." },
           { label: "Afternoon", text: "Grand Palace + Wat Pho. Watch out for entrance scams — official info only." },
           { label: "Evening",   text: "Dinner at a real local street food spot (Soi Polo Fried Chicken if you're starving). First cold Chang." },
         ]},
-        { title: "Days 3–5: Temples, Chinatown and markets.", periods: [
+        { dayLabel: "Days 3–5", title: "Temples, Chinatown and markets.", periods: [
           { label: "Morning",   text: "Wat Arun at sunrise crossing by boat. Photo without backpackers if you go early." },
           { label: "Afternoon", text: "Chinatown (Yaowarat) — the best street food in town. Pad thai, mango sticky rice, anything you point at." },
           { label: "Evening",   text: "Sunset rooftop (Octave or Vertigo). Bangkok from above justifies the day's heat." },
         ]},
-        { title: "Days 6–7: Ayutthaya side trip.", periods: [
+        { dayLabel: "Days 6–7", title: "Ayutthaya side trip.", periods: [
           { label: "Morning",   text: "Train or minivan to Ayutthaya. Ruins, temples and a bike between old stones." },
           { label: "Afternoon", text: "Wat Mahathat and the Buddha head in tree roots. A local stall for lunch and a long break." },
           { label: "Evening",   text: "Back to Bangkok or stay overnight in Ayutthaya — cheap and calm." },
         ]},
-        { title: "Days 8–9: Khao Yai (national park).", periods: [
+        { dayLabel: "Days 8–9", title: "Khao Yai (national park).", periods: [
           { label: "Morning",   text: "Early start for Khao Yai (3h). Easy trekking, waterfalls, monkeys and gibbons." },
           { label: "Afternoon", text: "Thai vineyard (yes, they exist and they're good) or farm café. Stay overnight at a country house." },
           { label: "Evening",   text: "Outdoor dinner, star-filled sky and silence. Full reset." },
         ]},
-        { title: "Days 10–11: Back to Bangkok, massages and nightlife.", periods: [
+        { dayLabel: "Days 10–11", title: "Back to Bangkok, massages and nightlife.", periods: [
           { label: "Morning",   text: "Proper Thai spa morning (Health Land or similar). Body reset." },
           { label: "Afternoon", text: "Chatuchak Market (weekend). Shopping and eating marathon — carry water." },
           { label: "Evening",   text: "Khao San Road if you want the tourist chaos. Soi 11 or Thonglor for something more adult." },
         ]},
-        { title: "Day 12: Open day + goodbye.", periods: [
+        { dayLabel: "Day 12", title: "Open day + goodbye.", periods: [
           { label: "Morning",   text: "Floating market (Damnoen Saduak) if you haven't yet. Very early to dodge tour buses." },
           { label: "Afternoon", text: "Last meal at a place you discovered yourself. No rules here." },
           { label: "Evening",   text: "Final cocktail and airport. Bangkok waves you off hot, loud and a little addictive." },
@@ -799,37 +799,37 @@ export const seoItineraries = {
         "Si lo quieres en automático, abajo tienes el atajo.",
       ],
       days: [
-        { title: "Día 1 — Midtown clásico para entrar bien.", periods: [
+        { title: "Midtown clásico para entrar bien.", periods: [
           { label: "Mañana", text: "Top of the Rock o Edge para vista (mejor que el Empire State, opinión de muchos). Después, paseo por la 5ª." },
           { label: "Tarde",  text: "Central Park: Bow Bridge, Bethesda, paseo sin ruta fija. Comida en algún food hall del centro." },
           { label: "Noche",  text: "Times Square solo para verlo (15 min) y cena en Hell's Kitchen, mucho mejor zona." },
         ]},
-        { title: "Día 2 — Museos y Upper East.", periods: [
+        { title: "Museos y Upper East.", periods: [
           { label: "Mañana", text: "MET o MoMA, no los dos. 2.5h máximo, no más." },
           { label: "Tarde",  text: "Upper East Side: Madison Avenue, Frick Collection si te van los museos pequeños." },
           { label: "Noche",  text: "Bar de cócteles en Upper East o vuelta a Midtown para un Broadway." },
         ]},
-        { title: "Día 3 — Downtown y Memorial.", periods: [
+        { title: "Downtown y Memorial.", periods: [
           { label: "Mañana", text: "9/11 Memorial + Museo. Reserva con tiempo. Es duro pero importante." },
           { label: "Tarde",  text: "Tribeca, Chinatown, Little Italy. Comida en Mott Street." },
           { label: "Noche",  text: "Cócteles en LES (Lower East Side), bares pequeños y sin filtro." },
         ]},
-        { title: "Día 4 — Brooklyn (todo el día).", periods: [
+        { title: "Brooklyn (todo el día).", periods: [
           { label: "Mañana", text: "Cruzar Brooklyn Bridge a primera hora — sí, aún merece. Brunch en DUMBO." },
           { label: "Tarde",  text: "Williamsburg: Smorgasburg si es sábado, paseo por Bedford Avenue, tienda de discos." },
           { label: "Noche",  text: "Cena en Williamsburg o Greenpoint. NY mejor que Manhattan, sin discusión." },
         ]},
-        { title: "Día 5 — Queens (la sorpresa).", periods: [
+        { title: "Queens (la sorpresa).", periods: [
           { label: "Mañana", text: "Long Island City: MoMA PS1, café junto al East River con skyline de Manhattan." },
           { label: "Tarde",  text: "Astoria: griegos, comida real y barrio que no parece NY." },
           { label: "Noche",  text: "Cervecería de barrio o vuelta a Manhattan al atardecer cruzando el puente." },
         ]},
-        { title: "Día 6 — High Line y vida en West Village.", periods: [
+        { title: "High Line y vida en West Village.", periods: [
           { label: "Mañana", text: "High Line desde Hudson Yards (subiéndote a The Vessel desde fuera). Camina toda la línea." },
           { label: "Tarde",  text: "Chelsea Market y luego West Village. Brownstones, calles en V — la zona más bonita de la ciudad." },
           { label: "Noche",  text: "Jazz en Smalls o Village Vanguard. NY de la peli." },
         ]},
-        { title: "Día 7 — Día abierto.", periods: [
+        { title: "Día abierto.", periods: [
           { label: "Mañana", text: "Vuelve al sitio que te flipó. Aquí no se discute, NY perdona la repetición." },
           { label: "Tarde",  text: "Compras pendientes, museo que te dejaste o ferry gratis a Staten Island (vistas a la Estatua sin pagar)." },
           { label: "Noche",  text: "Última cena. Si quieres tirar la casa, una pizza Joe's te despide igual de bien que un steakhouse." },
@@ -859,37 +859,37 @@ export const seoItineraries = {
         "Want it on auto? Scroll down.",
       ],
       days: [
-        { title: "Day 1 — Classic Midtown to break in.", periods: [
+        { title: "Classic Midtown to break in.", periods: [
           { label: "Morning",   text: "Top of the Rock or Edge (better than the Empire State for many). Then a walk down 5th." },
           { label: "Afternoon", text: "Central Park: Bow Bridge, Bethesda, no set route. Lunch in a Midtown food hall." },
           { label: "Evening",   text: "Times Square just to see it (15 min) and dinner in Hell's Kitchen, much better turf." },
         ]},
-        { title: "Day 2 — Museums and Upper East.", periods: [
+        { title: "Museums and Upper East.", periods: [
           { label: "Morning",   text: "MET or MoMA, not both. 2.5h max, no more." },
           { label: "Afternoon", text: "Upper East Side: Madison Avenue, Frick Collection if small museums are your thing." },
           { label: "Evening",   text: "Cocktail bar Upper East or back to Midtown for a Broadway show." },
         ]},
-        { title: "Day 3 — Downtown and Memorial.", periods: [
+        { title: "Downtown and Memorial.", periods: [
           { label: "Morning",   text: "9/11 Memorial + Museum. Book ahead. Heavy but important." },
           { label: "Afternoon", text: "Tribeca, Chinatown, Little Italy. Lunch on Mott Street." },
           { label: "Evening",   text: "Cocktails in LES (Lower East Side), small unfiltered bars." },
         ]},
-        { title: "Day 4 — Brooklyn (full day).", periods: [
+        { title: "Brooklyn (full day).", periods: [
           { label: "Morning",   text: "Cross Brooklyn Bridge early — still worth it. Brunch in DUMBO." },
           { label: "Afternoon", text: "Williamsburg: Smorgasburg on Saturdays, Bedford Avenue, record shop." },
           { label: "Evening",   text: "Dinner in Williamsburg or Greenpoint. Better than Manhattan, no debate." },
         ]},
-        { title: "Day 5 — Queens (the surprise).", periods: [
+        { title: "Queens (the surprise).", periods: [
           { label: "Morning",   text: "Long Island City: MoMA PS1, coffee on the East River with the Manhattan skyline." },
           { label: "Afternoon", text: "Astoria: Greek food, real life, a neighborhood that doesn't feel NY." },
           { label: "Evening",   text: "Local brewery or back to Manhattan at sunset crossing the bridge." },
         ]},
-        { title: "Day 6 — High Line and West Village life.", periods: [
+        { title: "High Line and West Village life.", periods: [
           { label: "Morning",   text: "High Line from Hudson Yards (peek at The Vessel from outside). Walk the entire line." },
           { label: "Afternoon", text: "Chelsea Market and then West Village. Brownstones, V-streets — the prettiest part of town." },
           { label: "Evening",   text: "Jazz at Smalls or Village Vanguard. Movie New York." },
         ]},
-        { title: "Day 7 — Open day.", periods: [
+        { title: "Open day.", periods: [
           { label: "Morning",   text: "Go back to the place that wowed you. NY forgives repetition." },
           { label: "Afternoon", text: "Pending shopping, that museum you skipped, or a free Staten Island ferry (Statue views, no fee)." },
           { label: "Evening",   text: "Last dinner. Splurge or a Joe's slice — both send you off properly." },
@@ -923,32 +923,32 @@ export const seoItineraries = {
         "Si te apetece atajar, abajo te montamos uno como este en segundos.",
       ],
       days: [
-        { title: "Días 1–3: Aterrizaje suave en Canggu.", periods: [
+        { dayLabel: "Días 1–3", title: "Aterrizaje suave en Canggu.", periods: [
           { label: "Mañana", text: "Llegar y respirar. Surf principiante en Batu Bolong, café en alguna brunch shop sin nombre escandaloso." },
           { label: "Tarde",  text: "Atardecer en La Brisa o Old Man's. Cena cerca del mar. Bali sin prisa." },
           { label: "Noche",  text: "Beach club si te apetece, masaje si no. Hay versión para los dos." },
         ]},
-        { title: "Días 4–7: Ubud — la Bali del interior.", periods: [
+        { dayLabel: "Días 4–7", title: "Ubud — la Bali del interior.", periods: [
           { label: "Mañana", text: "Tegallalang (arroceras) muy temprano. Cascada Tibumana o Tukad Cepung el día siguiente." },
           { label: "Tarde",  text: "Templo Saraswati en Ubud, Monkey Forest, paseo por la calle Dewi Sita." },
           { label: "Noche",  text: "Cena en Locavore-style (cocina balinesa moderna) o un warung familiar. Yoga al amanecer del día siguiente." },
         ]},
-        { title: "Día 8: Mount Batur (sunrise hike).", periods: [
+        { dayLabel: "Día 8", title: "Mount Batur (sunrise hike).", periods: [
           { label: "Mañana", text: "Salida 02:00, llegar arriba al amanecer. Café en la cima viendo el volcán despertar." },
           { label: "Tarde",  text: "Vuelta a Ubud, masaje de las piernas y tarde tranquila." },
           { label: "Noche",  text: "Cena suave y a dormir pronto. Te lo has ganado." },
         ]},
-        { title: "Días 9–10: Nusa Penida (la dura y bonita).", periods: [
+        { dayLabel: "Días 9–10", title: "Nusa Penida (la dura y bonita).", periods: [
           { label: "Mañana", text: "Ferry a Penida desde Sanur. Kelingking Beach (la del T-Rex) muy temprano." },
           { label: "Tarde",  text: "Diamond Beach, Atuh Beach. Caminos terribles, paisajes brutales." },
           { label: "Noche",  text: "Hotel sencillo en la isla, cena con vistas. Penida no es para lujo, es para naturaleza." },
         ]},
-        { title: "Días 11–12: Uluwatu (la costa surfera).", periods: [
+        { dayLabel: "Días 11–12", title: "Uluwatu (la costa surfera).", periods: [
           { label: "Mañana", text: "Vuelta a Bali grande. Padang Padang, Bingin, paseo por acantilados." },
           { label: "Tarde",  text: "Templo de Uluwatu y kecak fire dance al atardecer (sí, es turístico, pero merece)." },
           { label: "Noche",  text: "Sundowner en Single Fin (Uluwatu) o cena en un warung escondido. Surfistas, sal y rojos." },
         ]},
-        { title: "Días 13–14: Sidemen + última noche cualquiera.", periods: [
+        { dayLabel: "Días 13–14", title: "Sidemen + última noche cualquiera.", periods: [
           { label: "Mañana", text: "Sidemen para el último escape natural — arrozales sin gente, pueblos vivos." },
           { label: "Tarde",  text: "Trekking suave o nada. Aquí ganas el día sin hacer." },
           { label: "Noche",  text: "Última cena con vistas a las montañas. Ya está pasando." },
@@ -978,32 +978,32 @@ export const seoItineraries = {
         "Want a shortcut? Scroll down — we'll build it for you.",
       ],
       days: [
-        { title: "Days 1–3: Gentle landing in Canggu.", periods: [
+        { dayLabel: "Days 1–3", title: "Gentle landing in Canggu.", periods: [
           { label: "Morning",   text: "Land and breathe. Beginner surf at Batu Bolong, coffee at any unbranded brunch shop." },
           { label: "Afternoon", text: "Sunset at La Brisa or Old Man's. Dinner near the sea. Bali, no rush." },
           { label: "Evening",   text: "Beach club if you want it, massage if not. There's a version for both." },
         ]},
-        { title: "Days 4–7: Ubud — inland Bali.", periods: [
+        { dayLabel: "Days 4–7", title: "Ubud — inland Bali.", periods: [
           { label: "Morning",   text: "Tegallalang rice terraces very early. Tibumana waterfall or Tukad Cepung the next day." },
           { label: "Afternoon", text: "Saraswati Temple in Ubud, Monkey Forest, slow walk down Dewi Sita street." },
           { label: "Evening",   text: "Locavore-style modern Balinese dinner or a family warung. Sunrise yoga next morning." },
         ]},
-        { title: "Day 8: Mount Batur (sunrise hike).", periods: [
+        { dayLabel: "Day 8", title: "Mount Batur (sunrise hike).", periods: [
           { label: "Morning",   text: "Leave 2am, summit by sunrise. Coffee at the top watching the volcano wake up." },
           { label: "Afternoon", text: "Back to Ubud, leg massage and quiet afternoon." },
           { label: "Evening",   text: "Light dinner and early bed. Earned it." },
         ]},
-        { title: "Days 9–10: Nusa Penida (rough and beautiful).", periods: [
+        { dayLabel: "Days 9–10", title: "Nusa Penida (rough and beautiful).", periods: [
           { label: "Morning",   text: "Ferry to Penida from Sanur. Kelingking Beach (the T-Rex one) very early." },
           { label: "Afternoon", text: "Diamond Beach, Atuh Beach. Bad roads, brutal landscapes." },
           { label: "Evening",   text: "Simple stay on the island, dinner with views. Penida is for nature, not luxury." },
         ]},
-        { title: "Days 11–12: Uluwatu (surf coast).", periods: [
+        { dayLabel: "Days 11–12", title: "Uluwatu (surf coast).", periods: [
           { label: "Morning",   text: "Back to mainland Bali. Padang Padang, Bingin, cliff walks." },
           { label: "Afternoon", text: "Uluwatu Temple and the kecak fire dance at sunset (touristy, still worth it)." },
           { label: "Evening",   text: "Sundowner at Single Fin (Uluwatu) or dinner at a hidden warung. Surfers, salt and red skies." },
         ]},
-        { title: "Days 13–14: Sidemen + last open night.", periods: [
+        { dayLabel: "Days 13–14", title: "Sidemen + last open night.", periods: [
           { label: "Morning",   text: "Sidemen for one last natural escape — empty rice terraces and living villages." },
           { label: "Afternoon", text: "Easy trek or nothing at all. Here you win the day by doing less." },
           { label: "Evening",   text: "Last dinner with mountain views. It's happening." },

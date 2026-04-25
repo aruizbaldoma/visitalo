@@ -46,13 +46,13 @@ const labels = {
   },
 };
 
-const DayBlock = ({ index, title, periods, lang }) => (
+const DayBlock = ({ index, title, periods, lang, dayLabel }) => (
   <article className="mb-10">
     <h2
       className="text-2xl md:text-3xl font-bold mb-2 font-heading"
       style={{ color: BRAND_BLUE, letterSpacing: "-0.01em" }}
     >
-      {labels[lang].dayPrefix(index + 1)}
+      {dayLabel || labels[lang].dayPrefix(index + 1)}
     </h2>
     <p className="text-base text-gray-600 mb-6" style={{ lineHeight: "1.6" }}>
       {title}
@@ -177,6 +177,7 @@ export default function DestinationItinerary({ data }) {
                 title={d.title}
                 periods={d.periods}
                 lang={lang}
+                dayLabel={d.dayLabel}
               />
             ))}
           </div>
