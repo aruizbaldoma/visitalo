@@ -42,6 +42,7 @@
   },
   "hero": {
     "titleLine1": "Visítalo todo.",
+    "titleLine1WithName": "Visítalo todo, {{name}}.",
     "titleLine2": "No te dejes nada atrás.",
     "subtitle": "Tu próximo viaje, montado en segundos. Sin foros, sin Excel, sin dramas. Solo hacer la maleta."
   },
@@ -233,6 +234,7 @@
     "titleLine1": "Mira lo que",
     "titleLine2": "te vamos a montar.",
     "subtitle": "Tres ejemplos para que pilles el rollo: desde un finde exprés hasta un mesazo por Asia. Tú solo pones la mochila.",
+    "viewMoreCta": "Ver más destinos",
     "trips": {
       "barcelona": {
         "destination": "Barcelona",

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "./AuthModal";
 import { WelcomeModal } from "./WelcomeModal";
+import { getLocalizedPath } from "../utils/localizedPaths";
 
 const LANGUAGES = [
   { code: "ES", lng: "es", name: "Español", cc: "es" },
@@ -74,6 +75,18 @@ export const Header = () => {
   const handleLangChange = (lng) => {
     i18n.changeLanguage(lng);
     setShowLangMenu(false);
+
+    // If we're on a localized route (e.g. /destinos, /roma-en-3-dias),
+    // navigate to the equivalent slug in the target language. Use a hard
+    // navigation so SEO components (Helmet, hreflang, canonical) are
+    // re-rendered with the correct lang from the start.
+    if (typeof window !== "undefined") {
+      const current = window.location.pathname;
+      const target = getLocalizedPath(current, lng);
+      if (target && target !== current) {
+        window.location.assign(target + window.location.search + window.location.hash);
+      }
+    }
   };
 
   const handleUserClick = () => {

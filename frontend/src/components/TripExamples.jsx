@@ -1,11 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { MapPin, Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MapPin, Calendar, ArrowRight } from "lucide-react";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
 
 export const TripExamples = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isEN = (i18n.language || "es").toLowerCase().startsWith("en");
+  const destinosPath = isEN ? "/destinations" : "/destinos";
 
   // The daily breakdown items come from i18n (arrays), one per trip.
   const trips = [
@@ -121,6 +124,19 @@ export const TripExamples = () => {
               </ul>
             </article>
           ))}
+        </div>
+
+        {/* CTA: Ver más destinos */}
+        <div className="mt-10 md:mt-14 flex justify-center">
+          <Link
+            to={destinosPath}
+            className="inline-flex items-center gap-2 px-7 py-4 rounded-full font-bold text-base transition-all hover:scale-[1.03] hover:shadow-lg"
+            style={{ backgroundColor: BRAND_BLUE, color: "#fff" }}
+            data-testid="examples-view-more-button"
+          >
+            {t("examples.viewMoreCta")}
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </div>
     </section>

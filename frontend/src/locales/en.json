@@ -42,6 +42,7 @@
   },
   "hero": {
     "titleLine1": "Visit it all.",
+    "titleLine1WithName": "Visit it all, {{name}}.",
     "titleLine2": "Miss nothing.",
     "subtitle": "Your next trip, planned in seconds. No forums, no spreadsheets, no drama. Just pack your bag."
   },
@@ -233,6 +234,7 @@
     "titleLine1": "See what we'll",
     "titleLine2": "build for you.",
     "subtitle": "Three quick examples so you get the vibe: from an express weekend to a whole month across Asia. You just grab the backpack.",
+    "viewMoreCta": "View more destinations",
     "trips": {
       "barcelona": {
         "destination": "Barcelona",

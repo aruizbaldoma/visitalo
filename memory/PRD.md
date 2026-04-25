@@ -92,5 +92,10 @@
 - **Auth**: cualquier cambio → llamar `integration_playbook_expert_v2` primero.
 - **Test credentials**: `/app/memory/test_credentials.md` (demo@visitalo.es).
 
+## Changelog reciente (Feb 2026 — sesión actual)
+- ✅ Personalización del Hero: muestra "Visítalo todo, {name}." cuando el usuario está logueado (`hero.titleLine1WithName` ES/EN).
+- ✅ TripExamples: nuevo CTA "Ver más destinos / View more destinations" enlazado a `/destinos` (ES) o `/destinations` (EN).
+- ✅ Language Switcher con mapeo bidireccional ES↔EN para rutas localizadas (`/destinos`↔`/destinations` y los 10 itinerarios SEO con sus slugs traducidos). Implementado en `/app/frontend/src/utils/localizedPaths.js` y consumido por `Header.jsx`.
+
 ---
 **Última Actualización**: Febrero 2026

@@ -94,7 +94,9 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
               style={{ color: BRAND_BLUE, letterSpacing: "-0.03em", lineHeight: "1.05" }}
               data-testid="hero-title"
             >
-              {t("hero.titleLine1")}
+              {isAuthenticated && user?.name
+                ? t("hero.titleLine1WithName", { name: user.name })
+                : t("hero.titleLine1")}
               <br />
               <span style={{ color: BRAND_GREEN }}>{t("hero.titleLine2")}</span>
             </h1>
