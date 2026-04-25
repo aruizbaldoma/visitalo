@@ -17,6 +17,8 @@ import BlogPost from "./pages/BlogPost";
 import MyTrips from "./pages/MyTrips";
 import Legal from "./pages/Legal";
 import RoutePage from "./pages/Route";
+import RomeIn3DaysES from "./pages/RomeIn3DaysES";
+import RomeIn3DaysEN from "./pages/RomeIn3DaysEN";
 import { CookieBanner } from "./components/CookieBanner";
 
 const API = process.env.REACT_APP_BACKEND_URL;
@@ -38,6 +40,8 @@ function App() {
             <Route path="/misviajes" element={<MyTrips />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/legal/:slug" element={<Legal />} />
+            <Route path="/roma-en-3-dias" element={<RomeIn3DaysES />} />
+            <Route path="/rome-in-3-days" element={<RomeIn3DaysEN />} />
             <Route path="*" element={<MainApp />} />
           </Routes>
           <CookieBanner />
