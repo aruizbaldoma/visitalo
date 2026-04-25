@@ -1,8 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { ArrowRight, Bus, Bed, Sun, MapPin } from "lucide-react";
+import { ArrowRight, Bus, Bed, Sun, MapPin, Calendar } from "lucide-react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { getRelatedDestinations } from "../data/seoItineraries";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
@@ -31,6 +32,10 @@ const labels = {
     ctaButton: "Planificar mi viaje",
     altLink: "Read this guide in English",
     dayPrefix: (n) => `Día ${n}`,
+    relatedTitle: "Otros itinerarios que te pueden interesar",
+    relatedSubtitle: "Mismo rollo, otro destino. Échales un ojo.",
+    relatedCta: "Ver itinerario",
+    relatedHubLink: "Ver todos los itinerarios",
   },
   en: {
     tipsTitle: (dest) => `Travel tips for ${dest}`,
@@ -43,6 +48,10 @@ const labels = {
     ctaButton: "Plan my trip",
     altLink: "Léelo en español",
     dayPrefix: (n) => `Day ${n}`,
+    relatedTitle: "Other itineraries you might like",
+    relatedSubtitle: "Same vibe, different destination. Take a look.",
+    relatedCta: "See itinerary",
+    relatedHubLink: "Browse all itineraries",
   },
 };
 
@@ -265,6 +274,82 @@ export default function DestinationItinerary({ data }) {
             ) : null}
           </div>
         </section>
+
+        {/* RELATED ITINERARIES — internal linking boost */}
+        {data._id ? (
+          <section className="py-12 md:py-16 px-4">
+            <div className="max-w-5xl mx-auto px-2 md:px-6">
+              <div className="flex items-end justify-between gap-4 mb-8 flex-wrap">
+                <div>
+                  <span
+                    className="inline-block text-xs font-semibold uppercase tracking-widest mb-2"
+                    style={{ color: BRAND_GREEN, letterSpacing: "0.18em" }}
+                  >
+                    {lang === "es" ? "Sigue explorando" : "Keep exploring"}
+                  </span>
+                  <h2
+                    className="text-2xl md:text-3xl font-bold font-heading"
+                    style={{ color: BRAND_BLUE, letterSpacing: "-0.01em", lineHeight: "1.15" }}
+                  >
+                    {L.relatedTitle}
+                  </h2>
+                  <p className="text-sm md:text-base text-gray-600 mt-2">
+                    {L.relatedSubtitle}
+                  </p>
+                </div>
+                <Link
+                  to={lang === "es" ? "/destinos" : "/destinations"}
+                  className="text-sm font-semibold inline-flex items-center gap-1 hover:underline"
+                  style={{ color: BRAND_GREEN }}
+                  data-testid={`related-hub-link-${lang}`}
+                >
+                  {L.relatedHubLink}
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+                {getRelatedDestinations(data._id, lang, 4).map((r) => (
+                  <Link
+                    key={r.id}
+                    to={`/${r.slug}`}
+                    className="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md hover:-translate-y-0.5 transition-all hover:border-[#3ccca4]/40 flex flex-col"
+                    data-testid={`related-${r.id}-${lang}`}
+                  >
+                    <span
+                      className="text-[11px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 self-start mb-3"
+                      style={{
+                        backgroundColor: "rgba(60,204,164,0.14)",
+                        color: BRAND_GREEN,
+                      }}
+                    >
+                      <Calendar className="w-3 h-3" strokeWidth={2.2} />
+                      {r.durationLabel}
+                    </span>
+                    <h3
+                      className="text-lg font-bold mb-3 flex items-center gap-1.5"
+                      style={{ color: BRAND_BLUE }}
+                    >
+                      <MapPin
+                        className="w-4 h-4 flex-shrink-0"
+                        style={{ color: BRAND_GREEN }}
+                        strokeWidth={2.2}
+                      />
+                      {r.destinationName}
+                    </h3>
+                    <span
+                      className="text-sm font-semibold inline-flex items-center gap-1 mt-auto"
+                      style={{ color: BRAND_GREEN }}
+                    >
+                      {L.relatedCta}
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         {/* CTA */}
         <section className="py-12 md:py-20 px-4">

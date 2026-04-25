@@ -18,6 +18,7 @@ import MyTrips from "./pages/MyTrips";
 import Legal from "./pages/Legal";
 import RoutePage from "./pages/Route";
 import DestinationItinerary from "./pages/DestinationItinerary";
+import Destinos from "./pages/Destinos";
 import { seoItinerariesBySlug } from "./data/seoItineraries";
 import { CookieBanner } from "./components/CookieBanner";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -42,6 +43,8 @@ function App() {
             <Route path="/misviajes" element={<MyTrips />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/legal/:slug" element={<Legal />} />
+            <Route path="/destinos" element={<Destinos lang="es" />} />
+            <Route path="/destinations" element={<Destinos lang="en" />} />
             {Object.keys(seoItinerariesBySlug).map((slug) => (
               <Route
                 key={slug}

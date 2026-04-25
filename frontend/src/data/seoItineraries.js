@@ -21,11 +21,15 @@ const buildUrls = (esSlug, enSlug) => ({
 export const seoItineraries = {
   /* ───────── ROME ───────── */
   rome: {
+    meta: { tripLength: "short", region: "europe", days: 3 },
     es: {
       slug: "roma-en-3-dias",
       lang: "es",
       ...buildUrls("roma-en-3-dias", "rome-in-3-days"),
       eyebrow: "Itinerario de Roma",
+      destinationName: "Roma",
+      durationLabel: "3 días",
+      highlights: ["Coliseo y Foro al amanecer", "Vaticano sin colas", "Atardecer en Trastevere"],
       title: "Roma en 3 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de Roma en 3 días con qué ver mañana, tarde y noche. Coliseo, Vaticano, Trastevere y más. Plan claro, sin liarte y listo para usar.",
@@ -66,6 +70,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("roma-en-3-dias", "rome-in-3-days"),
       eyebrow: "Rome itinerary",
+      destinationName: "Rome",
+      durationLabel: "3 days",
+      highlights: ["Colosseum & Forum at dawn", "Vatican without queues", "Sunset in Trastevere"],
       title: "Rome in 3 days: complete day-by-day itinerary | Visítalo",
       description:
         "Rome in 3 days itinerary with morning, afternoon and evening picks. Colosseum, Vatican, Trastevere and more. A clear plan, no fluff, ready to use.",
@@ -105,11 +112,15 @@ export const seoItineraries = {
 
   /* ───────── PARIS (5 days) ───────── */
   paris: {
+    meta: { tripLength: "medium", region: "europe", days: 5 },
     es: {
       slug: "paris-en-5-dias",
       lang: "es",
       ...buildUrls("paris-en-5-dias", "paris-in-5-days"),
       eyebrow: "Itinerario de París",
+      destinationName: "París",
+      durationLabel: "5 días",
+      highlights: ["Eiffel desde Trocadero", "Marais y vida de barrio", "Versalles + Montmartre"],
       title: "París en 5 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de París en 5 días: Torre Eiffel, Marais, Montmartre, Versalles y rincones que no salen en las guías. Plan claro, mañana, tarde y noche.",
@@ -160,6 +171,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("paris-en-5-dias", "paris-in-5-days"),
       eyebrow: "Paris itinerary",
+      destinationName: "Paris",
+      durationLabel: "5 days",
+      highlights: ["Eiffel from Trocadero", "Marais & neighborhood life", "Versailles + Montmartre"],
       title: "Paris in 5 days: complete day-by-day itinerary | Visítalo",
       description:
         "Paris in 5 days itinerary: Eiffel Tower, Marais, Montmartre, Versailles and corners off the typical guide. A clear morning–afternoon–evening plan.",
@@ -209,11 +223,15 @@ export const seoItineraries = {
 
   /* ───────── LONDON (3 days) ───────── */
   london: {
+    meta: { tripLength: "short", region: "europe", days: 3 },
     es: {
       slug: "londres-en-3-dias",
       lang: "es",
       ...buildUrls("londres-en-3-dias", "london-in-3-days"),
       eyebrow: "Itinerario de Londres",
+      destinationName: "Londres",
+      durationLabel: "3 días",
+      highlights: ["Westminster y South Bank", "Notting Hill y mercados", "Shoreditch y vistas"],
       title: "Londres en 3 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de Londres en 3 días: Westminster, museos, Camden, Shoreditch y los pubs que merecen la pena. Mañana, tarde y noche bien repartidas.",
@@ -254,6 +272,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("londres-en-3-dias", "london-in-3-days"),
       eyebrow: "London itinerary",
+      destinationName: "London",
+      durationLabel: "3 days",
+      highlights: ["Westminster & South Bank", "Notting Hill & markets", "Shoreditch & views"],
       title: "London in 3 days: complete day-by-day itinerary | Visítalo",
       description:
         "London in 3 days itinerary: Westminster, museums, Camden, Shoreditch and pubs worth the visit. A clear morning–afternoon–evening plan.",
@@ -293,11 +314,15 @@ export const seoItineraries = {
 
   /* ───────── TOKYO (14 days) ───────── */
   tokyo: {
+    meta: { tripLength: "long", region: "asia", days: 14 },
     es: {
       slug: "tokio-en-14-dias",
       lang: "es",
       ...buildUrls("tokio-en-14-dias", "tokyo-in-14-days"),
       eyebrow: "Itinerario de Tokio",
+      destinationName: "Tokio",
+      durationLabel: "14 días",
+      highlights: ["Shibuya, Harajuku y Shinjuku", "Kioto express + Nara", "Hakone con vistas al Fuji"],
       title: "Tokio en 14 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de Tokio en 14 días: barrios, escapadas a Hakone y Kioto, comida real, vida nocturna y rincones que no salen en las guías.",
@@ -353,6 +378,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("tokio-en-14-dias", "tokyo-in-14-days"),
       eyebrow: "Tokyo itinerary",
+      destinationName: "Tokyo",
+      durationLabel: "14 days",
+      highlights: ["Shibuya, Harajuku & Shinjuku", "Kyoto express + Nara", "Hakone with Fuji views"],
       title: "Tokyo in 14 days: complete day-by-day itinerary | Visítalo",
       description:
         "Tokyo in 14 days itinerary: neighborhoods, side trips to Hakone and Kyoto, real food, nightlife and corners off the typical guide.",
@@ -407,11 +435,15 @@ export const seoItineraries = {
 
   /* ───────── BANGKOK (12 days) ───────── */
   bangkok: {
+    meta: { tripLength: "long", region: "asia", days: 12 },
     es: {
       slug: "bangkok-en-12-dias",
       lang: "es",
       ...buildUrls("bangkok-en-12-dias", "bangkok-in-12-days"),
       eyebrow: "Itinerario de Bangkok",
+      destinationName: "Bangkok",
+      durationLabel: "12 días",
+      highlights: ["Templos y Wat Arun", "Ayutthaya + Khao Yai", "Vida nocturna en Thonglor"],
       title: "Bangkok en 12 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de Bangkok en 12 días con escapadas a Ayutthaya y Khao Yai. Templos, comida callejera, mercados nocturnos y planes que respiran.",
@@ -467,6 +499,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("bangkok-en-12-dias", "bangkok-in-12-days"),
       eyebrow: "Bangkok itinerary",
+      destinationName: "Bangkok",
+      durationLabel: "12 days",
+      highlights: ["Temples & Wat Arun", "Ayutthaya + Khao Yai", "Thonglor nightlife"],
       title: "Bangkok in 12 days: complete day-by-day itinerary | Visítalo",
       description:
         "Bangkok in 12 days itinerary with side trips to Ayutthaya and Khao Yai. Temples, street food, night markets and a plan that breathes.",
@@ -521,11 +556,15 @@ export const seoItineraries = {
 
   /* ───────── BARCELONA (3 days) ───────── */
   barcelona: {
+    meta: { tripLength: "short", region: "europe", days: 3 },
     es: {
       slug: "barcelona-en-3-dias",
       lang: "es",
       ...buildUrls("barcelona-en-3-dias", "barcelona-in-3-days"),
       eyebrow: "Itinerario de Barcelona",
+      destinationName: "Barcelona",
+      durationLabel: "3 días",
+      highlights: ["Sagrada Familia y Gràcia", "Atardecer en los Búnquers", "Tapas en El Born"],
       title: "Barcelona en 3 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de Barcelona en 3 días: Sagrada Familia, Gòtic, El Born, Gràcia, playa y atardecer en los Búnquers. Plan claro y sin caer en las turistadas.",
@@ -566,6 +605,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("barcelona-en-3-dias", "barcelona-in-3-days"),
       eyebrow: "Barcelona itinerary",
+      destinationName: "Barcelona",
+      durationLabel: "3 days",
+      highlights: ["Sagrada Familia & Gràcia", "Sunset at the Bunkers", "Tapas in El Born"],
       title: "Barcelona in 3 days: complete day-by-day itinerary | Visítalo",
       description:
         "Barcelona in 3 days itinerary: Sagrada Familia, Gothic Quarter, El Born, Gràcia, beach and sunset at the Bunkers. Clear plan, no tourist traps.",
@@ -605,11 +647,15 @@ export const seoItineraries = {
 
   /* ───────── LISBON (3 days) ───────── */
   lisbon: {
+    meta: { tripLength: "short", region: "europe", days: 3 },
     es: {
       slug: "lisboa-en-3-dias",
       lang: "es",
       ...buildUrls("lisboa-en-3-dias", "lisbon-in-3-days"),
       eyebrow: "Itinerario de Lisboa",
+      destinationName: "Lisboa",
+      durationLabel: "3 días",
+      highlights: ["Alfama y miradores", "Belém y Tajo", "Sintra de medio día"],
       title: "Lisboa en 3 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de Lisboa en 3 días: Alfama, Belém, miradores, fado, pasteles y un escape a Sintra. Plan claro y mañana, tarde y noche bien repartidas.",
@@ -650,6 +696,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("lisboa-en-3-dias", "lisbon-in-3-days"),
       eyebrow: "Lisbon itinerary",
+      destinationName: "Lisbon",
+      durationLabel: "3 days",
+      highlights: ["Alfama & viewpoints", "Belém & the Tagus", "Sintra half-day trip"],
       title: "Lisbon in 3 days: complete day-by-day itinerary | Visítalo",
       description:
         "Lisbon in 3 days itinerary: Alfama, Belém, viewpoints, fado, pastries and a Sintra escape. Clear morning–afternoon–evening plan.",
@@ -689,11 +738,15 @@ export const seoItineraries = {
 
   /* ───────── AMSTERDAM (4 days) ───────── */
   amsterdam: {
+    meta: { tripLength: "medium", region: "europe", days: 4 },
     es: {
       slug: "amsterdam-en-4-dias",
       lang: "es",
       ...buildUrls("amsterdam-en-4-dias", "amsterdam-in-4-days"),
       eyebrow: "Itinerario de Ámsterdam",
+      destinationName: "Ámsterdam",
+      durationLabel: "4 días",
+      highlights: ["Canales y Jordaan", "Museos icónicos", "Noord y Zaanse Schans"],
       title: "Ámsterdam en 4 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de Ámsterdam en 4 días: canales, Van Gogh, Jordaan, Noord, escape a Zaanse Schans y vida local sin acabar en Damrak.",
@@ -739,6 +792,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("amsterdam-en-4-dias", "amsterdam-in-4-days"),
       eyebrow: "Amsterdam itinerary",
+      destinationName: "Amsterdam",
+      durationLabel: "4 days",
+      highlights: ["Canals & Jordaan", "Iconic museums", "Noord & Zaanse Schans"],
       title: "Amsterdam in 4 days: complete day-by-day itinerary | Visítalo",
       description:
         "Amsterdam in 4 days itinerary: canals, Van Gogh, Jordaan, Noord, a Zaanse Schans escape and local life away from Damrak.",
@@ -783,11 +839,15 @@ export const seoItineraries = {
 
   /* ───────── NEW YORK (7 days) ───────── */
   newYork: {
+    meta: { tripLength: "medium", region: "americas", days: 7 },
     es: {
       slug: "nueva-york-en-7-dias",
       lang: "es",
       ...buildUrls("nueva-york-en-7-dias", "new-york-in-7-days"),
       eyebrow: "Itinerario de Nueva York",
+      destinationName: "Nueva York",
+      durationLabel: "7 días",
+      highlights: ["Midtown y Central Park", "Brooklyn y Queens reales", "Jazz en West Village"],
       title: "Nueva York en 7 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de Nueva York en 7 días: Manhattan, Brooklyn, Queens, museos, comida potente y vida real fuera de Times Square.",
@@ -848,6 +908,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("nueva-york-en-7-dias", "new-york-in-7-days"),
       eyebrow: "New York itinerary",
+      destinationName: "New York",
+      durationLabel: "7 days",
+      highlights: ["Midtown & Central Park", "Real Brooklyn & Queens", "Jazz in West Village"],
       title: "New York in 7 days: complete day-by-day itinerary | Visítalo",
       description:
         "New York in 7 days itinerary: Manhattan, Brooklyn, Queens, museums, big-flavor food and real life away from Times Square.",
@@ -907,11 +970,15 @@ export const seoItineraries = {
 
   /* ───────── BALI (14 days) ───────── */
   bali: {
+    meta: { tripLength: "long", region: "asia", days: 14 },
     es: {
       slug: "bali-en-14-dias",
       lang: "es",
       ...buildUrls("bali-en-14-dias", "bali-in-14-days"),
       eyebrow: "Itinerario de Bali",
+      destinationName: "Bali",
+      durationLabel: "14 días",
+      highlights: ["Ubud y arroceras", "Nusa Penida + Uluwatu", "Sidemen sin gente"],
       title: "Bali en 14 días: itinerario completo día a día | Visítalo",
       description:
         "Itinerario de Bali en 14 días: Ubud, Canggu, Uluwatu, Nusa Penida, Gili y arroceras. Plan claro y vida balinesa de verdad, no solo Insta.",
@@ -967,6 +1034,9 @@ export const seoItineraries = {
       lang: "en",
       ...buildUrls("bali-en-14-dias", "bali-in-14-days"),
       eyebrow: "Bali itinerary",
+      destinationName: "Bali",
+      durationLabel: "14 days",
+      highlights: ["Ubud & rice terraces", "Nusa Penida + Uluwatu", "Empty Sidemen"],
       title: "Bali in 14 days: complete day-by-day itinerary | Visítalo",
       description:
         "Bali in 14 days itinerary: Ubud, Canggu, Uluwatu, Nusa Penida and rice terraces. A clear plan and real Balinese life, not just Insta.",
@@ -1024,8 +1094,64 @@ export const seoItineraries = {
 export const seoItinerariesBySlug = (() => {
   const out = {};
   for (const id of Object.keys(seoItineraries)) {
-    out[seoItineraries[id].es.slug] = seoItineraries[id].es;
-    out[seoItineraries[id].en.slug] = seoItineraries[id].en;
+    out[seoItineraries[id].es.slug] = { ...seoItineraries[id].es, _id: id };
+    out[seoItineraries[id].en.slug] = { ...seoItineraries[id].en, _id: id };
   }
   return out;
 })();
+
+/**
+ * Returns up to `limit` related destinations for the given destination id.
+ * Priority:
+ *   1. Same tripLength + same region (perfect match)
+ *   2. Same tripLength (any region)
+ *   3. Same region (any tripLength)
+ *   4. Anything else
+ * Excludes the source destination itself.
+ */
+export const getRelatedDestinations = (sourceId, lang = "es", limit = 4) => {
+  if (!seoItineraries[sourceId]) return [];
+  const sourceMeta = seoItineraries[sourceId].meta;
+
+  const all = Object.keys(seoItineraries)
+    .filter((id) => id !== sourceId)
+    .map((id) => {
+      const meta = seoItineraries[id].meta;
+      let score = 0;
+      if (meta.tripLength === sourceMeta.tripLength) score += 2;
+      if (meta.region === sourceMeta.region) score += 1;
+      const data = seoItineraries[id][lang];
+      return {
+        id,
+        score,
+        slug: data.slug,
+        destinationName: data.destinationName,
+        durationLabel: data.durationLabel,
+        days: meta.days,
+        region: meta.region,
+        tripLength: meta.tripLength,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  return all.slice(0, limit);
+};
+
+/**
+ * Returns the full list for the /destinos hub.
+ */
+export const getAllDestinations = (lang = "es") =>
+  Object.keys(seoItineraries).map((id) => {
+    const data = seoItineraries[id][lang];
+    const meta = seoItineraries[id].meta;
+    return {
+      id,
+      slug: data.slug,
+      destinationName: data.destinationName,
+      durationLabel: data.durationLabel,
+      highlights: data.highlights || [],
+      days: meta.days,
+      region: meta.region,
+      tripLength: meta.tripLength,
+    };
+  });
