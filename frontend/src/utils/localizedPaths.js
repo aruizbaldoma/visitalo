@@ -10,7 +10,7 @@ import { seoItineraries } from "../data/seoItineraries";
 // that are not driven by seoItineraries data).
 const STATIC_PAIRS = [
   { es: "/destinos", en: "/destinations" },
-  { es: "/sobre", en: "/about" },
+  { es: "/sobre-nosotros", en: "/about-us" },
 ];
 
 // Build dynamic SEO itinerary slug pairs from the data file.

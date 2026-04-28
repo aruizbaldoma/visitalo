@@ -18,8 +18,8 @@ const BRAND_GREEN = "#3ccca4";
 const COPY = {
   es: {
     htmlLang: "es",
-    canonical: "https://visitalo.es/sobre",
-    altUrl: "https://visitalo.es/about",
+    canonical: "https://visitalo.es/sobre-nosotros",
+    altUrl: "https://visitalo.es/about-us",
     title: "Sobre nosotros · Visitalo.es",
     description:
       "Visítalo nació para que planificar viajes deje de ser un rollo. Somos un equipo joven que viaja mucho y diseña itinerarios rápidos, claros y a tu medida.",
@@ -80,8 +80,8 @@ const COPY = {
   },
   en: {
     htmlLang: "en",
-    canonical: "https://visitalo.es/about",
-    altUrl: "https://visitalo.es/sobre",
+    canonical: "https://visitalo.es/about-us",
+    altUrl: "https://visitalo.es/sobre-nosotros",
     title: "About us · Visitalo.es",
     description:
       "Visítalo was born to make trip planning suck less. We're a young team that travels a lot and builds fast, clear, tailor-made itineraries.",
@@ -153,9 +153,9 @@ export default function About({ lang = "es" }) {
         <title>{c.title}</title>
         <meta name="description" content={c.description} />
         <link rel="canonical" href={c.canonical} />
-        <link rel="alternate" hrefLang="es" href="https://visitalo.es/sobre" />
-        <link rel="alternate" hrefLang="en" href="https://visitalo.es/about" />
-        <link rel="alternate" hrefLang="x-default" href="https://visitalo.es/sobre" />
+        <link rel="alternate" hrefLang="es" href="https://visitalo.es/sobre-nosotros" />
+        <link rel="alternate" hrefLang="en" href="https://visitalo.es/about-us" />
+        <link rel="alternate" hrefLang="x-default" href="https://visitalo.es/sobre-nosotros" />
         <meta property="og:title" content={c.title} />
         <meta property="og:description" content={c.description} />
         <meta property="og:url" content={c.canonical} />

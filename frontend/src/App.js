@@ -46,8 +46,8 @@ function App() {
             <Route path="/legal/:slug" element={<Legal />} />
             <Route path="/destinos" element={<Destinos lang="es" />} />
             <Route path="/destinations" element={<Destinos lang="en" />} />
-            <Route path="/sobre" element={<About lang="es" />} />
-            <Route path="/about" element={<About lang="en" />} />
+            <Route path="/sobre-nosotros" element={<About lang="es" />} />
+            <Route path="/about-us" element={<About lang="en" />} />
             {Object.keys(seoItinerariesBySlug).map((slug) => (
               <Route
                 key={slug}

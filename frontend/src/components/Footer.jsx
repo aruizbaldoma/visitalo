@@ -34,7 +34,7 @@ export const Footer = () => {
   const { t, i18n } = useTranslation();
   const currentYear = new Date().getFullYear();
   const isEN = (i18n.language || "es").toLowerCase().startsWith("en");
-  const aboutPath = isEN ? "/about" : "/sobre";
+  const aboutPath = isEN ? "/about-us" : "/sobre-nosotros";
   const destinosPath = isEN ? "/destinations" : "/destinos";
 
   return (

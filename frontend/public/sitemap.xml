@@ -25,16 +25,16 @@
 
   <!-- About / Sobre nosotros -->
   <url>
-    <loc>https://visitalo.es/sobre</loc><lastmod>2026-04-28</lastmod><changefreq>monthly</changefreq><priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="es" href="https://visitalo.es/sobre"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://visitalo.es/about"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://visitalo.es/sobre"/>
+    <loc>https://visitalo.es/sobre-nosotros</loc><lastmod>2026-04-28</lastmod><changefreq>monthly</changefreq><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://visitalo.es/sobre-nosotros"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://visitalo.es/about-us"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://visitalo.es/sobre-nosotros"/>
   </url>
   <url>
-    <loc>https://visitalo.es/about</loc><lastmod>2026-04-28</lastmod><changefreq>monthly</changefreq><priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="es" href="https://visitalo.es/sobre"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://visitalo.es/about"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://visitalo.es/sobre"/>
+    <loc>https://visitalo.es/about-us</loc><lastmod>2026-04-28</lastmod><changefreq>monthly</changefreq><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://visitalo.es/sobre-nosotros"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://visitalo.es/about-us"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://visitalo.es/sobre-nosotros"/>
   </url>
 
   <!-- Destinations hub -->
