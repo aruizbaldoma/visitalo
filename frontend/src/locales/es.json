@@ -334,9 +334,7 @@
     "removeActivity": "Quitar actividad",
     "removeStay": "Quitar alojamiento",
     "book": "Reservar",
-    "by": "Por {{provider}}",
-    "priceFromLabel": "Desde",
-    "priceTooltip": "Precio orientativo. El precio final puede variar en GetYourGuide según horario, tipo de tour y extras seleccionados."
+    "by": "Por {{provider}}"
   },
   "deleteConfirm": {
     "defaultTitle": "¿Quitar esta parada del día?",

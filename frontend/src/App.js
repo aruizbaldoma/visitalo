@@ -146,11 +146,7 @@ function MainApp() {
       setItinerary(response.data.itinerary);
       toast.dismiss();
 
-      if (mockMode) {
-        toast.info("Modo Demo: itinerario de ejemplo generado");
-      } else {
-        toast.success("¡Itinerario generado exitosamente!");
-      }
+      toast.success("¡Itinerario generado exitosamente!");
 
       // Navegar a la nueva página /ruta
       navigate("/ruta");

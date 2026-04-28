@@ -151,10 +151,6 @@ class ItineraryService:
         budget_block = (
             f"PRESUPUESTO POR ACTIVIDAD ({budget_label}):\n"
             f"- Cada actividad turística debe costar entre {price_min:.0f}€ y {price_max:.0f}€.\n"
-            f"- IMPORTANTE: estima el precio como aparece en plataformas como "
-            f"GetYourGuide / Civitatis / Viator — es decir, el coste de un "
-            f"tour/experiencia con guía, acceso prioritario o extras incluidos, "
-            f"NO el precio de la entrada suelta del museo o monumento.\n"
             f"- NO incluyas actividades fuera de este rango.\n"
             f"- Vuelos y hoteles siguen sin precio (price=null).\n"
         )
@@ -715,17 +711,16 @@ JSON:"""
           (asumiendo ~3 actividades pagadas por día con margen).
         """
         mode_ranges = {
-            "saver":    (15.0, 50.0,  "modo ahorro"),
-            "balanced": (30.0, 90.0,  "equilibrado"),
-            "luxury":   (70.0, 250.0, "modo lujo, sin techo razonable"),
+            "saver":    (10.0, 25.0, "modo ahorro"),
+            "balanced": (25.0, 60.0, "equilibrado"),
+            "luxury":   (60.0, 200.0, "modo lujo, sin techo razonable"),
         }
 
         if budget and budget in mode_ranges:
             pmin, pmax, label = mode_ranges[budget]
         else:
-            # Default Basic / sin selección — alineado con precios reales de
-            # tours en GetYourGuide / Civitatis / Viator (no entradas sueltas).
-            pmin, pmax, label = 25.0, 90.0, "rango estándar"
+            # Default Basic / sin selección
+            pmin, pmax, label = 10.0, 30.0, "rango estándar"
 
         # Cap suave a partir del budget total: ~3 actividades pagadas por día,
         # dejando un 30% de margen para imprevistos / comida fuera del prompt.

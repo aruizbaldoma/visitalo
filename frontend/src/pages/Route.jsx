@@ -20,7 +20,7 @@ export default function RoutePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { itinerary, isMockMode, searchParams, travelDetails } = useItinerary();
+  const { itinerary, searchParams, travelDetails } = useItinerary();
   const [savingTrip, setSavingTrip] = useState(false);
 
   // Si no hay itinerario (entrada directa por URL / refresh limpio), redirige al home.
@@ -68,21 +68,6 @@ export default function RoutePage() {
         <title>{`Tu ruta · ${itinerary.destination || "Visitalo.es"}`}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
-
-      {isMockMode && (
-        <div
-          style={{
-            background: "linear-gradient(90deg, #f59e0b 0%, #f97316 100%)",
-            color: "white",
-            padding: "10px 16px",
-            textAlign: "center",
-            fontSize: "14px",
-            fontWeight: 500,
-          }}
-        >
-          MODO DEMO ACTIVO — itinerario de ejemplo
-        </div>
-      )}
 
       <Header />
 
