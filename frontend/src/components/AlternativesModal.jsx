@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { getActivityBookingUrl } from "../config/affiliates";
+import { useItinerary } from "../contexts/ItineraryContext";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
@@ -120,6 +121,7 @@ export const AlternativesModal = ({
   isAuthenticated,
 }) => {
   const { t } = useTranslation();
+  const { searchParams } = useItinerary();
   const [alternatives, setAlternatives] = useState([]);
 
   useEffect(() => {
@@ -245,7 +247,11 @@ export const AlternativesModal = ({
                       {t("alternatives.swap")}
                     </button>
                     <a
-                      href={getActivityBookingUrl(alt, destination)}
+                      href={getActivityBookingUrl(alt, {
+                        destination,
+                        startDate: searchParams?.startDate,
+                        endDate: searchParams?.endDate,
+                      })}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-white rounded-lg hover:shadow-md transition-all"

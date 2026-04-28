@@ -2,10 +2,12 @@ import { Info, RefreshCw, Trash2, Clock, MapPin, Euro, ExternalLink } from "luci
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getActivityBookingUrl } from "../config/affiliates";
+import { useItinerary } from "../contexts/ItineraryContext";
 import { DeleteConfirmPopover } from "./DeleteConfirmPopover";
 
 export const ActivityCard = ({ activity, destination = "", isAuthenticated, onInfo, onAlternative, onDelete }) => {
   const { t } = useTranslation();
+  const { searchParams } = useItinerary();
   const [showTooltip, setShowTooltip] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -131,7 +133,11 @@ export const ActivityCard = ({ activity, destination = "", isAuthenticated, onIn
 
             {/* Botón Reservar Actividad */}
             <a
-              href={getActivityBookingUrl(activity, destination)}
+              href={getActivityBookingUrl(activity, {
+                destination,
+                startDate: searchParams?.startDate,
+                endDate: searchParams?.endDate,
+              })}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:shadow-lg transition-all"

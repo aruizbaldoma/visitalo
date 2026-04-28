@@ -25,8 +25,8 @@ export const AFFILIATE_CONFIG = {
   CIVITATIS_AID: "PLACEHOLDER_CIVITATIS_AID",
   // https://www.viator.com/affiliates/
   VIATOR_AID: "PLACEHOLDER_VIATOR_AID",
-  // https://partner.getyourguide.com/
-  GYG_PARTNER_ID: "PLACEHOLDER_GYG_PID",
+  // https://partner.getyourguide.com/  (live partner ID)
+  GYG_PARTNER_ID: "NZOXWEV",
 };
 
 const PROVIDER_HOME = {
@@ -97,19 +97,70 @@ export const buildProductUrl = (activity) => {
 };
 
 /**
+ * Normalize any date value to YYYY-MM-DD (ISO date).
+ * Accepts: 'YYYY-MM-DD', ISO datetime strings, Date objects.
+ * Returns '' when the value can't be parsed.
+ */
+const toYMD = (value) => {
+  if (!value) return "";
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+/**
+ * Build a GetYourGuide search URL with our affiliate partner_id and optional
+ * travel dates so the user lands on availability for their trip.
+ *
+ * Format:
+ *   https://www.getyourguide.com/s/?q=<NAME>&partner_id=NZOXWEV
+ *     &date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
+ */
+export const buildGetYourGuideSearchUrl = (
+  query,
+  { startDate, endDate } = {},
+) => {
+  const url = new URL("https://www.getyourguide.com/s/");
+  const q = String(query || "").trim();
+  if (q) url.searchParams.set("q", q);
+  if (AFFILIATE_CONFIG.GYG_PARTNER_ID) {
+    url.searchParams.set("partner_id", AFFILIATE_CONFIG.GYG_PARTNER_ID);
+  }
+  const from = toYMD(startDate);
+  const to = toYMD(endDate);
+  if (from) url.searchParams.set("date_from", from);
+  if (to) url.searchParams.set("date_to", to);
+  return url.toString();
+};
+
+/**
  * Main helper used by ActivityCard and AlternativesModal.
  *
  * Order of preference:
  *  1) `activity.bookingUrl` — explicit URL coming from the API/affiliate feed.
- *  2) `buildProductUrl(activity)` — provider deep-link from a slug.
- *  3) `getProviderHomeUrl(activity.provider)` — provider home (always works).
+ *  2) GetYourGuide search URL pre-filtered by activity name + travel dates.
+ *
+ * Second arg supports both legacy call (string `destination`) and the new
+ * options object `{ destination, startDate, endDate }`.
  */
-// eslint-disable-next-line no-unused-vars
-export const getActivityBookingUrl = (activity, _destination = "") => {
+export const getActivityBookingUrl = (activity, opts = {}) => {
   if (activity?.bookingUrl) return activity.bookingUrl;
-  const productUrl = buildProductUrl(activity);
-  if (productUrl) return productUrl;
-  return getProviderHomeUrl(activity?.provider);
+  const options = typeof opts === "string" ? { destination: opts } : (opts || {});
+  const query =
+    activity?.title ||
+    activity?.name ||
+    options.destination ||
+    "";
+  return buildGetYourGuideSearchUrl(query, {
+    startDate: options.startDate,
+    endDate: options.endDate,
+  });
 };
 
 // Legacy named exports (kept so older imports keep working).
