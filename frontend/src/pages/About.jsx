@@ -25,7 +25,7 @@ const COPY = {
       "Visítalo nació para que planificar viajes deje de ser un rollo. Somos un equipo joven que viaja mucho y diseña itinerarios rápidos, claros y a tu medida.",
     eyebrow: "Sobre nosotros",
     h1Line1: "Detrás de Visítalo,",
-    h1Line2: "un equipo que viaja (mucho).",
+    h1Line2: "un equipo que viaja.",
     intro:
       "Llevamos años perdiendo fines de semana enteros entre pestañas, foros y hojas de Excel. Cada viaje empezaba con la misma frase: \"a ver, ¿por dónde se empieza?\". Y siempre acabábamos igual: cansados antes de salir de casa.",
     introSecond:
@@ -87,7 +87,7 @@ const COPY = {
       "Visítalo was born to make trip planning suck less. We're a young team that travels a lot and builds fast, clear, tailor-made itineraries.",
     eyebrow: "About us",
     h1Line1: "Behind Visítalo,",
-    h1Line2: "a team that travels (a lot).",
+    h1Line2: "a team that travels.",
     intro:
       "We've spent years burning entire weekends between tabs, forums and spreadsheets. Every trip started with the same line: \"so… where do we even begin?\" And we always ended up the same way: tired before we'd even left home.",
     introSecond:

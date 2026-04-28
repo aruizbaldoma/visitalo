@@ -1,5 +1,5 @@
 """
-Test suite for RutaPerfecta AI Travel Planner - Itinerary API
+Test suite for Visitalo.es Travel Planner - Itinerary API
 Tests the POST /api/generate-itinerary endpoint with Mock Mode
 """
 import pytest

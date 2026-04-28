@@ -1,5 +1,5 @@
 """
-Backend API Tests for RutaPerfecta Travel Planner
+Backend API Tests for Visitalo.es Travel Planner
 Tests the Gemini-powered travel search functionality
 """
 import pytest
