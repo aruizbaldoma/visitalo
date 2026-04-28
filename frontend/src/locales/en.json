@@ -334,7 +334,9 @@
     "removeActivity": "Remove activity",
     "removeStay": "Remove stay",
     "book": "Book",
-    "by": "By {{provider}}"
+    "by": "By {{provider}}",
+    "priceFromLabel": "From",
+    "priceTooltip": "Approximate price. Final price may vary on GetYourGuide based on time, tour type and selected extras."
   },
   "deleteConfirm": {
     "defaultTitle": "Drop this stop?",

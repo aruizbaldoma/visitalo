@@ -125,10 +125,20 @@ export const ActivityCard = ({ activity, destination = "", isAuthenticated, onIn
           <span className="text-xs text-gray-500">{t("card.by", { provider: activity.provider })}</span>
 
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Precio SIEMPRE visible */}
-            <div className="flex items-center gap-1 font-bold text-lg" style={{ color: '#031834' }}>
-              <Euro className="w-4 h-4" />
-              {activity.price?.toFixed(2)}
+            {/* Precio "desde", siempre visible — orientativo */}
+            <div
+              className="flex items-baseline gap-1.5 font-bold text-lg"
+              style={{ color: '#031834' }}
+              title={t("card.priceTooltip")}
+              data-testid={`activity-price-${activity.activityId}`}
+            >
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                {t("card.priceFromLabel")}
+              </span>
+              <span className="flex items-center gap-1">
+                <Euro className="w-4 h-4" />
+                {activity.price?.toFixed(2)}
+              </span>
             </div>
 
             {/* Botón Reservar Actividad */}
