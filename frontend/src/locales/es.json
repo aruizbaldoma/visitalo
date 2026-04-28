@@ -189,6 +189,18 @@
     "interested": "¡Me interesa!",
     "interestedSaving": "Guardando..."
   },
+  "extras": {
+    "title": "Servicios extra",
+    "fromLabel": "Desde",
+    "fromPrice": "Desde {{amount}}€",
+    "selected": "Añadido",
+    "comingSoon": "Próximamente",
+    "bookCta": "Reservar",
+    "insurance": { "label": "Cero dramas" },
+    "esim": { "label": "Aterriza conectado" },
+    "transport": { "label": "Ruta a tu aire" },
+    "flights": { "label": "¿Despegamos?" }
+  },
   "myTrips": {
     "title": "Mis Viajes · Visitalo.es",
     "heading": "Mis Viajes",

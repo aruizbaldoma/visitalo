@@ -189,6 +189,18 @@
     "interested": "I'm in!",
     "interestedSaving": "Saving..."
   },
+  "extras": {
+    "title": "Extra services",
+    "fromLabel": "From",
+    "fromPrice": "From €{{amount}}",
+    "selected": "Added",
+    "comingSoon": "Coming soon",
+    "bookCta": "Book",
+    "insurance": { "label": "Zero drama" },
+    "esim": { "label": "Land connected" },
+    "transport": { "label": "Drive your way" },
+    "flights": { "label": "Ready for takeoff?" }
+  },
   "myTrips": {
     "title": "My Trips · Visitalo.es",
     "heading": "My Trips",
