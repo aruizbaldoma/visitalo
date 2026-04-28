@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { MapPin, Calendar as CalendarIcon, Search } from "lucide-react";
+import { Calendar as CalendarIcon, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { RangeDatePicker } from "./RangeDatePicker";
+import { DestinationAutocomplete } from "./DestinationAutocomplete";
 
 const BRAND_BLUE = "#031834";
 
@@ -19,8 +20,6 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
     setSearchData(newData);
     if (onSearchDataChange) onSearchDataChange(newData);
   };
-
-  const handleDestination = (e) => update({ destination: e.target.value });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -62,16 +61,11 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
         <div className="flex flex-col md:flex-row md:items-stretch md:h-20">
           {/* Bloque 1: Destino */}
           <div className="flex-[1.3] flex items-center gap-3 px-5 py-4 md:py-0 min-h-[60px]">
-            <MapPin className="w-6 h-6 text-gray-400 flex-shrink-0" />
-            <input
-              type="text"
-              name="destination"
-              placeholder={t("search.destinationPlaceholder")}
+            <DestinationAutocomplete
               value={searchData.destination}
-              onChange={handleDestination}
-              className="w-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none font-medium bg-transparent"
-              required
-              data-testid="search-destination-input"
+              onChange={(destination) => update({ destination })}
+              placeholder={t("search.destinationPlaceholder")}
+              testId="search-destination-input"
             />
           </div>
 
