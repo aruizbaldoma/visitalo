@@ -196,10 +196,10 @@
     "selected": "Added",
     "comingSoon": "Coming soon",
     "bookCta": "Book",
-    "insurance": { "label": "Zero drama" },
-    "esim": { "label": "Land connected" },
-    "transport": { "label": "Drive your way" },
-    "flights": { "label": "Ready for takeoff?" }
+    "insurance": { "label": "Got travel insurance yet?" },
+    "esim": { "label": "Landing with data or without?" },
+    "transport": { "label": "Need a car or scooter?" },
+    "flights": { "label": "Still no flights booked?" }
   },
   "myTrips": {
     "title": "My Trips · Visitalo.es",

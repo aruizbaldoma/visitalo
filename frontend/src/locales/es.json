@@ -196,10 +196,10 @@
     "selected": "Añadido",
     "comingSoon": "Próximamente",
     "bookCta": "Reservar",
-    "insurance": { "label": "Cero dramas" },
-    "esim": { "label": "Aterriza conectado" },
-    "transport": { "label": "Ruta a tu aire" },
-    "flights": { "label": "¿Despegamos?" }
+    "insurance": { "label": "¿Ya tienes tu seguro de viaje?" },
+    "esim": { "label": "¿Aterrizas con datos o sin datos?" },
+    "transport": { "label": "¿Te buscamos coche o moto?" },
+    "flights": { "label": "¿Aún no tienes los vuelos?" }
   },
   "myTrips": {
     "title": "Mis Viajes · Visitalo.es",
