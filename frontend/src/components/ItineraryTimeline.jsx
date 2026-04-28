@@ -224,10 +224,10 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails, o
         </p>
       </div>
 
-      {/* Layout 3/4 + 1/4 en desktop, apilado en móvil/tablet */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Itinerario - 3/4 en desktop */}
-        <div className="lg:col-span-3 space-y-8">
+      {/* Layout 5/7 + 2/7 en desktop, apilado en móvil/tablet */}
+      <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
+        {/* Itinerario - 5/7 en desktop */}
+        <div className="lg:col-span-5 space-y-8">
           {/* Banner de vuelo de llegada (si el usuario lo indicó) */}
           {travelDetails?.transportReady && travelDetails?.arrivalDateTime && (
             <FlightInfoBanner
@@ -266,8 +266,8 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails, o
           )}
         </div>
 
-        {/* Sidebar - 1/4 en desktop, debajo en móvil/tablet */}
-        <div className="lg:col-span-1">
+        {/* Sidebar - 2/7 en desktop, debajo en móvil/tablet */}
+        <div className="lg:col-span-2">
           <ItinerarySidebar
             itinerary={itineraryData}
             isAuthenticated={isAuthenticated}

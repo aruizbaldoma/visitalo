@@ -84,7 +84,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
     <div className="lg:sticky lg:top-24 self-start">
       <div 
         className="bg-white shadow-lg p-6"
-        style={{ border: '2px solid #3ccca4', borderRadius: '12px', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}
+        style={{ border: '2px solid #3ccca4', borderRadius: '12px' }}
       >
         {/* Header */}
         <h3 className="text-xl font-bold mb-6" style={{ color: '#031834' }}>
@@ -174,7 +174,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                 <div
                   key={id}
                   data-testid={`extra-${id}`}
-                  className={`flex flex-col gap-2.5 p-3 rounded-xl border transition-all ${
+                  className={`p-3 rounded-xl border transition-all ${
                     !enabled
                       ? "border-gray-200 bg-gray-50 opacity-60"
                       : isSelected
@@ -182,7 +182,8 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                       : "border-gray-200 bg-white hover:border-[#3ccca4]/50"
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
+                  {/* Fila 1: icono + label */}
+                  <div className="flex items-center gap-2.5 mb-2.5">
                     <span
                       className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
                       style={{
@@ -198,13 +199,14 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                       />
                     </span>
                     <span
-                      className="text-sm font-semibold leading-tight"
+                      className="text-sm font-bold leading-tight"
                       style={{ color: "#031834" }}
                     >
                       {label}
                     </span>
                   </div>
 
+                  {/* Fila 2: botón principal + (cuando seleccionado) link reservar */}
                   <div className="flex items-center justify-between gap-2">
                     {enabled && isSelected && href ? (
                       <a
@@ -212,8 +214,13 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                         target="_blank"
                         rel="noopener noreferrer"
                         data-testid={`extra-link-${id}`}
-                        className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider hover:opacity-70 transition-opacity"
-                        style={{ color: "#3ccca4", letterSpacing: "0.12em" }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider hover:opacity-80 transition-opacity"
+                        style={{
+                          color: "#3ccca4",
+                          backgroundColor: "transparent",
+                          border: "1px solid #3ccca4",
+                          letterSpacing: "0.1em",
+                        }}
                       >
                         {t("extras.bookCta")}
                         <span aria-hidden="true">↗</span>
@@ -228,39 +235,40 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                         onClick={() => toggleExtra(id)}
                         data-testid={`extra-toggle-${id}`}
                         aria-pressed={isSelected}
-                        className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all hover:scale-[1.03] ${
+                        className={`flex-shrink-0 inline-flex items-center justify-center px-3 py-1.5 rounded-lg leading-none transition-all hover:scale-[1.03] ${
                           isSelected ? "shadow-md" : ""
                         }`}
                         style={
                           isSelected
-                            ? { backgroundColor: "#031834", color: "#fff" }
-                            : { backgroundColor: "#3ccca4", color: "#031834" }
+                            ? { backgroundColor: "#031834", color: "#fff", minHeight: "34px" }
+                            : { backgroundColor: "#3ccca4", color: "#031834", minHeight: "34px" }
                         }
                       >
                         {isSelected ? (
-                          <>
+                          <span className="inline-flex items-center gap-1.5 text-[12px] font-bold">
                             <Check className="w-3.5 h-3.5" strokeWidth={3} />
                             {t("extras.selected")}
-                          </>
+                          </span>
                         ) : (
-                          <>
+                          <span className="inline-flex items-baseline gap-1">
                             <span
-                              className="text-[10px] font-semibold opacity-70 uppercase tracking-wide"
-                              style={{ letterSpacing: "0.08em" }}
+                              className="text-[9px] font-semibold opacity-70 uppercase"
+                              style={{ letterSpacing: "0.1em" }}
                             >
                               {t("extras.fromLabel")}
                             </span>
-                            <span className="text-[13px] font-bold">
+                            <span className="text-[14px] font-bold">
                               {isEN
                                 ? `€${formattedAmount}`
                                 : `${formattedAmount}€`}
                             </span>
-                          </>
+                          </span>
                         )}
                       </button>
                     ) : (
                       <span
-                        className="flex-shrink-0 px-3 py-2 rounded-lg text-xs font-semibold bg-gray-200 text-gray-500"
+                        className="flex-shrink-0 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-gray-200 text-gray-500"
+                        style={{ minHeight: "34px", display: "inline-flex", alignItems: "center" }}
                         data-testid={`extra-disabled-${id}`}
                       >
                         {t("extras.comingSoon")}
