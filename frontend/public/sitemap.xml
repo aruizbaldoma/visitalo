@@ -23,6 +23,20 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- About / Sobre nosotros -->
+  <url>
+    <loc>https://visitalo.es/sobre</loc><lastmod>2026-04-28</lastmod><changefreq>monthly</changefreq><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://visitalo.es/sobre"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://visitalo.es/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://visitalo.es/sobre"/>
+  </url>
+  <url>
+    <loc>https://visitalo.es/about</loc><lastmod>2026-04-28</lastmod><changefreq>monthly</changefreq><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://visitalo.es/sobre"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://visitalo.es/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://visitalo.es/sobre"/>
+  </url>
+
   <!-- Destinations hub -->
   <url>
     <loc>https://visitalo.es/destinos</loc><lastmod>2026-04-25</lastmod><changefreq>weekly</changefreq><priority>0.95</priority>

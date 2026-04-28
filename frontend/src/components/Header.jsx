@@ -102,6 +102,12 @@ export const Header = () => {
     await logout();
   };
 
+  const isEN = (i18n.language || "es").toLowerCase().startsWith("en");
+  const aboutPath = isEN ? "/about" : "/sobre";
+  const destinosPath = isEN ? "/destinations" : "/destinos";
+  const aboutLabel = isEN ? "About" : "Sobre nosotros";
+  const destinosLabel = isEN ? "Destinations" : "Destinos";
+
   return (
     <>
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -118,6 +124,26 @@ export const Header = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Nav inline (oculto en móvil para no saturar) */}
+            <nav className="hidden md:flex items-center gap-5 mr-2" data-testid="header-nav">
+              <a
+                href={destinosPath}
+                className="text-sm font-medium hover:opacity-70 transition-opacity"
+                style={{ color: "#031834" }}
+                data-testid="header-link-destinos"
+              >
+                {destinosLabel}
+              </a>
+              <a
+                href={aboutPath}
+                className="text-sm font-medium hover:opacity-70 transition-opacity"
+                style={{ color: "#031834" }}
+                data-testid="header-link-about"
+              >
+                {aboutLabel}
+              </a>
+            </nav>
+
             {/* Selector de Idioma */}
             <div className="relative" ref={langRef}>
               <button

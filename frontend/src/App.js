@@ -19,6 +19,7 @@ import Legal from "./pages/Legal";
 import RoutePage from "./pages/Route";
 import DestinationItinerary from "./pages/DestinationItinerary";
 import Destinos from "./pages/Destinos";
+import About from "./pages/About";
 import { seoItinerariesBySlug } from "./data/seoItineraries";
 import { CookieBanner } from "./components/CookieBanner";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -45,6 +46,8 @@ function App() {
             <Route path="/legal/:slug" element={<Legal />} />
             <Route path="/destinos" element={<Destinos lang="es" />} />
             <Route path="/destinations" element={<Destinos lang="en" />} />
+            <Route path="/sobre" element={<About lang="es" />} />
+            <Route path="/about" element={<About lang="en" />} />
             {Object.keys(seoItinerariesBySlug).map((slug) => (
               <Route
                 key={slug}
