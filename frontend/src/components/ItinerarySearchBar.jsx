@@ -54,11 +54,11 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
     <div className="w-full">
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow-md overflow-hidden"
+        className="bg-white rounded-lg shadow-md"
         style={{ border: `4px solid ${BRAND_BLUE}` }}
         data-testid="itinerary-search-form"
       >
-        <div className="flex flex-col md:flex-row md:items-stretch md:h-20">
+        <div className="flex flex-col md:flex-row md:items-stretch md:h-20 rounded-md overflow-visible">
           {/* Bloque 1: Destino */}
           <div className="flex-[1.3] flex items-center gap-3 px-5 py-4 md:py-0 min-h-[60px]">
             <DestinationAutocomplete
