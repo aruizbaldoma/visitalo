@@ -12,6 +12,8 @@ import { Footer } from "./components/Footer";
 import { AuthCallback } from "./components/AuthCallback";
 import { useAuth } from "./contexts/AuthContext";
 import { ItineraryProvider, useItinerary } from "./contexts/ItineraryContext";
+import { verifyDestinationExists } from "./utils/verifyDestination";
+import { useTranslation } from "react-i18next";
 import BlogList from "./pages/BlogList";
 import BlogPost from "./pages/BlogPost";
 import MyTrips from "./pages/MyTrips";
@@ -67,6 +69,7 @@ function App() {
 function MainApp() {
   const { isAuthenticated, user, refresh } = useAuth();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
   const {
     setItinerary,
     setIsMockMode,
@@ -96,6 +99,21 @@ function MainApp() {
   const handleSearch = async (searchData) => {
     setIsLoading(true);
     setSearchParams(searchData);
+
+    // Validamos primero que el destino sea un lugar real (Google Places).
+    // Si no, mostramos un mensaje amable y no llamamos a Gemini.
+    const lang = (i18n.language || "es").toLowerCase().startsWith("en") ? "en" : "es";
+    const exists = await verifyDestinationExists(searchData.destination, lang);
+    if (!exists) {
+      setIsLoading(false);
+      toast.error(
+        lang === "en"
+          ? "We can't find that place — sounds awesome though! Try another spelling, or write us at info@visitalo.es and we'll add it to the map."
+          : "Vaya, ese sitio se nos escapa. Seguro que mola un montón. Prueba a escribirlo de otra forma, o cuéntanoslo a info@visitalo.es y lo metemos en el mapa.",
+        { duration: 8000 },
+      );
+      return;
+    }
 
     let effectivePlan = userPlan;
     try {
