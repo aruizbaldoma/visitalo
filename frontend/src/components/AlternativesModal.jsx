@@ -1,9 +1,7 @@
-import { X, Star, ExternalLink, Sparkles } from "lucide-react";
+import { X, Star, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
-import { getActivityBookingUrl } from "../config/affiliates";
-import { useItinerary } from "../contexts/ItineraryContext";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
@@ -121,7 +119,6 @@ export const AlternativesModal = ({
   isAuthenticated,
 }) => {
   const { t } = useTranslation();
-  const { searchParams } = useItinerary();
   const [alternatives, setAlternatives] = useState([]);
 
   useEffect(() => {
@@ -233,34 +230,19 @@ export const AlternativesModal = ({
                     <PriceDiff altPrice={alt.price} basePrice={basePrice} t={t} />
                   </div>
 
-                  <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex items-center justify-end gap-3 mt-3 pt-3 border-t border-gray-100">
                     <button
                       type="button"
                       onClick={() => {
                         onSelectAlternative(alt);
                         onClose();
                       }}
-                      className="text-sm font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-                      style={{ color: BRAND_BLUE }}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:shadow-lg transition-all"
+                      style={{ backgroundColor: BRAND_GREEN, borderRadius: "8px" }}
                       data-testid={`select-alt-${alt.altKind}`}
                     >
                       {t("alternatives.swap")}
                     </button>
-                    <a
-                      href={getActivityBookingUrl(alt, {
-                        destination,
-                        startDate: searchParams?.startDate,
-                        endDate: searchParams?.endDate,
-                      })}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-white rounded-lg hover:shadow-md transition-all"
-                      style={{ backgroundColor: BRAND_GREEN }}
-                      data-testid={`book-alt-${alt.altKind}`}
-                    >
-                      {t("card.book")}
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
                   </div>
                 </article>
               ))}
