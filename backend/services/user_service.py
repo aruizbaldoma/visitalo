@@ -1,20 +1,32 @@
 """
 Servicios de Usuario — lógica de plan PLUS, contador y suscripción
 """
+import os
 from datetime import datetime, timezone
 from typing import Dict
+
+
+def _unlimited_plus_emails() -> set:
+    """Lee de env var `UNLIMITED_PLUS_EMAILS` (separada por comas) la lista
+    de correos que tienen PLUS ilimitado gratuito (founders, team, etc.)."""
+    raw = os.environ.get("UNLIMITED_PLUS_EMAILS", "")
+    return {e.strip().lower() for e in raw.split(",") if e.strip()}
 
 
 def build_user_public(user_doc: Dict) -> Dict:
     """Construye el payload público del usuario calculando el plan efectivo.
 
     Reglas:
+    - Si el email está en `UNLIMITED_PLUS_EMAILS` → PLUS ilimitado gratuito.
     - Si `subscription_expires_at` existe y es futura → user_plan = 'plus' (suscripción activa).
     - Si no, y `plus_searches_remaining > 0` → user_plan = 'plus' (modo gratis de prueba).
     - Usuarios legacy (sin `plus_searches_remaining` en DB) → se tratan como recién creados (5 búsquedas PLUS).
     - En cualquier otro caso → user_plan = 'basic'.
     """
     now = datetime.now(timezone.utc)
+    email = (user_doc.get("email") or "").strip().lower()
+    is_unlimited = email in _unlimited_plus_emails()
+
     expires = user_doc.get("subscription_expires_at")
     raw_remaining = user_doc.get("plus_searches_remaining")
     if raw_remaining is None:
@@ -32,7 +44,13 @@ def build_user_public(user_doc: Dict) -> Dict:
             expires = expires.replace(tzinfo=timezone.utc)
         sub_active = expires > now
 
-    if sub_active:
+    if is_unlimited:
+        # Whitelist: PLUS ilimitado, contador simbólico alto, suscripción marcada
+        # como activa para que el frontend no muestre upsells ni paywalls.
+        plan = "plus"
+        sub_active = True
+        remaining = 9999
+    elif sub_active:
         plan = "plus"
     elif remaining > 0:
         plan = "plus"
@@ -66,6 +84,7 @@ async def ensure_migrated(db, user_doc: Dict) -> Dict:
 async def consume_plus_search(db, user_id: str) -> Dict:
     """Decrementa el contador de búsquedas PLUS gratis.
 
+    - Si el email está en `UNLIMITED_PLUS_EMAILS`: nunca decrementa.
     - Si la suscripción de pago está activa: no decrementa, plan efectivo = plus.
     - Si hay búsquedas gratis (>0): decrementa 1, plan efectivo para esta búsqueda = plus.
     - Si no queda ninguna: plan efectivo = basic (no decrementa).
@@ -73,6 +92,15 @@ async def consume_plus_search(db, user_id: str) -> Dict:
     user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     if not user_doc:
         return {"effective_plan": "basic", "plus_searches_remaining": 0, "subscription_active": False}
+
+    # Whitelist de emails con PLUS ilimitado gratuito → no descuenta nunca.
+    email = (user_doc.get("email") or "").strip().lower()
+    if email in _unlimited_plus_emails():
+        return {
+            "effective_plan": "plus",
+            "plus_searches_remaining": 9999,
+            "subscription_active": True,
+        }
 
     # Auto-migración de usuarios legacy (antes de introducir el contador).
     user_doc = await ensure_migrated(db, user_doc)
