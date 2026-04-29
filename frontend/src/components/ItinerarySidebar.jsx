@@ -1,4 +1,4 @@
-import { Euro, Info, Heart, ShieldCheck, SmartphoneNfc, Car, Plane, Check } from "lucide-react";
+import { Euro, Info, Heart, ShieldCheck, SmartphoneNfc, Car, Plane, Check, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AnimatedNumber } from "./AnimatedNumber";
@@ -182,8 +182,17 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                       : "border-gray-200 bg-white hover:border-[#3ccca4]/50"
                   }`}
                 >
-                  {/* Fila 1: icono + label */}
-                  <div className="flex items-center gap-2.5 mb-2.5">
+                  {/* Fila 1: icono + label (clic para toggle si está activo) */}
+                  <button
+                    type="button"
+                    onClick={enabled ? () => toggleExtra(id) : undefined}
+                    disabled={!enabled}
+                    aria-pressed={isSelected}
+                    data-testid={`extra-toggle-${id}`}
+                    className={`w-full flex items-center gap-2.5 mb-2.5 text-left ${
+                      enabled ? "cursor-pointer" : "cursor-not-allowed"
+                    }`}
+                  >
                     <span
                       className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
                       style={{
@@ -199,57 +208,50 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                       />
                     </span>
                     <span
-                      className="text-sm font-bold leading-tight"
+                      className="text-sm font-bold leading-tight flex-1"
                       style={{ color: "#031834" }}
                     >
                       {label}
                     </span>
-                  </div>
-
-                  {/* Fila 2: botón principal + (cuando seleccionado) link reservar */}
-                  <div className="flex items-center justify-between gap-2">
-                    {enabled && isSelected && href ? (
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        data-testid={`extra-link-${id}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider hover:opacity-80 transition-opacity"
-                        style={{
-                          color: "#3ccca4",
-                          backgroundColor: "transparent",
-                          border: "1px solid #3ccca4",
-                          letterSpacing: "0.1em",
-                        }}
-                      >
-                        {t("extras.bookCta")}
-                        <span aria-hidden="true">↗</span>
-                      </a>
-                    ) : (
-                      <span aria-hidden="true" />
+                    {enabled && isSelected && (
+                      <Check
+                        className="w-4 h-4"
+                        style={{ color: "#3ccca4" }}
+                        strokeWidth={3}
+                      />
                     )}
+                  </button>
 
+                  {/* Fila 2: un único botón */}
+                  <div className="flex justify-end">
                     {enabled ? (
-                      <button
-                        type="button"
-                        onClick={() => toggleExtra(id)}
-                        data-testid={`extra-toggle-${id}`}
-                        aria-pressed={isSelected}
-                        className={`flex-shrink-0 inline-flex items-center justify-center px-3 py-1.5 rounded-lg leading-none transition-all hover:scale-[1.03] ${
-                          isSelected ? "shadow-md" : ""
-                        }`}
-                        style={
-                          isSelected
-                            ? { backgroundColor: "#031834", color: "#fff", minHeight: "34px" }
-                            : { backgroundColor: "#3ccca4", color: "#031834", minHeight: "34px" }
-                        }
-                      >
-                        {isSelected ? (
-                          <span className="inline-flex items-center gap-1.5 text-[12px] font-bold">
-                            <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                            {t("extras.selected")}
-                          </span>
-                        ) : (
+                      isSelected && href ? (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          data-testid={`extra-link-${id}`}
+                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:shadow-lg transition-all"
+                          style={{
+                            backgroundColor: "#3ccca4",
+                            borderRadius: "8px",
+                          }}
+                        >
+                          {t("extras.bookCta")}
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => toggleExtra(id)}
+                          data-testid={`extra-price-${id}`}
+                          className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg leading-none transition-all hover:scale-[1.03]"
+                          style={{
+                            backgroundColor: "#3ccca4",
+                            color: "#031834",
+                            minHeight: "34px",
+                          }}
+                        >
                           <span className="inline-flex items-baseline gap-1">
                             <span
                               className="text-[9px] font-semibold opacity-70 uppercase"
@@ -263,12 +265,16 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                                 : `${formattedAmount}€`}
                             </span>
                           </span>
-                        )}
-                      </button>
+                        </button>
+                      )
                     ) : (
                       <span
-                        className="flex-shrink-0 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-gray-200 text-gray-500"
-                        style={{ minHeight: "34px", display: "inline-flex", alignItems: "center" }}
+                        className="px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-gray-200 text-gray-500"
+                        style={{
+                          minHeight: "34px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                        }}
                         data-testid={`extra-disabled-${id}`}
                       >
                         {t("extras.comingSoon")}
