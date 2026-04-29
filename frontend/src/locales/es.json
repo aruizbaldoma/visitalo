@@ -197,7 +197,7 @@
     "comingSoon": "Próximamente",
     "bookCta": "Reservar",
     "insurance": { "label": "¿Ya tienes tu seguro de viaje?" },
-    "esim": { "label": "¿Aterrizas con datos o sin datos?" },
+    "esim": { "label": "¿Buscamos ya tu eSIM?" },
     "transport": { "label": "¿Te buscamos coche o moto?" },
     "flights": { "label": "¿Aún no tienes los vuelos?" }
   },

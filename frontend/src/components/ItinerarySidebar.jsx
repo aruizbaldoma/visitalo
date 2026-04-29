@@ -1,4 +1,4 @@
-import { Euro, Info, Heart, ShieldCheck, SmartphoneNfc, Car, Plane, Check, ExternalLink } from "lucide-react";
+import { Euro, Info, Heart, ShieldCheck, Wifi, Car, Plane, Check, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AnimatedNumber } from "./AnimatedNumber";
@@ -15,7 +15,7 @@ const EXTRA_SERVICES = [
   },
   {
     id: "esim",
-    Icon: SmartphoneNfc,
+    Icon: Wifi,
     from: 4.5,
     href: "https://esim.holafly.com/",
     enabled: true,

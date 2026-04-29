@@ -197,7 +197,7 @@
     "comingSoon": "Coming soon",
     "bookCta": "Book",
     "insurance": { "label": "Got travel insurance yet?" },
-    "esim": { "label": "Landing with data or without?" },
+    "esim": { "label": "Want us to grab your eSIM?" },
     "transport": { "label": "Need a car or scooter?" },
     "flights": { "label": "Still no flights booked?" }
   },
