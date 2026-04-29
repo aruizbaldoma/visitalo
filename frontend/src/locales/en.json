@@ -184,7 +184,7 @@
     "title": "Trip summary",
     "totalActivities": "Total activities",
     "estimatedPrice": "Estimated total price",
-    "priceTooltip": "These prices may vary slightly on booking sites",
+    "priceTooltip": "Prices shown are estimates. Confirm final prices on the booking sites.",
     "priceDisclaimer": "Prices shown are estimates. Confirm final prices on the booking sites.",
     "interested": "I'm in!",
     "interestedSaving": "Saving..."

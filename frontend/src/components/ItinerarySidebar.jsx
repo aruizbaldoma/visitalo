@@ -26,6 +26,7 @@ const EXTRA_SERVICES = [
     from: null,
     href: null,
     enabled: false,
+    visible: false,
   },
   {
     id: "flights",
@@ -33,6 +34,7 @@ const EXTRA_SERVICES = [
     from: null,
     href: null,
     enabled: false,
+    visible: false,
   },
 ];
 
@@ -120,7 +122,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
               {/* Tooltip */}
               {showTooltip && (
                 <div 
-                  className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-gray-800 text-white text-xs rounded py-2 px-3 z-50"
+                  className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-gray-800 text-white text-xs rounded py-2 px-3 z-50 leading-relaxed"
                   style={{ whiteSpace: 'normal' }}
                 >
                   {t("sidebar.priceTooltip")}
@@ -158,7 +160,8 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
             {t("extras.title")}
           </p>
           <div className="space-y-2.5" data-testid="extras-list">
-            {EXTRA_SERVICES.map(({ id, Icon, from, href, enabled }) => {
+            {EXTRA_SERVICES.filter((s) => s.visible !== false).map(
+              ({ id, Icon, from, href, enabled }) => {
               const isSelected = !!selectedExtras[id];
               const label = t(`extras.${id}.label`);
               const formattedAmount = enabled
@@ -283,7 +286,8 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                   </div>
                 </div>
               );
-            })}
+            },
+            )}
           </div>
         </div>
 
