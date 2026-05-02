@@ -73,6 +73,7 @@ async def auth_google(request: GoogleTokenRequest, req: Request):
     picture = idinfo.get("picture")
 
     user_doc = await db.users.find_one({"email": email}, {"_id": 0})
+    now = datetime.now(timezone.utc)
     if not user_doc:
         user_id = f"user_{uuid4().hex[:12]}"
         user_doc = {
@@ -85,16 +86,18 @@ async def auth_google(request: GoogleTokenRequest, req: Request):
             "user_plan": "plus",
             "plus_searches_remaining": 5,
             "subscription_expires_at": None,
-            "created_at": datetime.now(timezone.utc),
+            "created_at": now,
+            "last_login_at": now,
         }
         await db.users.insert_one(user_doc)
     else:
         await db.users.update_one(
             {"user_id": user_doc["user_id"]},
-            {"$set": {"name": name, "picture": picture}},
+            {"$set": {"name": name, "picture": picture, "last_login_at": now}},
         )
         user_doc["name"] = name
         user_doc["picture"] = picture
+        user_doc["last_login_at"] = now
 
     session_token, _ = await _create_session_for_user(db, user_doc)
 
@@ -250,40 +253,46 @@ async def login_with_email(
     request: LoginRequest,
     req: Request
 ):
-    """Login con email/password"""
+    """Login con email/password.
+
+    Permite tanto cuentas nativas (auth_provider="email") como cuentas
+    Google a las que un admin haya establecido un password_hash mediante
+    el restablecimiento del dashboard.
+    """
     db = req.app.state.db
-    # Buscar usuario
-    user_doc = await db.users.find_one({"email": request.email}, {"_id": 0})
-    
+    user_doc = await db.users.find_one({"email": request.email.lower().strip()}, {"_id": 0})
+
     if not user_doc:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    
-    # Verificar que sea usuario de email (no Google)
-    if user_doc["auth_provider"] != "email":
+
+    password_hash = user_doc.get("password_hash")
+    if not password_hash:
         raise HTTPException(
             status_code=400,
-            detail="Esta cuenta usa Google Sign-In. Por favor, inicia sesión con Google."
+            detail="Esta cuenta usa Google Sign-In. Inicia sesión con Google.",
         )
-    
-    # Verificar password
-    if not verify_password(request.password, user_doc["password_hash"]):
+
+    if not verify_password(request.password, password_hash):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    
-    # Crear nueva sesión
+
+    # Actualizamos last_login_at y creamos sesión
+    now = datetime.now(timezone.utc)
+    await db.users.update_one(
+        {"user_id": user_doc["user_id"]},
+        {"$set": {"last_login_at": now}},
+    )
     session_token = generate_session_token()
-    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
-    
-    session = {
+    expires_at = now + timedelta(days=7)
+    await db.user_sessions.insert_one({
         "session_token": session_token,
         "user_id": user_doc["user_id"],
         "expires_at": expires_at,
-        "created_at": datetime.now(timezone.utc)
-    }
-    await db.user_sessions.insert_one(session)
-    
+        "created_at": now,
+    })
+    user_doc["last_login_at"] = now
     return {
         "user": build_user_public(user_doc),
-        "session_token": session_token
+        "session_token": session_token,
     }
 
 

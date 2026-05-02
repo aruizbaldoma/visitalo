@@ -17,6 +17,8 @@ from routes.trips_routes import trips_router
 from routes.subscription_routes import subscription_router
 from routes.stripe_routes import stripe_router
 from routes.insights_routes import insights_router
+from routes.admin_routes import admin_router
+from routes.track_routes import track_router
 
 
 ROOT_DIR = Path(__file__).parent
@@ -116,6 +118,8 @@ app.include_router(trips_router, prefix="/api/trips")  # Viajes guardados
 app.include_router(subscription_router, prefix="/api/subscription")  # Suscripción PLUS (Stripe-ready)
 app.include_router(stripe_router, prefix="/api")  # Stripe Checkout + webhooks
 app.include_router(insights_router, prefix="/api/insights")  # Captura de datos para análisis
+app.include_router(admin_router, prefix="/api/admin")  # Dashboard admin
+app.include_router(track_router, prefix="/api")  # Redirect tracker /api/r
 
 # Almacenar DB en app.state para acceso en dependencies
 @app.on_event("startup")

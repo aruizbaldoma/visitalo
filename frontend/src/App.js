@@ -23,6 +23,8 @@ import RoutePage from "./pages/Route";
 import DestinationItinerary from "./pages/DestinationItinerary";
 import Destinos from "./pages/Destinos";
 import About from "./pages/About";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import { seoItinerariesBySlug } from "./data/seoItineraries";
 import { CookieBanner } from "./components/CookieBanner";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -51,6 +53,8 @@ function App() {
             <Route path="/destinations" element={<Destinos lang="en" />} />
             <Route path="/sobre-nosotros" element={<About lang="es" />} />
             <Route path="/about-us" element={<About lang="en" />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             {Object.keys(seoItinerariesBySlug).map((slug) => (
               <Route
                 key={slug}

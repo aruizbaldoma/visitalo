@@ -115,6 +115,22 @@ const toYMD = (value) => {
 };
 
 /**
+ * Wrap a destination URL with our tracking redirector so we can attribute
+ * the click to the user (if logged in) and the kind of resource.
+ *
+ * The backend endpoint `/api/r?u=<url>&k=<kind>` logs the click and 302-
+ * redirects to the original URL. We use REACT_APP_BACKEND_URL because the
+ * link must work even when the user is not on visitalo.es.
+ */
+export const wrapTrackedUrl = (url, kind = "unknown") => {
+  if (!url) return url;
+  const base = process.env.REACT_APP_BACKEND_URL;
+  if (!base) return url;
+  const params = new URLSearchParams({ u: url, k: kind });
+  return `${base}/api/r?${params.toString()}`;
+};
+
+/**
  * Build a GetYourGuide search URL with our affiliate partner_id and optional
  * travel dates so the user lands on availability for their trip.
  *
@@ -150,17 +166,19 @@ export const buildGetYourGuideSearchUrl = (
  * options object `{ destination, startDate, endDate }`.
  */
 export const getActivityBookingUrl = (activity, opts = {}) => {
-  if (activity?.bookingUrl) return activity.bookingUrl;
+  const direct = activity?.bookingUrl;
   const options = typeof opts === "string" ? { destination: opts } : (opts || {});
+  if (direct) return wrapTrackedUrl(direct, "gyg");
   const query =
     activity?.title ||
     activity?.name ||
     options.destination ||
     "";
-  return buildGetYourGuideSearchUrl(query, {
+  const url = buildGetYourGuideSearchUrl(query, {
     startDate: options.startDate,
     endDate: options.endDate,
   });
+  return wrapTrackedUrl(url, "gyg");
 };
 
 // Legacy named exports (kept so older imports keep working).

@@ -109,7 +109,25 @@ async def generate_itinerary(
                 )
         else:
             print(f"👤 Usuario NO AUTENTICADO: Usando Plan Basic")
-        
+
+        # Registrar búsqueda en historial (solo si hay usuario autenticado).
+        if user:
+            try:
+                await db.search_history.insert_one({
+                    "user_id": user["user_id"],
+                    "destination": request.destination,
+                    "start_date": request.startDate,
+                    "end_date": request.endDate,
+                    "has_flights": request.hasFlights,
+                    "has_hotel": request.hasHotel,
+                    "hotel_category": request.hotelCategory,
+                    "user_plan": user_plan,
+                    "budget": request.budget,
+                    "created_at": datetime.now(timezone.utc),
+                })
+            except Exception as e:  # noqa: BLE001
+                print(f"⚠️ search_history insert falló: {e}")
+
         service = ItineraryService()
         
         itinerary = await service.generate_itinerary(

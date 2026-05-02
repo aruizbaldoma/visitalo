@@ -2,6 +2,7 @@ import { Euro, Info, Heart, ShieldCheck, Wifi, Car, Plane, Check, ExternalLink }
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AnimatedNumber } from "./AnimatedNumber";
+import { wrapTrackedUrl } from "../config/affiliates";
 
 // Servicios extra ofrecidos en la sidebar. Los `from` son precios "desde"
 // que se suman al total cuando el usuario los activa.
@@ -230,7 +231,7 @@ export const ItinerarySidebar = ({ itinerary, isAuthenticated, onInterested, isI
                     {enabled ? (
                       isSelected && href ? (
                         <a
-                          href={href}
+                          href={wrapTrackedUrl(href, id)}
                           target="_blank"
                           rel="noopener noreferrer"
                           data-testid={`extra-link-${id}`}
