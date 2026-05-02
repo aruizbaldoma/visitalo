@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "./AuthModal";
 import { WelcomeModal } from "./WelcomeModal";
+import { FEATURES } from "../config/features";
 import { getLocalizedPath } from "../utils/localizedPaths";
 
 const LANGUAGES = [
@@ -63,7 +64,11 @@ export const Header = () => {
   // Escuchar eventos globales para abrir el modal desde otros componentes
   useEffect(() => {
     const openHandler = () => setShowAuthModal(true);
-    const welcomeHandler = () => setShowWelcome(true);
+    // Welcome modal está acoplado a PLUS — solo lo escuchamos si la marca
+    // PLUS está habilitada globalmente.
+    const welcomeHandler = () => {
+      if (FEATURES.PLUS_ENABLED) setShowWelcome(true);
+    };
     window.addEventListener("visitalo:open-auth", openHandler);
     window.addEventListener("visitalo:welcome", welcomeHandler);
     return () => {
