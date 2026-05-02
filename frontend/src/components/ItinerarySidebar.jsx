@@ -11,7 +11,7 @@ const EXTRA_SERVICES = [
     id: "insurance",
     Icon: ShieldCheck,
     from: 3,
-    href: "https://www.iatiseguros.com/",
+    href: "https://www.iatiseguros.com?r=85219359720989",
     enabled: true,
   },
   {
