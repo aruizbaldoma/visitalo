@@ -31,6 +31,8 @@ import {
 import { useState, useEffect } from "react";
 import { AuthModal } from "./AuthModal";
 import { RangeDatePicker } from "./RangeDatePicker";
+import { DestinationAutocomplete } from "./DestinationAutocomplete";
+import { FEATURES } from "../config/features";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
@@ -105,7 +107,9 @@ export const TravelDetailsModal = ({
   isAuthenticated = false,
   onOpenAuth,
 }) => {
-  const isPlusUser = userPlan === "plus";
+  // Cuando PLUS está deshabilitado a nivel global, todos los usuarios
+  // disfrutan de las funciones avanzadas sin marca PLUS.
+  const isPlusUser = FEATURES.PLUS_ENABLED ? userPlan === "plus" : true;
 
   // Bloque 1: llegada
   const [transportReady, setTransportReady] = useState(false);

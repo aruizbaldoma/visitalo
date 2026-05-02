@@ -13,6 +13,7 @@ import { AuthCallback } from "./components/AuthCallback";
 import { useAuth } from "./contexts/AuthContext";
 import { ItineraryProvider, useItinerary } from "./contexts/ItineraryContext";
 import { verifyDestinationExists } from "./utils/verifyDestination";
+import { FEATURES } from "./config/features";
 import { useTranslation } from "react-i18next";
 import BlogList from "./pages/BlogList";
 import BlogPost from "./pages/BlogPost";
@@ -126,6 +127,7 @@ function MainApp() {
         );
         effectivePlan = consumeResp.effective_plan || "basic";
         if (
+          FEATURES.PLUS_ENABLED &&
           effectivePlan === "plus" &&
           !consumeResp.subscription_active &&
           typeof consumeResp.plus_searches_remaining === "number"

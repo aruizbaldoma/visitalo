@@ -18,6 +18,7 @@ import { ItinerarySearchBar } from "./ItinerarySearchBar";
 import { TripExamples } from "./TripExamples";
 import { Reviews } from "./Reviews";
 import { useAuth } from "../contexts/AuthContext";
+import { FEATURES } from "../config/features";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 const BRAND_BLUE = "#031834";
@@ -185,9 +186,9 @@ export const HeroItinerary = ({ onSearch, onOpenDetails, onSearchDataChange }) =
         </div>
       </section>
 
-      {/* SECCIÓN PLUS — solo visible para visitantes, usuarios Basic y PLUS gratuito.
-          Oculta para suscriptores de pago activos (subscription_active === true). */}
-      {!isPaidPlus && (
+      {/* SECCIÓN PLUS — controlada por feature flag.
+          Oculta también para suscriptores de pago activos. */}
+      {FEATURES.PLUS_ENABLED && !isPaidPlus && (
       <section
         className="relative py-14 md:py-20 px-4 overflow-hidden"
         style={{ backgroundColor: BRAND_BLUE }}

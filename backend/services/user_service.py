@@ -13,6 +13,17 @@ def _unlimited_plus_emails() -> set:
     return {e.strip().lower() for e in raw.split(",") if e.strip()}
 
 
+def _is_unlimited(email: str) -> bool:
+    """True si el email está en la whitelist o si la whitelist contiene `*`
+    (modo "PLUS gratis para todo el mundo")."""
+    if not email:
+        return False
+    whitelist = _unlimited_plus_emails()
+    if "*" in whitelist:
+        return True
+    return email.strip().lower() in whitelist
+
+
 def build_user_public(user_doc: Dict) -> Dict:
     """Construye el payload público del usuario calculando el plan efectivo.
 
@@ -25,7 +36,7 @@ def build_user_public(user_doc: Dict) -> Dict:
     """
     now = datetime.now(timezone.utc)
     email = (user_doc.get("email") or "").strip().lower()
-    is_unlimited = email in _unlimited_plus_emails()
+    is_unlimited = _is_unlimited(email)
 
     expires = user_doc.get("subscription_expires_at")
     raw_remaining = user_doc.get("plus_searches_remaining")
@@ -95,7 +106,7 @@ async def consume_plus_search(db, user_id: str) -> Dict:
 
     # Whitelist de emails con PLUS ilimitado gratuito → no descuenta nunca.
     email = (user_doc.get("email") or "").strip().lower()
-    if email in _unlimited_plus_emails():
+    if _is_unlimited(email):
         return {
             "effective_plan": "plus",
             "plus_searches_remaining": 9999,

@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { useAuth } from "../contexts/AuthContext";
+import { FEATURES } from "../config/features";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 const BRAND_BLUE = "#031834";
@@ -174,7 +175,7 @@ export default function MyTrips() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {user?.subscription_active && (
+            {FEATURES.PLUS_ENABLED && user?.subscription_active && (
               <button
                 onClick={handleOpenPortal}
                 disabled={portalLoading}
@@ -199,7 +200,7 @@ export default function MyTrips() {
           </div>
         </div>
 
-        {user?.subscription_active && (
+        {FEATURES.PLUS_ENABLED && user?.subscription_active && (
           <div
             className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full"
             style={{ backgroundColor: "rgba(60, 204, 164, 0.15)" }}
