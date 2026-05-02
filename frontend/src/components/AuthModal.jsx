@@ -22,6 +22,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState(null); // { email }
   const [inlineError, setInlineError] = useState(null); // { message, kind }
+  const [rememberMe, setRememberMe] = useState(false);
 
   if (!isOpen) return null;
 
@@ -91,7 +92,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
     setSubmitting(true);
     try {
       if (mode === "login") {
-        await loginWithEmail(email, password);
+        await loginWithEmail(email, password, rememberMe);
         toast.success(t("auth.welcomeBack"));
         onClose();
       } else {
@@ -317,7 +318,18 @@ export const AuthModal = ({ isOpen, onClose }) => {
               />
             </div>
             {mode === "login" && (
-              <div className="text-right -mt-1">
+              <div className="flex items-center justify-between -mt-1">
+                <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                    style={{ accentColor: BRAND_GREEN }}
+                    data-testid="auth-remember-me"
+                  />
+                  <span>{t("auth.rememberMe")}</span>
+                </label>
                 <button
                   type="button"
                   onClick={handleForgotPassword}

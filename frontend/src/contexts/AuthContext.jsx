@@ -46,10 +46,11 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [checkAuth]);
 
-  const loginWithEmail = async (email, password) => {
+  const loginWithEmail = async (email, password, rememberMe = false) => {
     const { data } = await axios.post(`${API}/api/auth/login`, {
       email,
       password,
+      remember_me: rememberMe,
     });
     localStorage.setItem("session_token", data.session_token);
     setUser(data.user);

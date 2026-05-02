@@ -35,10 +35,13 @@ def get_db(request: Request) -> AsyncIOMotorDatabase:
     return request.app.state.db
 
 
-async def _create_session_for_user(db, user_doc):
-    """Crea una nueva sesión de 7 días y devuelve (session_token, expires_at)."""
+async def _create_session_for_user(db, user_doc, days: int = 7):
+    """Crea una nueva sesión y devuelve (session_token, expires_at).
+
+    `days` controla la duración (7 por defecto, 30 con "Recordar sesión").
+    """
     session_token = generate_session_token()
-    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+    expires_at = datetime.now(timezone.utc) + timedelta(days=days)
     await db.user_sessions.insert_one({
         "session_token": session_token,
         "user_id": user_doc["user_id"],
@@ -313,14 +316,10 @@ async def login_with_email(
         {"user_id": user_doc["user_id"]},
         {"$set": {"last_login_at": now}},
     )
-    session_token = generate_session_token()
-    expires_at = now + timedelta(days=7)
-    await db.user_sessions.insert_one({
-        "session_token": session_token,
-        "user_id": user_doc["user_id"],
-        "expires_at": expires_at,
-        "created_at": now,
-    })
+    session_days = 30 if request.remember_me else 7
+    session_token, expires_at = await _create_session_for_user(
+        db, user_doc, days=session_days
+    )
     user_doc["last_login_at"] = now
     return {
         "user": build_user_public(user_doc),

@@ -44,6 +44,7 @@ class LoginRequest(BaseModel):
     """Request de login con email/password"""
     email: EmailStr
     password: str
+    remember_me: bool = False
 
 
 class RegisterRequest(BaseModel):

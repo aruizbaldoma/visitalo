@@ -165,6 +165,7 @@
     "forgotPasswordEmpty": "Type your email and tap again.",
     "forgotPasswordSent": "If that email exists, we just sent a reset link.",
     "forgotPasswordError": "We couldn't send the email. Try again.",
+    "rememberMe": "Keep me signed in for 30 days",
     "googleError": "Google sign-in failed",
     "googleLoginError": "Google sign-in error",
     "googleLocale": "en"

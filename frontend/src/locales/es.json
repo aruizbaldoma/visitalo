@@ -165,6 +165,7 @@
     "forgotPasswordEmpty": "Escribe tu email y vuelve a pulsar.",
     "forgotPasswordSent": "Si el correo existe, te hemos enviado un enlace para restablecerla.",
     "forgotPasswordError": "No hemos podido enviar el email. Inténtalo de nuevo.",
+    "rememberMe": "Mantenerme 30 días",
     "googleError": "No se pudo completar el login con Google",
     "googleLoginError": "Error al iniciar sesión con Google",
     "googleLocale": "es"
