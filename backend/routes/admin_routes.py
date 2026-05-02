@@ -251,7 +251,7 @@ async def reset_user_password(
     new_password = _generate_password(12)
     new_hash = hash_password(new_password)
 
-    # Persistimos hash + invalidamos sesiones existentes
+    # Persistimos hash + invalidamos sesiones existentes + activamos cuenta
     await db.users.update_one(
         {"user_id": user_id},
         {
@@ -259,6 +259,7 @@ async def reset_user_password(
                 "password_hash": new_hash,
                 "password_reset_at": datetime.now(timezone.utc),
                 "password_reset_by": admin.get("email"),
+                "email_verified": True,
             }
         },
     )

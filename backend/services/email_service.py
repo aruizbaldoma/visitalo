@@ -53,6 +53,60 @@ async def send_email(to: str, subject: str, html: str) -> Optional[str]:
     return result.get("id") if isinstance(result, dict) else None
 
 
+def verification_email_html(name: str, verify_link: str) -> str:
+    """Plantilla HTML para verificación de email tras registro."""
+    safe_name = (name or "").strip() or "viajero"
+    return f"""
+<!DOCTYPE html>
+<html lang="es">
+  <body style="margin:0;padding:0;background:#f7faf9;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:#031834;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f7faf9;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="560" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(3,24,52,0.06);">
+            <tr>
+              <td style="background:#031834;padding:24px 32px;color:#ffffff;font-size:18px;font-weight:700;letter-spacing:-0.01em;">
+                Visitalo.es
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:32px;">
+                <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#031834;letter-spacing:-0.02em;">
+                  Bienvenido, {safe_name}.
+                </h1>
+                <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#334155;">
+                  Confirma tu correo electrónico para activar tu cuenta y empezar a planificar tu próximo viaje en segundos.
+                </p>
+                <div style="margin:28px 0;text-align:center;">
+                  <a href="{verify_link}" style="display:inline-block;padding:14px 28px;background:#3ccca4;color:#031834;font-weight:700;font-size:15px;text-decoration:none;border-radius:999px;">
+                    Activar mi cuenta
+                  </a>
+                </div>
+                <p style="margin:0 0 16px;font-size:13px;line-height:1.6;color:#64748b;">
+                  Si el botón no funciona, copia y pega este enlace en tu navegador:
+                </p>
+                <p style="margin:0 0 8px;font-size:12px;line-height:1.5;color:#475569;word-break:break-all;">
+                  {verify_link}
+                </p>
+                <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#64748b;">
+                  Si no creaste esta cuenta, puedes ignorar este mensaje.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f1f5f9;padding:16px 32px;font-size:12px;color:#64748b;text-align:center;">
+                Visitalo.es · Tu próximo viaje, montado en segundos.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+"""
+
+
 def password_reset_email_html(name: str, new_password: str) -> str:
     """Plantilla HTML responsive y minimalista para restablecimiento de password."""
     safe_name = (name or "").strip() or "viajero"

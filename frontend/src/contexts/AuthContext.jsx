@@ -62,9 +62,8 @@ export const AuthProvider = ({ children }) => {
       password,
       name,
     });
-    localStorage.setItem("session_token", data.session_token);
-    setUser(data.user);
-    return data.user;
+    // Backend exige verificación de email — NO iniciamos sesión.
+    return data;
   };
 
   const loginWithGoogle = async (credential) => {

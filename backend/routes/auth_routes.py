@@ -83,6 +83,7 @@ async def auth_google(request: GoogleTokenRequest, req: Request):
             "picture": picture,
             "auth_provider": "google",
             "password_hash": None,
+            "email_verified": True,
             "user_plan": "plus",
             "plus_searches_remaining": 5,
             "subscription_expires_at": None,
@@ -93,11 +94,12 @@ async def auth_google(request: GoogleTokenRequest, req: Request):
     else:
         await db.users.update_one(
             {"user_id": user_doc["user_id"]},
-            {"$set": {"name": name, "picture": picture, "last_login_at": now}},
+            {"$set": {"name": name, "picture": picture, "last_login_at": now, "email_verified": True}},
         )
         user_doc["name"] = name
         user_doc["picture"] = picture
         user_doc["last_login_at"] = now
+        user_doc["email_verified"] = True
 
     session_token, _ = await _create_session_for_user(db, user_doc)
 
@@ -204,47 +206,68 @@ async def register_with_email(
     request: RegisterRequest,
     req: Request
 ):
-    """Registro con email/password"""
+    """Registro con email/password.
+
+    Crea la cuenta en estado `email_verified=False`, genera un token de
+    verificación y envía email con el link. NO inicia sesión hasta que el
+    usuario active la cuenta.
+    """
+    import os
+    import secrets
+
     db = req.app.state.db
-    # Verificar si el email ya existe
-    existing_user = await db.users.find_one({"email": request.email})
+    email_norm = request.email.lower().strip()
+    existing_user = await db.users.find_one({"email": email_norm})
     if existing_user:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
-    
-    # Crear nuevo usuario
+
     user_id = f"user_{uuid4().hex[:12]}"
     password_hashed = hash_password(request.password)
-    
+    verification_token = secrets.token_urlsafe(32)
+
     new_user = {
         "user_id": user_id,
-        "email": request.email,
+        "email": email_norm,
         "name": request.name,
         "picture": None,
         "auth_provider": "email",
         "password_hash": password_hashed,
+        "email_verified": False,
+        "verification_token": verification_token,
+        "verification_sent_at": datetime.now(timezone.utc),
         "user_plan": "plus",
         "plus_searches_remaining": 5,
         "subscription_expires_at": None,
-        "created_at": datetime.now(timezone.utc)
+        "created_at": datetime.now(timezone.utc),
     }
-    
     await db.users.insert_one(new_user)
-    
-    # Crear sesión automáticamente
-    session_token = generate_session_token()
-    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
-    
-    session = {
-        "session_token": session_token,
-        "user_id": user_id,
-        "expires_at": expires_at,
-        "created_at": datetime.now(timezone.utc)
-    }
-    await db.user_sessions.insert_one(session)
-    
+
+    # Construimos el link absoluto al frontend usando FRONTEND_URL si existe;
+    # en su defecto, deducimos el dominio desde la request.
+    base_url = os.environ.get("FRONTEND_URL")
+    if not base_url:
+        origin = req.headers.get("origin") or ""
+        base_url = origin.rstrip("/") if origin else ""
+    if not base_url:
+        base_url = "https://visitalo.es"
+    verify_link = f"{base_url}/verificar?token={verification_token}"
+
+    # Email de bienvenida con verificación
+    from services.email_service import send_email, verification_email_html
+    try:
+        await send_email(
+            to=email_norm,
+            subject="Confirma tu cuenta de Visitalo.es",
+            html=verification_email_html(request.name, verify_link),
+        )
+    except Exception as e:  # noqa: BLE001
+        # No reventamos el flujo si Resend falla — el admin puede reenviar.
+        print(f"⚠️ verification email send failed: {e}")
+
     return {
-        "user": build_user_public(new_user),
-        "session_token": session_token
+        "ok": True,
+        "verification_required": True,
+        "email": email_norm,
     }
 
 
@@ -274,6 +297,15 @@ async def login_with_email(
 
     if not verify_password(request.password, password_hash):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+    # Bloqueamos login si la cuenta está pendiente de verificación.
+    # (Cuentas Google y cuentas restablecidas por admin entran sin esta gate
+    # porque establecemos email_verified=True en esos flujos.)
+    if user_doc.get("auth_provider") == "email" and user_doc.get("email_verified") is False:
+        raise HTTPException(
+            status_code=403,
+            detail="Tu cuenta está pendiente de verificación. Revisa tu email.",
+        )
 
     # Actualizamos last_login_at y creamos sesión
     now = datetime.now(timezone.utc)
@@ -316,6 +348,98 @@ async def consume_plus_search_endpoint(
     """
     db = req.app.state.db
     return await consume_plus_search(db, user["user_id"])
+
+
+@auth_router.post("/verify-email")
+async def verify_email(payload: dict, req: Request):
+    """Activa la cuenta cuando el usuario hace clic en el link del email.
+
+    Recibe `{ "token": "..." }` y, si el token coincide, marca la cuenta
+    como verificada y crea una sesión para iniciar sesión automáticamente.
+    """
+    token = (payload or {}).get("token", "").strip()
+    if not token:
+        raise HTTPException(status_code=400, detail="Token requerido")
+
+    db = req.app.state.db
+    user_doc = await db.users.find_one({"verification_token": token}, {"_id": 0})
+    if not user_doc:
+        raise HTTPException(status_code=400, detail="Token inválido o ya utilizado")
+
+    now = datetime.now(timezone.utc)
+    await db.users.update_one(
+        {"user_id": user_doc["user_id"]},
+        {
+            "$set": {
+                "email_verified": True,
+                "verified_at": now,
+                "last_login_at": now,
+            },
+            "$unset": {"verification_token": ""},
+        },
+    )
+    user_doc["email_verified"] = True
+
+    # Auto-login al verificar
+    session_token = generate_session_token()
+    await db.user_sessions.insert_one({
+        "session_token": session_token,
+        "user_id": user_doc["user_id"],
+        "expires_at": now + timedelta(days=7),
+        "created_at": now,
+    })
+
+    return {
+        "ok": True,
+        "user": build_user_public(user_doc),
+        "session_token": session_token,
+    }
+
+
+@auth_router.post("/resend-verification")
+async def resend_verification(payload: dict, req: Request):
+    """Reenvía el email de verificación si el usuario lo perdió."""
+    import os
+    import secrets
+
+    email = (payload or {}).get("email", "").strip().lower()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email requerido")
+
+    db = req.app.state.db
+    user_doc = await db.users.find_one({"email": email})
+    # Respuesta neutra para no revelar existencia de cuentas.
+    if not user_doc or user_doc.get("email_verified") is True:
+        return {"ok": True}
+
+    new_token = secrets.token_urlsafe(32)
+    await db.users.update_one(
+        {"user_id": user_doc["user_id"]},
+        {
+            "$set": {
+                "verification_token": new_token,
+                "verification_sent_at": datetime.now(timezone.utc),
+            }
+        },
+    )
+
+    base_url = os.environ.get("FRONTEND_URL")
+    if not base_url:
+        origin = req.headers.get("origin") or ""
+        base_url = origin.rstrip("/") if origin else "https://visitalo.es"
+    verify_link = f"{base_url}/verificar?token={new_token}"
+
+    from services.email_service import send_email, verification_email_html
+    try:
+        await send_email(
+            to=email,
+            subject="Confirma tu cuenta de Visitalo.es",
+            html=verification_email_html(user_doc.get("name") or "", verify_link),
+        )
+    except Exception as e:  # noqa: BLE001
+        print(f"⚠️ resend verification failed: {e}")
+
+    return {"ok": True}
 
 
 @auth_router.post("/logout")

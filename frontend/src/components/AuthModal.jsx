@@ -14,8 +14,11 @@ export const AuthModal = ({ isOpen, onClose }) => {
   const [mode, setMode] = useState("login"); // 'login' | 'register'
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [emailConfirm, setEmailConfirm] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [registerSuccess, setRegisterSuccess] = useState(null); // { email }
 
   if (!isOpen) return null;
 
@@ -42,17 +45,35 @@ export const AuthModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (mode === "register") {
+      if (email.trim().toLowerCase() !== emailConfirm.trim().toLowerCase()) {
+        toast.error(t("auth.emailMismatch"));
+        return;
+      }
+      if (password !== passwordConfirm) {
+        toast.error(t("auth.passwordMismatch"));
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       if (mode === "login") {
         await loginWithEmail(email, password);
         toast.success(t("auth.welcomeBack"));
+        onClose();
       } else {
-        await registerWithEmail(email, password, name);
-        // Al registrarse por primera vez, disparar welcome modal
-        window.dispatchEvent(new Event("visitalo:welcome"));
+        const result = await registerWithEmail(email, password, name);
+        // Backend devuelve { ok, verification_required, email } — NO inicia sesión.
+        if (result?.verification_required) {
+          setRegisterSuccess({ email: result.email || email });
+        } else {
+          // Compatibilidad con flujo antiguo (no debería ocurrir).
+          window.dispatchEvent(new Event("visitalo:welcome"));
+          onClose();
+        }
       }
-      onClose();
     } catch (err) {
       const message =
         err?.response?.data?.detail ||
@@ -87,6 +108,44 @@ export const AuthModal = ({ isOpen, onClose }) => {
           <div className="flex justify-center mb-4">
             <img src="/visitalo-logo.png" alt="Visítalo.es" className="h-10 w-auto" />
           </div>
+
+          {registerSuccess ? (
+            <div className="text-center" data-testid="auth-verify-sent">
+              <div
+                className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center mb-5"
+                style={{ backgroundColor: "rgba(60,204,164,0.14)" }}
+              >
+                <Mail className="w-7 h-7" style={{ color: BRAND_GREEN }} strokeWidth={2.2} />
+              </div>
+              <h2
+                className="text-xl font-bold font-heading mb-3"
+                style={{ color: BRAND_BLUE, letterSpacing: "-0.02em" }}
+              >
+                {t("auth.verifySentTitle")}
+              </h2>
+              <p className="text-sm text-gray-600 mb-2">
+                {t("auth.verifySentBody1")}
+              </p>
+              <p
+                className="text-sm font-bold mb-5"
+                style={{ color: BRAND_BLUE }}
+              >
+                {registerSuccess.email}
+              </p>
+              <p className="text-xs text-gray-500 mb-6">
+                {t("auth.verifySentBody2")}
+              </p>
+              <button
+                onClick={onClose}
+                className="w-full py-3 rounded-lg font-bold transition-all"
+                style={{ backgroundColor: BRAND_GREEN, color: BRAND_BLUE }}
+                data-testid="auth-verify-close"
+              >
+                {t("common.gotIt")}
+              </button>
+            </div>
+          ) : (
+            <>
 
           <h2
             className="text-2xl font-bold text-center mb-2 font-heading"
@@ -203,6 +262,8 @@ export const AuthModal = ({ isOpen, onClose }) => {
               </>
             )}
           </p>
+            </>
+          )}
         </div>
       </div>
     </div>
