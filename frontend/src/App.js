@@ -232,7 +232,7 @@ function MainApp() {
 
       {isLoading && <ItineraryLoading />}
 
-      <WelcomePromoModal />
+      {FEATURES.PLUS_ENABLED && <WelcomePromoModal />}
 
       <Header />
 
