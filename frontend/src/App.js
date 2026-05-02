@@ -26,6 +26,7 @@ import About from "./pages/About";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import VerifyEmail from "./pages/VerifyEmail";
+import ResetPassword from "./pages/ResetPassword";
 import { seoItinerariesBySlug } from "./data/seoItineraries";
 import { CookieBanner } from "./components/CookieBanner";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -57,6 +58,8 @@ function App() {
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/verificar" element={<VerifyEmail />} />
+            <Route path="/recuperar" element={<ResetPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             {Object.keys(seoItinerariesBySlug).map((slug) => (
               <Route
                 key={slug}

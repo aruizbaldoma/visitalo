@@ -442,6 +442,125 @@ async def resend_verification(payload: dict, req: Request):
     return {"ok": True}
 
 
+@auth_router.post("/forgot-password")
+async def forgot_password(payload: dict, req: Request):
+    """Solicita un email de recuperación de contraseña.
+
+    Recibe `{ "email": "..." }`, genera un token de 1 hora y envía email
+    con link a `/recuperar?token=...`. Siempre devuelve `{ ok: true }`
+    para no revelar qué emails están registrados.
+    """
+    import os
+    import secrets
+
+    email = (payload or {}).get("email", "").strip().lower()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email requerido")
+
+    db = req.app.state.db
+    user_doc = await db.users.find_one({"email": email})
+
+    # Respuesta neutra para evitar enumeración de cuentas.
+    if not user_doc:
+        return {"ok": True}
+
+    # Solo cuentas con password (email/password o cuentas Google con
+    # password establecido por admin). Las cuentas Google puras no tienen
+    # password que resetear → respuesta neutra.
+    if not user_doc.get("password_hash"):
+        return {"ok": True}
+
+    reset_token = secrets.token_urlsafe(32)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    await db.users.update_one(
+        {"user_id": user_doc["user_id"]},
+        {
+            "$set": {
+                "password_reset_token": reset_token,
+                "password_reset_expires_at": expires_at,
+            }
+        },
+    )
+
+    base_url = os.environ.get("FRONTEND_URL")
+    if not base_url:
+        origin = req.headers.get("origin") or ""
+        base_url = origin.rstrip("/") if origin else "https://visitalo.es"
+    reset_link = f"{base_url}/recuperar?token={reset_token}"
+
+    from services.email_service import send_email, forgot_password_email_html
+    try:
+        await send_email(
+            to=email,
+            subject="Restablece tu contraseña de Visitalo.es",
+            html=forgot_password_email_html(user_doc.get("name") or "", reset_link),
+        )
+    except Exception as e:  # noqa: BLE001
+        print(f"⚠️ forgot password email send failed: {e}")
+
+    return {"ok": True}
+
+
+@auth_router.post("/reset-password")
+async def reset_password(payload: dict, req: Request):
+    """Establece una nueva contraseña usando el token recibido por email.
+
+    Recibe `{ "token": "...", "password": "..." }`. Si el token es válido y
+    no ha expirado, actualiza el `password_hash`, marca el email como
+    verificado e inicia sesión automáticamente.
+    """
+    token = (payload or {}).get("token", "").strip()
+    new_password = (payload or {}).get("password", "")
+    if not token:
+        raise HTTPException(status_code=400, detail="Token requerido")
+    if not new_password or len(new_password) < 6:
+        raise HTTPException(
+            status_code=400,
+            detail="La contraseña debe tener al menos 6 caracteres",
+        )
+
+    db = req.app.state.db
+    user_doc = await db.users.find_one(
+        {"password_reset_token": token}, {"_id": 0}
+    )
+    if not user_doc:
+        raise HTTPException(status_code=400, detail="Token inválido o ya utilizado")
+
+    expires_at = user_doc.get("password_reset_expires_at")
+    if expires_at:
+        # Mongo guarda datetimes naive en UTC; normalizamos a aware.
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if datetime.now(timezone.utc) > expires_at:
+            raise HTTPException(status_code=400, detail="El enlace ha expirado. Solicita uno nuevo.")
+
+    now = datetime.now(timezone.utc)
+    await db.users.update_one(
+        {"user_id": user_doc["user_id"]},
+        {
+            "$set": {
+                "password_hash": hash_password(new_password),
+                "email_verified": True,
+                "last_login_at": now,
+            },
+            "$unset": {
+                "password_reset_token": "",
+                "password_reset_expires_at": "",
+            },
+        },
+    )
+    user_doc["email_verified"] = True
+
+    # Auto-login tras reset.
+    session_token, _ = await _create_session_for_user(db, user_doc)
+
+    return {
+        "ok": True,
+        "user": build_user_public(user_doc),
+        "session_token": session_token,
+    }
+
+
 @auth_router.post("/logout")
 async def logout(
     response: Response,

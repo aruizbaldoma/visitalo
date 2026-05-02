@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Mail, Lock, User as UserIcon, AlertCircle } from "lucide-react";
+import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
@@ -7,6 +8,7 @@ import { toast } from "sonner";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
+const API = process.env.REACT_APP_BACKEND_URL;
 
 export const AuthModal = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -30,6 +32,24 @@ export const AuthModal = ({ isOpen, onClose }) => {
     setPassword("");
     setPasswordConfirm("");
     setName("");
+  };
+
+  const handleForgotPassword = async () => {
+    const target = email.trim().toLowerCase();
+    if (!target) {
+      toast.error(t("auth.forgotPasswordEmpty"));
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await axios.post(`${API}/api/auth/forgot-password`, { email: target });
+      toast.success(t("auth.forgotPasswordSent"));
+      setInlineError(null);
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || t("auth.forgotPasswordError"));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
@@ -223,6 +243,17 @@ export const AuthModal = ({ isOpen, onClose }) => {
                 >
                   {t("auth.emailAlreadyRegisteredCta")} →
                 </button>
+                <div className="mt-1">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={submitting}
+                    className="text-xs text-gray-600 underline underline-offset-2 hover:text-gray-900 disabled:opacity-60"
+                    data-testid="auth-duplicate-email-forgot"
+                  >
+                    {t("auth.forgotPassword")}
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -285,6 +316,19 @@ export const AuthModal = ({ isOpen, onClose }) => {
                 data-testid="auth-password-input"
               />
             </div>
+            {mode === "login" && (
+              <div className="text-right -mt-1">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={submitting}
+                  className="text-xs text-gray-500 hover:text-gray-800 underline underline-offset-2 disabled:opacity-60"
+                  data-testid="auth-forgot-password"
+                >
+                  {t("auth.forgotPassword")}
+                </button>
+              </div>
+            )}
             {mode === "register" && (
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />

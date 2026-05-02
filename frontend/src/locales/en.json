@@ -161,9 +161,25 @@
     "registerError": "Sign up failed",
     "emailAlreadyRegistered": "This email is already registered on Visítalo.es.",
     "emailAlreadyRegisteredCta": "Sign in with this email",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordEmpty": "Type your email and tap again.",
+    "forgotPasswordSent": "If that email exists, we just sent a reset link.",
+    "forgotPasswordError": "We couldn't send the email. Try again.",
     "googleError": "Google sign-in failed",
     "googleLoginError": "Google sign-in error",
     "googleLocale": "en"
+  },
+  "resetPassword": {
+    "title": "Pick a new password",
+    "subtitle": "Once saved, we'll log you straight in.",
+    "newPasswordPlaceholder": "New password",
+    "confirmPasswordPlaceholder": "Confirm password",
+    "submit": "Save and sign in",
+    "successTitle": "Password updated!",
+    "successBody": "Taking you home…",
+    "tokenMissing": "Missing token in the link.",
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "error": "We couldn't reset your password. The link may have expired."
   },
   "cookies": {
     "title": "We use cookies to improve your experience",

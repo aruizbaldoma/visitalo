@@ -161,9 +161,25 @@
     "registerError": "Error al registrarse",
     "emailAlreadyRegistered": "Este correo ya está registrado en Visítalo.es.",
     "emailAlreadyRegisteredCta": "Inicia sesión con este correo",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPasswordEmpty": "Escribe tu email y vuelve a pulsar.",
+    "forgotPasswordSent": "Si el correo existe, te hemos enviado un enlace para restablecerla.",
+    "forgotPasswordError": "No hemos podido enviar el email. Inténtalo de nuevo.",
     "googleError": "No se pudo completar el login con Google",
     "googleLoginError": "Error al iniciar sesión con Google",
     "googleLocale": "es"
+  },
+  "resetPassword": {
+    "title": "Elige una nueva contraseña",
+    "subtitle": "Tras guardarla, te enviaremos directo a tu cuenta.",
+    "newPasswordPlaceholder": "Nueva contraseña",
+    "confirmPasswordPlaceholder": "Repite la contraseña",
+    "submit": "Guardar y entrar",
+    "successTitle": "¡Contraseña actualizada!",
+    "successBody": "Te llevamos al inicio…",
+    "tokenMissing": "Falta el token en el enlace.",
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
+    "error": "No hemos podido restablecer tu contraseña. El enlace puede haber expirado."
   },
   "cookies": {
     "title": "Usamos cookies para mejorar tu experiencia",

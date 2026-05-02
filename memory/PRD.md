@@ -97,6 +97,7 @@
 - ✅ TripExamples: nuevo CTA "Ver más destinos / View more destinations" enlazado a `/destinos` (ES) o `/destinations` (EN).
 - ✅ Language Switcher con mapeo bidireccional ES↔EN para rutas localizadas (`/destinos`↔`/destinations` y los 10 itinerarios SEO con sus slugs traducidos). Implementado en `/app/frontend/src/utils/localizedPaths.js` y consumido por `Header.jsx`.
 - ✅ **UX email duplicado en registro**: `AuthModal.jsx` ahora muestra banner inline rojo persistente cuando el backend devuelve 400 "El email ya está registrado", con CTA "Inicia sesión con este correo" que cambia a modo login conservando el email pre-rellenado. Traducciones ES/EN (`auth.emailAlreadyRegistered`, `auth.emailAlreadyRegisteredCta`). Verificado vía screenshot end-to-end.
+- ✅ **Self-service Forgot Password**: nuevos endpoints `POST /api/auth/forgot-password` (genera token 1h, email vía Resend, respuesta neutra para no leak de cuentas) y `POST /api/auth/reset-password` (valida token, actualiza `password_hash`, marca `email_verified=True`, auto-login con session_token). Cuentas Google sin password_hash devuelven respuesta neutra. Plantilla email `forgot_password_email_html` añadida en `email_service.py`. Página frontend `/recuperar` y `/reset-password` (`ResetPassword.jsx`). Link "¿Olvidaste tu contraseña?" en modo login + segundo enlace dentro del banner de email duplicado. Traducciones ES/EN completas. Verificado end-to-end con curl: registro → forgot → reset → auto-login → vieja password rechazada → token reutilizado rechazado.
 
 ---
 **Última Actualización**: Febrero 2026
