@@ -159,6 +159,8 @@
     "welcome": "¡Bienvenido!",
     "badCredentials": "Credenciales incorrectas",
     "registerError": "Error al registrarse",
+    "emailAlreadyRegistered": "Este correo ya está registrado en Visítalo.es.",
+    "emailAlreadyRegisteredCta": "Inicia sesión con este correo",
     "googleError": "No se pudo completar el login con Google",
     "googleLoginError": "Error al iniciar sesión con Google",
     "googleLocale": "es"

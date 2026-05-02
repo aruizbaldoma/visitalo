@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Mail, Lock, User as UserIcon } from "lucide-react";
+import { X, Mail, Lock, User as UserIcon, AlertCircle } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
@@ -19,8 +19,18 @@ export const AuthModal = ({ isOpen, onClose }) => {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState(null); // { email }
+  const [inlineError, setInlineError] = useState(null); // { message, kind }
 
   if (!isOpen) return null;
+
+  const switchToLoginWithEmail = () => {
+    setMode("login");
+    setInlineError(null);
+    setEmailConfirm("");
+    setPassword("");
+    setPasswordConfirm("");
+    setName("");
+  };
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
@@ -45,6 +55,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setInlineError(null);
 
     if (mode === "register") {
       if (email.trim().toLowerCase() !== emailConfirm.trim().toLowerCase()) {
@@ -75,9 +86,23 @@ export const AuthModal = ({ isOpen, onClose }) => {
         }
       }
     } catch (err) {
+      const status = err?.response?.status;
+      const detail = err?.response?.data?.detail;
+
+      // Caso especial: email ya registrado en signup → mostramos banner inline
+      // con CTA para cambiar a login con el email pre-rellenado.
+      if (
+        mode === "register" &&
+        status === 400 &&
+        typeof detail === "string" &&
+        /ya est[áa] registrado|already registered/i.test(detail)
+      ) {
+        setInlineError({ kind: "duplicate-email" });
+        return;
+      }
+
       const message =
-        err?.response?.data?.detail ||
-        (mode === "login" ? t("auth.badCredentials") : t("auth.registerError"));
+        detail || (mode === "login" ? t("auth.badCredentials") : t("auth.registerError"));
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -178,6 +203,29 @@ export const AuthModal = ({ isOpen, onClose }) => {
           </div>
 
           {/* Formulario Email */}
+          {inlineError?.kind === "duplicate-email" && mode === "register" && (
+            <div
+              className="mb-3 rounded-lg border border-red-200 bg-red-50 p-3 flex items-start gap-2"
+              data-testid="auth-duplicate-email-banner"
+              role="alert"
+            >
+              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-red-800 leading-snug">
+                  {t("auth.emailAlreadyRegistered")}
+                </p>
+                <button
+                  type="button"
+                  onClick={switchToLoginWithEmail}
+                  className="mt-1.5 text-sm font-bold underline underline-offset-2 hover:no-underline"
+                  style={{ color: BRAND_BLUE }}
+                  data-testid="auth-duplicate-email-go-login"
+                >
+                  {t("auth.emailAlreadyRegisteredCta")} →
+                </button>
+              </div>
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-3" data-testid="auth-email-form">
             {mode === "register" && (
               <div className="relative">
@@ -200,7 +248,10 @@ export const AuthModal = ({ isOpen, onClose }) => {
                 type="email"
                 placeholder={t("auth.emailPlaceholder")}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (inlineError) setInlineError(null);
+                }}
                 required
                 className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2"
                 data-testid="auth-email-input"

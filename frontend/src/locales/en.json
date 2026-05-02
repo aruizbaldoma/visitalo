@@ -159,6 +159,8 @@
     "welcome": "Welcome!",
     "badCredentials": "Incorrect credentials",
     "registerError": "Sign up failed",
+    "emailAlreadyRegistered": "This email is already registered on Visítalo.es.",
+    "emailAlreadyRegisteredCta": "Sign in with this email",
     "googleError": "Google sign-in failed",
     "googleLoginError": "Google sign-in error",
     "googleLocale": "en"
