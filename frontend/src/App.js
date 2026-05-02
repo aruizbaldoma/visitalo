@@ -30,6 +30,7 @@ import ResetPassword from "./pages/ResetPassword";
 import { seoItinerariesBySlug } from "./data/seoItineraries";
 import { CookieBanner } from "./components/CookieBanner";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { useAnalytics } from "./hooks/useAnalytics";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -37,12 +38,12 @@ function App() {
   if (typeof window !== "undefined" && window.location.hash?.includes("session_id=")) {
     return <AuthCallback />;
   }
-
   return (
     <HelmetProvider>
       <BrowserRouter>
         <ItineraryProvider>
           <ScrollToTop />
+          <AnalyticsTracker />
           <Routes>
             <Route path="/" element={<MainApp />} />
             <Route path="/ruta" element={<RoutePage />} />
@@ -270,6 +271,12 @@ function MainApp() {
       <Footer />
     </div>
   );
+}
+
+// Renderiza nada: solo monta el hook de analytics dentro de BrowserRouter.
+function AnalyticsTracker() {
+  useAnalytics();
+  return null;
 }
 
 export default App;

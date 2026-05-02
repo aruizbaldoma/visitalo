@@ -19,6 +19,7 @@ from routes.stripe_routes import stripe_router
 from routes.insights_routes import insights_router
 from routes.admin_routes import admin_router
 from routes.track_routes import track_router
+from routes.analytics_routes import analytics_router
 
 
 ROOT_DIR = Path(__file__).parent
@@ -120,6 +121,7 @@ app.include_router(stripe_router, prefix="/api")  # Stripe Checkout + webhooks
 app.include_router(insights_router, prefix="/api/insights")  # Captura de datos para análisis
 app.include_router(admin_router, prefix="/api/admin")  # Dashboard admin
 app.include_router(track_router, prefix="/api")  # Redirect tracker /api/r
+app.include_router(analytics_router, prefix="/api/analytics")  # Tracking público
 
 # Almacenar DB en app.state para acceso en dependencies
 @app.on_event("startup")

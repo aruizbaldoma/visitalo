@@ -287,3 +287,234 @@ async def reset_user_password(
         email_sent=email_sent,
         email_id=email_id if isinstance(email_id, str) else None,
     )
+
+
+# ---------- Analytics ---------- #
+
+_RANGE_TO_HOURS = {
+    "1h": 1,
+    "24h": 24,
+    "7d": 24 * 7,
+    "30d": 24 * 30,
+    "90d": 24 * 90,
+}
+
+
+def _range_start(range_key: str) -> datetime:
+    hours = _RANGE_TO_HOURS.get(range_key, 24 * 7)
+    return datetime.now(timezone.utc) - timedelta(hours=hours)
+
+
+@admin_router.get("/analytics/live")
+async def analytics_live(
+    req: Request,
+    admin: dict = Depends(require_admin),
+    seconds: int = 90,
+):
+    """Lista de visitantes activos en los últimos `seconds` segundos.
+
+    Une `analytics_presence` con `users` para mostrar el email si el
+    visitante está autenticado.
+    """
+    db = req.app.state.db
+    cutoff = datetime.now(timezone.utc) - timedelta(seconds=max(10, min(seconds, 600)))
+    docs = await (
+        db.analytics_presence.find({"last_seen_at": {"$gte": cutoff}}, {"_id": 0})
+        .sort("last_seen_at", -1)
+        .limit(500)
+        .to_list(500)
+    )
+
+    user_ids = [d["user_id"] for d in docs if d.get("user_id")]
+    users_map = {}
+    if user_ids:
+        async for u in db.users.find(
+            {"user_id": {"$in": user_ids}},
+            {"_id": 0, "user_id": 1, "email": 1, "name": 1, "picture": 1},
+        ):
+            users_map[u["user_id"]] = u
+
+    now = datetime.now(timezone.utc)
+    items = []
+    for d in docs:
+        first = d.get("first_seen_at") or d.get("last_seen_at")
+        last = d.get("last_seen_at")
+        if isinstance(first, datetime) and first.tzinfo is None:
+            first = first.replace(tzinfo=timezone.utc)
+        if isinstance(last, datetime) and last.tzinfo is None:
+            last = last.replace(tzinfo=timezone.utc)
+        seconds_in_session = int((last - first).total_seconds()) if first and last else 0
+        seconds_ago = int((now - last).total_seconds()) if last else 0
+        u = users_map.get(d.get("user_id")) if d.get("user_id") else None
+        items.append({
+            "visitor_id": d.get("visitor_id"),
+            "path": d.get("path"),
+            "country": d.get("country") or "—",
+            "device": d.get("device") or "desktop",
+            "browser": d.get("browser") or "Otros",
+            "lang": d.get("lang") or "",
+            "seconds_in_session": seconds_in_session,
+            "seconds_ago": seconds_ago,
+            "is_authenticated": bool(u),
+            "user_email": u.get("email") if u else None,
+            "user_name": u.get("name") if u else None,
+            "user_picture": u.get("picture") if u else None,
+        })
+
+    return {
+        "online": len(items),
+        "items": items,
+        "now": now.isoformat(),
+    }
+
+
+@admin_router.get("/analytics/stats")
+async def analytics_stats(
+    req: Request,
+    admin: dict = Depends(require_admin),
+    range: str = "7d",
+):
+    """KPIs y rankings agregados sobre el rango pedido (24h, 7d, 30d, 90d)."""
+    db = req.app.state.db
+    if range not in _RANGE_TO_HOURS:
+        range = "7d"
+    start = _range_start(range)
+
+    # ---- KPIs ---- #
+    page_views = await db.analytics_events.count_documents({"created_at": {"$gte": start}})
+
+    unique_visitors_pipeline = [
+        {"$match": {"created_at": {"$gte": start}}},
+        {"$group": {"_id": "$visitor_id"}},
+        {"$count": "n"},
+    ]
+    uv = [d async for d in db.analytics_events.aggregate(unique_visitors_pipeline)]
+    unique_visitors = uv[0]["n"] if uv else 0
+
+    new_signups = await db.users.count_documents({"created_at": {"$gte": start}})
+    searches = await db.search_history.count_documents({"created_at": {"$gte": start}})
+    affiliate_clicks = await db.affiliate_clicks.count_documents({"created_at": {"$gte": start}})
+
+    # ---- Top destinos ---- #
+    top_dest_pipe = [
+        {"$match": {"created_at": {"$gte": start}}},
+        {"$group": {"_id": "$destination", "n": {"$sum": 1}}},
+        {"$sort": {"n": -1}},
+        {"$limit": 10},
+    ]
+    top_destinations = [
+        {"label": d.get("_id") or "—", "value": d["n"]}
+        async for d in db.search_history.aggregate(top_dest_pipe)
+    ]
+
+    # ---- Top páginas ---- #
+    top_pages_pipe = [
+        {"$match": {"created_at": {"$gte": start}}},
+        {"$group": {"_id": "$path", "n": {"$sum": 1}}},
+        {"$sort": {"n": -1}},
+        {"$limit": 10},
+    ]
+    top_pages = [
+        {"label": d.get("_id") or "/", "value": d["n"]}
+        async for d in db.analytics_events.aggregate(top_pages_pipe)
+    ]
+
+    # ---- Top afiliados ---- #
+    top_aff_pipe = [
+        {"$match": {"created_at": {"$gte": start}}},
+        {"$group": {"_id": "$kind", "n": {"$sum": 1}}},
+        {"$sort": {"n": -1}},
+        {"$limit": 10},
+    ]
+    top_affiliates = [
+        {"label": d.get("_id") or "unknown", "value": d["n"]}
+        async for d in db.affiliate_clicks.aggregate(top_aff_pipe)
+    ]
+
+    # ---- Origen tráfico ---- #
+    referrer_pipe = [
+        {"$match": {"created_at": {"$gte": start}}},
+        {"$group": {"_id": "$referrer_source", "n": {"$sum": 1}}},
+        {"$sort": {"n": -1}},
+    ]
+    referrers = [
+        {"label": d.get("_id") or "Directo", "value": d["n"]}
+        async for d in db.analytics_events.aggregate(referrer_pipe)
+    ]
+
+    # ---- Reparto dispositivo ---- #
+    device_pipe = [
+        {"$match": {"created_at": {"$gte": start}}},
+        {"$group": {"_id": "$device", "n": {"$sum": 1}}},
+        {"$sort": {"n": -1}},
+    ]
+    devices = [
+        {"label": d.get("_id") or "desktop", "value": d["n"]}
+        async for d in db.analytics_events.aggregate(device_pipe)
+    ]
+
+    # ---- Top países ---- #
+    country_pipe = [
+        {"$match": {"created_at": {"$gte": start}}},
+        {"$group": {"_id": "$country", "n": {"$sum": 1}}},
+        {"$sort": {"n": -1}},
+        {"$limit": 10},
+    ]
+    countries = [
+        {"label": d.get("_id") or "—", "value": d["n"]}
+        async for d in db.analytics_events.aggregate(country_pipe)
+    ]
+
+    # ---- Serie temporal: visitas únicas por día (siempre 30d para gráfico) ---- #
+    chart_start = datetime.now(timezone.utc) - timedelta(days=30)
+    daily_pipe = [
+        {"$match": {"created_at": {"$gte": chart_start}}},
+        {
+            "$group": {
+                "_id": {
+                    "$dateToString": {"format": "%Y-%m-%d", "date": "$created_at"}
+                },
+                "visitors": {"$addToSet": "$visitor_id"},
+                "views": {"$sum": 1},
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "date": "$_id",
+                "views": 1,
+                "unique_visitors": {"$size": "$visitors"},
+            }
+        },
+        {"$sort": {"date": 1}},
+    ]
+    daily_series = [d async for d in db.analytics_events.aggregate(daily_pipe)]
+
+    # Conversion funnel (estimado). Definimos:
+    # visit → search → signup → click afiliado dentro del rango
+    funnel = {
+        "visitors": unique_visitors,
+        "searches": searches,
+        "signups": new_signups,
+        "affiliate_clicks": affiliate_clicks,
+    }
+
+    return {
+        "range": range,
+        "since": start.isoformat(),
+        "kpis": {
+            "unique_visitors": unique_visitors,
+            "page_views": page_views,
+            "new_signups": new_signups,
+            "searches": searches,
+            "affiliate_clicks": affiliate_clicks,
+        },
+        "funnel": funnel,
+        "top_destinations": top_destinations,
+        "top_pages": top_pages,
+        "top_affiliates": top_affiliates,
+        "referrers": referrers,
+        "devices": devices,
+        "countries": countries,
+        "daily_series": daily_series,
+    }

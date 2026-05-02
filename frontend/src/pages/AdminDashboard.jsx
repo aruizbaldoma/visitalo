@@ -15,7 +15,10 @@ import {
   Calendar,
   Copy,
   Check,
+  Users,
+  BarChart3,
 } from "lucide-react";
+import AdminAnalytics from "./AdminAnalytics";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
@@ -70,16 +73,18 @@ export default function AdminDashboard() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
+  const [activeTab, setActiveTab] = useState("users"); // 'users' | 'analytics'
   const adminEmail = localStorage.getItem("admin_email") || "";
 
   useEffect(() => {
     if (!token) return;
+    if (activeTab !== "users") return;
     setLoading(true);
     adminFetch(`/api/admin/users?limit=500`)
       .then((d) => setUsers(d.users || []))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, activeTab]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -130,6 +135,38 @@ export default function AdminDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+        {/* Tabs */}
+        <div className="flex items-center gap-1 mb-6 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab("users")}
+            className="px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2 -mb-px border-b-2 transition-colors"
+            style={
+              activeTab === "users"
+                ? { borderColor: BRAND_GREEN, color: BRAND_BLUE }
+                : { borderColor: "transparent", color: "#6b7280" }
+            }
+            data-testid="tab-users"
+          >
+            <Users className="w-4 h-4" /> Usuarios
+          </button>
+          <button
+            onClick={() => setActiveTab("analytics")}
+            className="px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2 -mb-px border-b-2 transition-colors"
+            style={
+              activeTab === "analytics"
+                ? { borderColor: BRAND_GREEN, color: BRAND_BLUE }
+                : { borderColor: "transparent", color: "#6b7280" }
+            }
+            data-testid="tab-analytics"
+          >
+            <BarChart3 className="w-4 h-4" /> Analítica
+          </button>
+        </div>
+
+        {activeTab === "analytics" && <AdminAnalytics />}
+
+        {activeTab === "users" && (
+        <>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2
@@ -254,6 +291,8 @@ export default function AdminDashboard() {
               </table>
             </div>
           </div>
+        )}
+        </>
         )}
       </main>
 
