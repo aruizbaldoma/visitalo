@@ -39,7 +39,6 @@ export const Footer = () => {
 
   return (
     <footer
-      id="contacto"
       className="bg-white border-t border-gray-100"
       style={{ color: BRAND_BLUE }}
     >

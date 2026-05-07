@@ -9,6 +9,7 @@ import { TravelDetailsModal } from "./components/TravelDetailsModal";
 import { ItineraryLoading } from "./components/ItineraryLoading";
 import { WelcomePromoModal } from "./components/WelcomePromoModal";
 import { Footer } from "./components/Footer";
+import { ContactSection } from "./components/ContactSection";
 import { AuthCallback } from "./components/AuthCallback";
 import { useAuth } from "./contexts/AuthContext";
 import { ItineraryProvider, useItinerary } from "./contexts/ItineraryContext";
@@ -267,6 +268,8 @@ function MainApp() {
         isAuthenticated={isAuthenticated}
         onOpenAuth={() => window.dispatchEvent(new Event("visitalo:open-auth"))}
       />
+
+      <ContactSection />
 
       <Footer />
     </div>

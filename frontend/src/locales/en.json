@@ -182,6 +182,28 @@
     "passwordTooShort": "Password must be at least 6 characters.",
     "error": "We couldn't reset your password. The link may have expired."
   },
+  "contact": {
+    "eyebrow": "Let's talk",
+    "title": "Need a hand planning your next trip?",
+    "subtitle": "Tell us what you need and we'll reply within 24h.",
+    "firstNamePlaceholder": "First name",
+    "lastNamePlaceholder": "Last name",
+    "phonePlaceholder": "Phone",
+    "emailPlaceholder": "Email",
+    "commentPlaceholder": "Tell us a bit more (optional)",
+    "submit": "Send message",
+    "submitting": "Sending…",
+    "successTitle": "Message sent!",
+    "successBody": "We'll get back to you at the email you provided as soon as possible.",
+    "sendAnother": "Send another message",
+    "errorMissing": "Please fill in first name, last name, phone and email.",
+    "errorRecaptcha": "We couldn't load the verification. Reload and try again.",
+    "errorGeneric": "We couldn't send your message. Try again in a few seconds.",
+    "recaptchaNotice": "This site is protected by reCAPTCHA. Google's",
+    "recaptchaPrivacy": "Privacy Policy",
+    "recaptchaAnd": "and",
+    "recaptchaTerms": "Terms of Service"
+  },
   "cookies": {
     "title": "We use cookies to improve your experience",
     "description": "We use our own and third-party cookies for the correct functioning of the site, to analyze traffic and to show you personalized travel recommendations. You can accept all or configure your preferences.",

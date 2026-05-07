@@ -182,6 +182,28 @@
     "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
     "error": "No hemos podido restablecer tu contraseña. El enlace puede haber expirado."
   },
+  "contact": {
+    "eyebrow": "Hablemos",
+    "title": "¿Te ayudamos a montar tu próximo viaje?",
+    "subtitle": "Cuéntanos lo que necesitas y te respondemos en menos de 24h.",
+    "firstNamePlaceholder": "Nombre",
+    "lastNamePlaceholder": "Apellidos",
+    "phonePlaceholder": "Teléfono",
+    "emailPlaceholder": "Correo electrónico",
+    "commentPlaceholder": "Cuéntanos algo más (opcional)",
+    "submit": "Enviar mensaje",
+    "submitting": "Enviando…",
+    "successTitle": "¡Mensaje enviado!",
+    "successBody": "Te contestamos lo antes posible al correo que nos has dejado.",
+    "sendAnother": "Enviar otro mensaje",
+    "errorMissing": "Rellena nombre, apellidos, teléfono y email para continuar.",
+    "errorRecaptcha": "No hemos podido cargar la verificación. Recarga la página e inténtalo de nuevo.",
+    "errorGeneric": "No hemos podido enviar tu mensaje. Inténtalo en unos segundos.",
+    "recaptchaNotice": "Este sitio está protegido por reCAPTCHA. Aplican la",
+    "recaptchaPrivacy": "Política de Privacidad",
+    "recaptchaAnd": "y los",
+    "recaptchaTerms": "Términos de Servicio"
+  },
   "cookies": {
     "title": "Usamos cookies para mejorar tu experiencia",
     "description": "Utilizamos cookies propias y de terceros para el correcto funcionamiento de la web, analizar el tráfico y mostrarte recomendaciones de viajes personalizadas. Puedes aceptar todas o configurar tus preferencias.",
