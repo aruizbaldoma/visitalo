@@ -169,11 +169,14 @@ export const getActivityBookingUrl = (activity, opts = {}) => {
   const direct = activity?.bookingUrl;
   const options = typeof opts === "string" ? { destination: opts } : (opts || {});
   if (direct) return wrapTrackedUrl(direct, "gyg");
-  const query =
-    activity?.title ||
-    activity?.name ||
-    options.destination ||
-    "";
+
+  // Construimos la query con destino + título de actividad para que GYG
+  // filtre por ubicación. Sin destino, GYG devuelve resultados aleatorios
+  // que coincidan con palabras del título (ej. "flamenco" → Cornualles).
+  const title = activity?.title || activity?.name || "";
+  const dest = options.destination || activity?.destination || "";
+  const query = [dest, title].filter(Boolean).join(" ").trim();
+
   const url = buildGetYourGuideSearchUrl(query, {
     startDate: options.startDate,
     endDate: options.endDate,
