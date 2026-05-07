@@ -9,7 +9,6 @@ import { TravelDetailsModal } from "./components/TravelDetailsModal";
 import { ItineraryLoading } from "./components/ItineraryLoading";
 import { WelcomePromoModal } from "./components/WelcomePromoModal";
 import { Footer } from "./components/Footer";
-import { ContactSection } from "./components/ContactSection";
 import { AuthCallback } from "./components/AuthCallback";
 import { useAuth } from "./contexts/AuthContext";
 import { ItineraryProvider, useItinerary } from "./contexts/ItineraryContext";
@@ -24,6 +23,7 @@ import RoutePage from "./pages/Route";
 import DestinationItinerary from "./pages/DestinationItinerary";
 import Destinos from "./pages/Destinos";
 import About from "./pages/About";
+import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import VerifyEmail from "./pages/VerifyEmail";
@@ -57,6 +57,8 @@ function App() {
             <Route path="/destinations" element={<Destinos lang="en" />} />
             <Route path="/sobre-nosotros" element={<About lang="es" />} />
             <Route path="/about-us" element={<About lang="en" />} />
+            <Route path="/contacto" element={<Contact lang="es" />} />
+            <Route path="/contact" element={<Contact lang="en" />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/verificar" element={<VerifyEmail />} />
@@ -268,8 +270,6 @@ function MainApp() {
         isAuthenticated={isAuthenticated}
         onOpenAuth={() => window.dispatchEvent(new Event("visitalo:open-auth"))}
       />
-
-      <ContactSection />
 
       <Footer />
     </div>

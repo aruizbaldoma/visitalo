@@ -36,6 +36,7 @@ export const Footer = () => {
   const isEN = (i18n.language || "es").toLowerCase().startsWith("en");
   const aboutPath = isEN ? "/about-us" : "/sobre-nosotros";
   const destinosPath = isEN ? "/destinations" : "/destinos";
+  const contactPath = isEN ? "/contact" : "/contacto";
 
   return (
     <footer
@@ -129,7 +130,11 @@ export const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#contacto" className="opacity-80 hover:opacity-100 transition-opacity">
+                <a
+                  href={contactPath}
+                  className="opacity-80 hover:opacity-100 transition-opacity"
+                  data-testid="footer-link-contact"
+                >
                   {t("footer.contact")}
                 </a>
               </li>
