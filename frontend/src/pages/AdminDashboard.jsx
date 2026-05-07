@@ -17,8 +17,10 @@ import {
   Check,
   Users,
   BarChart3,
+  Inbox,
 } from "lucide-react";
 import AdminAnalytics from "./AdminAnalytics";
+import AdminMessages from "./AdminMessages";
 
 const BRAND_BLUE = "#031834";
 const BRAND_GREEN = "#3ccca4";
@@ -161,9 +163,22 @@ export default function AdminDashboard() {
           >
             <BarChart3 className="w-4 h-4" /> Analítica
           </button>
+          <button
+            onClick={() => setActiveTab("messages")}
+            className="px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2 -mb-px border-b-2 transition-colors"
+            style={
+              activeTab === "messages"
+                ? { borderColor: BRAND_GREEN, color: BRAND_BLUE }
+                : { borderColor: "transparent", color: "#6b7280" }
+            }
+            data-testid="tab-messages"
+          >
+            <Inbox className="w-4 h-4" /> Mensajes
+          </button>
         </div>
 
         {activeTab === "analytics" && <AdminAnalytics />}
+        {activeTab === "messages" && <AdminMessages />}
 
         {activeTab === "users" && (
         <>

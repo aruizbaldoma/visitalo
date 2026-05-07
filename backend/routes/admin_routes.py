@@ -518,3 +518,24 @@ async def analytics_stats(
         "countries": countries,
         "daily_series": daily_series,
     }
+
+
+@admin_router.get("/contact-messages")
+async def list_contact_messages(
+    req: Request,
+    admin: dict = Depends(require_admin),
+    limit: int = 200,
+):
+    """Lista los mensajes recibidos en el formulario de contacto, más recientes primero."""
+    db = req.app.state.db
+    docs = await (
+        db.contact_messages.find({}, {"_id": 0})
+        .sort("created_at", -1)
+        .limit(min(limit, 500))
+        .to_list(min(limit, 500))
+    )
+    for d in docs:
+        v = d.get("created_at")
+        if isinstance(v, datetime):
+            d["created_at"] = v.isoformat()
+    return {"messages": docs, "count": len(docs)}

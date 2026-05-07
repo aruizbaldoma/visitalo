@@ -104,6 +104,13 @@
   - Backend admin: `GET /api/admin/analytics/live` (visitantes con last_seen <90s) y `GET /api/admin/analytics/stats?range=24h|7d|30d|90d` (KPIs, embudo, top destinos/páginas/afiliados/países, breakdown referrer/dispositivo, serie temporal 30d para sparkline).
   - Frontend: nuevo hook `useAnalytics` montado en `App.js` (genera visitor_id en localStorage, trackea route changes, heartbeat cada 30s solo con cookies analíticas aceptadas). Pestañas "Usuarios / Analítica" en `AdminDashboard.jsx`. Componente `AdminAnalytics.jsx` con KPIs, embudo, sparkline SVG sin dependencias, rankings con barras y tabla live con auto-refresh cada 5s.
   - Verificado end-to-end: track + heartbeat → admin/live muestra "2 online" → admin/stats devuelve KPIs y rankings reales. Screenshot del dashboard confirma render correcto.
+- ✅ **Enlace afiliado IATI Seguros** actualizado en `ItinerarySidebar.jsx` con código de afiliado real (`?r=85219359720989`). Tracker `/api/r` conserva el query param y registra el clic.
+- ✅ **Formulario de contacto en /#contacto con reCAPTCHA v3**:
+  - Nueva sección `ContactSection.jsx` con `id="contacto"` (movido desde Footer) renderizada antes del footer en la home. Form con Nombre, Apellidos, Teléfono, Email, Comentario opcional, scroll automático al cargar con hash. Integración reCAPTCHA v3 lazy-load (`utils/recaptcha.js`) — site key en `REACT_APP_RECAPTCHA_SITE_KEY`.
+  - Backend: nuevo router `contact_routes.py` con `POST /api/contact`. Valida reCAPTCHA v3 (score >= 0.5), rate-limit blando 5/h por IP+email, guarda en `contact_messages`, envía email HTML al admin vía Resend (`CONTACT_EMAIL_TO=info@visitalo.es`). Secret key en `RECAPTCHA_SECRET_KEY`.
+  - Admin: nueva pestaña **Mensajes** en `AdminDashboard.jsx` con tabla (fecha, nombre, email, teléfono, comentario truncado, score reCAPTCHA) y modal de detalle. Endpoint `GET /api/admin/contact-messages`.
+  - Traducciones ES/EN. Validado con curl (4 casos: faltan campos → 422, token corto → 422, token inválido → 400, email a admin enviado). Smoke screenshot confirma render limpio.
+  - Nota dominio preview: el badge muestra "Invalid domain" porque `barato-planner.preview.emergentagent.com` no está añadido en la consola reCAPTCHA del usuario; en producción `visitalo.es` funciona al 100%.
 
 ---
 **Última Actualización**: Febrero 2026
