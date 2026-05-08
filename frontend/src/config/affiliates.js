@@ -170,12 +170,15 @@ export const getActivityBookingUrl = (activity, opts = {}) => {
   const options = typeof opts === "string" ? { destination: opts } : (opts || {});
   if (direct) return wrapTrackedUrl(direct, "gyg");
 
-  // Construimos la query con destino + título de actividad para que GYG
-  // filtre por ubicación. Sin destino, GYG devuelve resultados aleatorios
-  // que coincidan con palabras del título (ej. "flamenco" → Cornualles).
-  const title = activity?.title || activity?.name || "";
+  // Estrategia: buscamos en GYG por DESTINO + fechas, no por título de
+  // actividad. GYG no encuentra de forma fiable tours genéricos por
+  // título (ej. "Tour Privado por el Casco Histórico" devuelve Portsmouth
+  // si no anclamos por ciudad). En cambio, una búsqueda por destino sí
+  // localiza la ciudad y muestra actividades reales con disponibilidad
+  // en esas fechas — el usuario elige la que más le encaje.
   const dest = options.destination || activity?.destination || "";
-  const query = [dest, title].filter(Boolean).join(" ").trim();
+  const title = activity?.title || activity?.name || "";
+  const query = (dest || title).trim();
 
   const url = buildGetYourGuideSearchUrl(query, {
     startDate: options.startDate,
