@@ -173,40 +173,67 @@ class ItineraryService:
         )
         budget_block += hotel_price_block
         
-        # Prompt profesional optimizado
-        prompt = f"""Eres un experto en planificación de itinerarios de alta gama, especializado en crear experiencias personalizadas.
+        # Prompt profesional — versión 2 (más rigurosa, anti-alucinaciones)
+        prompt = f"""Eres un planificador senior de viajes con 15 años de experiencia local en {destination}. Construyes itinerarios que parecen escritos por alguien que vive allí: sabes qué calle coger, qué bar coger café, qué museo evitar los lunes, dónde no te timan, y cuánto cuesta cada cosa en 2026.
 
+═══════════════════════════════════════════════
+DATOS DEL VIAJE
+═══════════════════════════════════════════════
 DESTINO: {destination}
-PERIODO: {start_date} a {end_date} ({total_days} días)
+FECHAS: {start_date} → {end_date}   ({total_days} días, rango inclusivo)
 
-CONTEXTO DEL VIAJE:
+CONTEXTO DEL USUARIO:
 {context}
 
 {budget_block}
-REGLAS CRÍTICAS DE FORMATO JSON:
-1. Cada día debe tener: MAÑANA, TARDE y NOCHE
-2. Cada actividad debe incluir: time, title, description, location, duration
-3. **IMPORTANTE - PRECIOS**:
-   - Actividades turísticas: incluir campo "price" con valor numérico (ej: 45.50)
-   - Vuelos y Hoteles: el campo "price" debe ser null o no incluirse
-4. Incluir campo "provider" en actividades (Civitatis, Viator, GetYourGuide)
-5. Nombres REALES de lugares y actividades específicas
-6. **DÍAS COMPLETOS — REGLA ESTRICTA**: el viaje son exactamente {total_days} días.
-   Tienes que generar {total_days} entradas en "days", una por cada día desde {start_date}
-   hasta {end_date} (rango inclusivo). NUNCA dejes ningún día con arrays vacíos.
-7. **DÍA DE LLEGADA**: si el usuario indicó hora de llegada, ajusta MAÑANA a esa hora;
-   si NO la indicó, asume llegada por la mañana y empieza con un plan suave (~10:00).
-8. **DÍA DE SALIDA / ÚLTIMO DÍA**: si el usuario indicó hora de regreso (departure_time),
-   acota el día a esa hora. Si NO la indicó, **trata el último día como un día completo
-   con actividades hasta las 20:00** — NO dejes el último día sólo con desayuno o
-   actividades de mañana.
 
-ESTRUCTURA JSON REQUERIDA:
+═══════════════════════════════════════════════
+REGLAS INNEGOCIABLES (rompe cualquiera y el output es INVÁLIDO)
+═══════════════════════════════════════════════
 
+R1. RESPETA TIEMPOS DE LLEGADA Y SALIDA
+   - Si arriba ves "LLEGADA AL DESTINO" o "SALIDA DEL DESTINO" con horas, son LEY.
+   - NO metas actividades antes de la llegada efectiva ni después de la hora límite de salida. Si lo haces, el JSON se descarta.
+
+R2. ACTIVIDADES REALES, NOMBRES REALES
+   - Nada de "Tour por el centro" genérico. Usa NOMBRE PROPIO de la atracción concreta (ej. "Catedral Nueva de Salamanca", "Casa de las Conchas", "Mercado Central", "Restaurante Río de la Plata").
+   - Si no existe esa atracción/restaurante en {destination}, NO TE LA INVENTES — escoge una real que sí exista.
+   - Direcciones: incluye calle/plaza concreta en `location` (ej. "Plaza Mayor, 12", "Calle Compañía, 1").
+
+R3. PRECIOS REALISTAS 2026 (EUR)
+   - Sigue el rango del bloque PRESUPUESTO de arriba.
+   - Entradas a monumentos: precio real público (no inventes 45€ si la entrada cuesta 8€).
+   - Comidas y cenas: precio del menú medio por persona en ese tipo de sitio.
+   - Tours guiados: precio real del operador (Civitatis/GetYourGuide).
+   - Si no estás seguro del precio EXACTO, da una horquilla baja realista — no infles.
+
+R4. RITMO HUMANO
+   - 2-4 actividades por día en ritmo equilibrado; 3-5 en intenso; 1-2 en relajado.
+   - Cada actividad turística dura entre 1h y 3h.
+   - Bloques: MAÑANA termina ~14:00; TARDE 14:00-19:00; NOCHE desde 19:30.
+   - Deja margen para comer/cenar (ya lo metes como actividad) y para caminar entre puntos. Los puntos de un mismo bloque deben estar cerca; no des saltos de 30 min en metro entre dos actividades seguidas.
+
+R5. PROVEEDORES
+   - Campo `provider`: usa "GetYourGuide" para tours/visitas guiadas/experiencias, "Civitatis" para tours en español, "Reserva directa" para restaurantes/bares.
+
+R6. ESTRUCTURA POR DÍA
+   - Genera EXACTAMENTE {total_days} entradas en `days`, una por cada día del rango.
+   - NUNCA dejes un día con los tres bloques vacíos. Si un bloque queda vacío por la restricción de llegada/salida, compensa con más en los otros bloques de ese día.
+
+R7. CONSEJOS LOCALES (campo opcional `tip`)
+   - En 1 de cada 3 actividades, añade un campo `tip` con un consejo de local breve (1 frase): mejor hora para visitar, cómo evitar colas, qué pedir, qué barrio próximo merece pasear.
+
+R8. PRECIOS NULL PARA TRANSPORTE Y HOTELES
+   - Actividades turísticas: `price` numérico siempre (no null).
+   - Vuelos / hoteles / traslados informativos: `price=null`.
+
+═══════════════════════════════════════════════
+ESTRUCTURA JSON REQUERIDA (RESPONDE SOLO CON ESTE JSON)
+═══════════════════════════════════════════════
 {{
   "destination": "{destination}",
   "totalDays": {total_days},
-  "hotelRecommendation": "Texto de recomendación..." o null,
+  "hotelRecommendation": "Texto con zona + nombre/categoría + razón" o null,
   "days": [
     {{
       "day": 1,
@@ -214,28 +241,25 @@ ESTRUCTURA JSON REQUERIDA:
       "morning": {{
         "activities": [
           {{
-            "time": "09:00",
-            "title": "Nombre real de la actividad",
-            "description": "Descripción detallada",
-            "location": "Dirección o zona específica",
+            "time": "10:30",
+            "title": "Nombre propio real de la atracción",
+            "description": "Por qué merece la pena, en 1-2 frases con personalidad",
+            "location": "Dirección o plaza concreta",
             "duration": "2h",
-            "price": 35.00,
+            "price": 12.00,
             "activityId": "act_1_morning_1",
-            "provider": "Civitatis"
+            "provider": "Civitatis",
+            "tip": "Ve antes de las 11h para evitar grupos."
           }}
         ]
       }},
-      "afternoon": {{
-        "activities": [...]
-      }},
-      "night": {{
-        "activities": [...]
-      }}
+      "afternoon": {{ "activities": [...] }},
+      "night":     {{ "activities": [...] }}
     }}
   ]
 }}
 
-IMPORTANTE: Devuelve SOLO el JSON válido, sin texto adicional antes o después.
+IMPORTANTE: Devuelve **SOLO** el objeto JSON. Sin markdown, sin ```json, sin texto adicional antes o después.
 
 JSON:"""
         
@@ -245,7 +269,7 @@ JSON:"""
         max_tokens = min(48000, 2500 + total_days * 2500)
 
         base_generation_config = {
-            "temperature": 0.7,
+            "temperature": 0.55,
             "maxOutputTokens": max_tokens,
         }
 
@@ -647,50 +671,101 @@ JSON:"""
         Construye contexto inteligente para el prompt según las nuevas reglas
         """
         parts = []
-        
-        # REGLA 1: Sincronización Temporal con Vuelos
+
+        # REGLA 1: Sincronización Temporal con LLEGADA/SALIDA
+        # `has_flights=True` se entiende como "el usuario ya conoce su hora
+        # de llegada y/o salida del destino". Las activities ANTES de la
+        # llegada o DESPUÉS de la salida están terminantemente prohibidas.
         if has_flights and arrival_time:
-            parts.append(f"VUELOS RESERVADOS:")
-            parts.append(f"- Hora de llegada (Día 1): {arrival_time}")
-            parts.append(f"- El Día 1 debe comenzar DESPUÉS de la llegada. Incluir traslado del aeropuerto (1-1.5h).")
-            parts.append(f"- Primera actividad turística: aproximadamente {self._add_time(arrival_time, 2)}")
-            
+            # Buffer de traslado terminal/estación → centro: 90 min (90 min
+            # cubre vuelo medio o tren). En aeropuertos grandes súbelo
+            # mentalmente: el prompt lo deja claro.
+            first_activity_time = self._add_time(arrival_time, 2)
+            parts.append("LLEGADA AL DESTINO (DÍA 1) — RESTRICCIÓN ESTRICTA:")
+            parts.append(f"- El usuario llega al destino a las {arrival_time}.")
+            parts.append(
+                f"- PROHIBIDO programar ninguna actividad antes de las {first_activity_time}. "
+                f"El bloque anterior queda VACÍO o solo con el traslado al alojamiento."
+            )
+            parts.append(
+                "- Reserva ~90 min de margen tras la llegada para recoger equipaje, "
+                "traslado del aeropuerto/estación al centro y check-in en el hotel."
+            )
+            parts.append(
+                f"- La primera actividad turística debe empezar a las {first_activity_time} o más tarde."
+            )
             if departure_time:
-                parts.append(f"- Hora de salida (Día {total_days}): {departure_time}")
-                parts.append(f"- El último día debe finalizar 3 HORAS ANTES de la salida ({self._subtract_time(departure_time, 3)}).")
-                parts.append(f"- Incluir tiempo para traslado al aeropuerto.")
+                last_activity_end = self._subtract_time(departure_time, 3)
+                parts.append("")
+                parts.append("SALIDA DEL DESTINO (ÚLTIMO DÍA) — RESTRICCIÓN ESTRICTA:")
+                parts.append(f"- El usuario sale del destino a las {departure_time}.")
+                parts.append(
+                    f"- PROHIBIDO programar actividades que terminen después de las {last_activity_end}. "
+                    f"Reserva 3h para check-out, traslado y trámites de salida."
+                )
+        elif has_flights and departure_time:
+            # Solo conocemos la salida.
+            last_activity_end = self._subtract_time(departure_time, 3)
+            parts.append("SALIDA DEL DESTINO (ÚLTIMO DÍA) — RESTRICCIÓN ESTRICTA:")
+            parts.append(f"- El usuario sale del destino a las {departure_time}.")
+            parts.append(
+                f"- PROHIBIDO programar actividades que terminen después de las {last_activity_end} "
+                "(3h de margen para check-out + traslado)."
+            )
+            parts.append("- El Día 1 sin restricción de llegada: empieza entre 09:00 y 11:00.")
         else:
-            # Si NO hay vuelos, el itinerario comienza por defecto 09:00-11:00
-            parts.append(f"SIN VUELOS RESERVADOS:")
-            parts.append(f"- El Día 1 debe comenzar entre las 09:00 y 11:00 AM.")
-            parts.append(f"- El último día puede extenderse hasta las 20:00-21:00.")
-        
+            # Sin info de transporte: día 1 empieza por la mañana, día final
+            # se trata como día completo.
+            parts.append("SIN INFO DE TRANSPORTE:")
+            parts.append("- El Día 1 puede empezar entre las 09:00 y 11:00 AM.")
+            parts.append("- El último día se trata como un día completo (hasta las 20:00-21:00).")
+
         # REGLA 2: Radio de Acción (Hoteles)
         if has_hotel and hotel_name:
-            parts.append(f"\nHOTEL RESERVADO:")
+            parts.append("")
+            parts.append("HOTEL RESERVADO:")
             parts.append(f"- Nombre: {hotel_name}")
             if hotel_category:
                 parts.append(f"- Categoría: {hotel_category}")
-            parts.append(f"- PRIORIZAR actividades en un radio geográfico cercano a este hotel.")
-            parts.append(f"- Optimizar rutas para minimizar desplazamientos.")
+            parts.append(
+                "- PRIORIZA actividades en un radio caminable / 15 min en transporte público "
+                "desde este hotel. Minimiza desplazamientos largos."
+            )
         elif needs_hotel_recommendation:
-            parts.append(f"\nRECOMENDACIÓN DE HOTEL SOLICITADA:")
+            parts.append("")
+            parts.append("RECOMENDACIÓN DE HOTEL SOLICITADA:")
             if total_days > 20:
-                parts.append(f"- Recomendar 2-3 hoteles estratégicos (el viaje es de {total_days} días).")
-                parts.append(f"- Justificar brevemente la ubicación de cada hotel.")
+                parts.append(
+                    f"- El viaje es de {total_days} días: recomienda 2-3 hoteles "
+                    "estratégicos repartidos por zonas."
+                )
+                parts.append("- Justifica brevemente la ubicación de cada hotel.")
             else:
-                parts.append(f"- Recomendar UN ÚNICO hotel estratégico para todo el viaje.")
-                parts.append(f"- Justificar brevemente por qué esa ubicación es la más estratégica.")
-            parts.append(f"- Incluir esta recomendación en el campo 'hotelRecommendation' del JSON.")
+                parts.append("- Recomienda UN ÚNICO hotel estratégico para todo el viaje.")
+                parts.append(
+                    "- Justifica por qué esa zona es la más céntrica/conveniente "
+                    "(transporte, seguridad, ambiente)."
+                )
+            parts.append("- Pon la recomendación en el campo 'hotelRecommendation' del JSON.")
 
         # REGLA 3: Personalización según plan
         if user_plan == "plus" and preferences:
-            parts.append(f"\nPREFERENCIAS DEL USUARIO (PLAN PLUS):")
-            for key, value in preferences.items():
-                if value:
-                    parts.append(f"- {key}: {value}")
-            parts.append(f"- Adaptar el itinerario al máximo a estas preferencias.")
-        
+            parts.append("")
+            parts.append("PREFERENCIAS DEL USUARIO (PLAN PLUS):")
+            activities = preferences.get("activities", {}) if isinstance(preferences, dict) else {}
+            pace = preferences.get("pace") if isinstance(preferences, dict) else None
+            active_themes = [k for k, v in activities.items() if v] if isinstance(activities, dict) else []
+            if active_themes:
+                parts.append(f"- Temáticas activas: {', '.join(active_themes)}. ENFOCA cada día en ellas.")
+            if pace:
+                pace_desc = {
+                    "intense": "ritmo intenso (3-5 actividades por día, días largos hasta tarde)",
+                    "balanced": "ritmo equilibrado (2-3 actividades por día, tiempo libre razonable)",
+                    "relaxed": "ritmo relajado (1-2 actividades por día, mucho tiempo libre)",
+                }.get(pace, pace)
+                parts.append(f"- Ritmo: {pace_desc}.")
+            parts.append("- Adapta el itinerario al máximo a estas preferencias.")
+
         return "\n".join(parts) if parts else ""
     
     def _derive_activity_price_range(

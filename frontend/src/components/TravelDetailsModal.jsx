@@ -111,13 +111,14 @@ export const TravelDetailsModal = ({
   // disfrutan de las funciones avanzadas sin marca PLUS.
   const isPlusUser = FEATURES.PLUS_ENABLED ? userPlan === "plus" : true;
 
-  // Bloque 1: llegada
+  // Bloque 1: llegada — solo guardamos la HORA (HH:MM); la fecha viene
+  // de la barra de búsqueda (startDate) y la combinamos al enviar.
   const [transportReady, setTransportReady] = useState(false);
-  const [arrivalDateTime, setArrivalDateTime] = useState("");
+  const [arrivalTime, setArrivalTime] = useState("");
 
-  // Bloque 2: salida (vuelta)
+  // Bloque 2: salida (vuelta) — idem, solo hora.
   const [departureReady, setDepartureReady] = useState(false);
-  const [departureDateTime, setDepartureDateTime] = useState("");
+  const [departureTime, setDepartureTime] = useState("");
 
   // Bloque 3: multi-ciudad
   const [multiCity, setMultiCity] = useState(false);
@@ -139,11 +140,11 @@ export const TravelDetailsModal = ({
   useEffect(() => {
     if (!isOpen) return;
     setHotelCategories(["standard"]);
-    if (startDate && !arrivalDateTime) {
-      setArrivalDateTime(`${startDate}T12:00`);
+    if (startDate && !arrivalTime) {
+      setArrivalTime("12:00");
     }
-    if (endDate && !departureDateTime) {
-      setDepartureDateTime(`${endDate}T18:00`);
+    if (endDate && !departureTime) {
+      setDepartureTime("18:00");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, startDate, endDate]);
@@ -186,11 +187,21 @@ export const TravelDetailsModal = ({
   const plusCtaLabel = isAuthenticated ? "Desbloquear mi viaje PLUS" : "Iniciar sesión / Registrarme";
 
   const handleSubmit = () => {
+    // Combinamos la HORA elegida en el modal con la FECHA de la barra de
+    // búsqueda. Mantenemos `arrivalDateTime` / `departureDateTime` en el
+    // payload por compatibilidad con el backend.
+    const arrivalDateTime =
+      transportReady && arrivalTime && startDate ? `${startDate}T${arrivalTime}` : null;
+    const departureDateTime =
+      departureReady && departureTime && endDate ? `${endDate}T${departureTime}` : null;
+
     const details = {
       transportReady,
-      arrivalDateTime: transportReady ? arrivalDateTime : null,
+      arrivalTime: transportReady ? arrivalTime : null,
+      arrivalDateTime,
       departureReady,
-      departureDateTime: departureReady ? departureDateTime : null,
+      departureTime: departureReady ? departureTime : null,
+      departureDateTime,
       multiCity: isPlusUser ? multiCity : false,
       cities: isPlusUser && multiCity ? cities.filter((c) => c.name.trim()) : [],
       hotelCategories: isPlusUser ? hotelCategories : ["standard"],
@@ -277,14 +288,26 @@ export const TravelDetailsModal = ({
             {transportReady && (
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: BRAND_BLUE }}>
-                  Fecha y hora de llegada al destino
+                  Hora de llegada al destino
                 </label>
+                {startDate && (
+                  <p className="text-xs text-gray-500 mb-2">
+                    Día de llegada:{" "}
+                    <span className="font-semibold" style={{ color: BRAND_BLUE }}>
+                      {new Date(`${startDate}T00:00`).toLocaleDateString("es-ES", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                      })}
+                    </span>
+                  </p>
+                )}
                 <input
-                  type="datetime-local"
-                  value={arrivalDateTime}
-                  onChange={(e) => setArrivalDateTime(e.target.value)}
+                  type="time"
+                  value={arrivalTime}
+                  onChange={(e) => setArrivalTime(e.target.value)}
                   className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#3ccca4]"
-                  data-testid="arrival-datetime"
+                  data-testid="arrival-time"
                 />
               </div>
             )}
@@ -319,14 +342,26 @@ export const TravelDetailsModal = ({
             {departureReady && (
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: BRAND_BLUE }}>
-                  Fecha y hora de salida del destino
+                  Hora de salida del destino
                 </label>
+                {endDate && (
+                  <p className="text-xs text-gray-500 mb-2">
+                    Día de salida:{" "}
+                    <span className="font-semibold" style={{ color: BRAND_BLUE }}>
+                      {new Date(`${endDate}T00:00`).toLocaleDateString("es-ES", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                      })}
+                    </span>
+                  </p>
+                )}
                 <input
-                  type="datetime-local"
-                  value={departureDateTime}
-                  onChange={(e) => setDepartureDateTime(e.target.value)}
+                  type="time"
+                  value={departureTime}
+                  onChange={(e) => setDepartureTime(e.target.value)}
                   className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#3ccca4]"
-                  data-testid="departure-datetime"
+                  data-testid="departure-time"
                 />
               </div>
             )}

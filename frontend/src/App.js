@@ -156,12 +156,31 @@ function MainApp() {
       }
 
       const mergedDetails = searchData._preloadedDetails || travelDetails || {};
+
+      // El modal usa nombres internos (`transportReady`, `departureReady`,
+      // `arrivalDateTime`). El backend espera `hasFlights`, `arrivalTime`
+      // (HH:MM) y `departureTime` (HH:MM). Aquí hacemos el mapeo para que
+      // Gemini reciba las restricciones temporales y NO programe actividades
+      // antes de la llegada ni después de la salida.
+      const hasFlights = Boolean(
+        mergedDetails.transportReady || mergedDetails.departureReady,
+      );
+      const arrivalTime = mergedDetails.transportReady
+        ? mergedDetails.arrivalTime || null
+        : null;
+      const departureTime = mergedDetails.departureReady
+        ? mergedDetails.departureTime || null
+        : null;
+
       const requestData = {
         destination: searchData.destination,
         startDate: searchData.startDate,
         endDate: searchData.endDate,
         userPlan: effectivePlan,
         ...mergedDetails,
+        hasFlights,
+        arrivalTime,
+        departureTime,
       };
 
       // Forward budget hints to backend if the user picked them in the modal
