@@ -249,7 +249,9 @@ export const ItineraryTimeline = ({ itinerary, isAuthenticated, travelDetails, o
               onRestore={handleRestore}
               destination={destination}
               getActivityType={getActivityType}
-              hotelInfo={hotelForCards}
+              // El hotel solo aparece en el Día 1 (el alojamiento es el
+              // mismo durante todo el viaje, no tiene sentido repetirlo).
+              hotelInfo={dayIndex === 0 ? hotelForCards : null}
               onHotelDelete={handleHotelDelete}
               onHotelRestore={handleHotelRestore}
               onHotelAlternative={handleAlternative}
