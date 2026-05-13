@@ -168,14 +168,17 @@ export const buildGetYourGuideSearchUrl = (
 export const getActivityBookingUrl = (activity, opts = {}) => {
   const direct = activity?.bookingUrl;
   const options = typeof opts === "string" ? { destination: opts } : (opts || {});
-  if (direct) return wrapTrackedUrl(direct, "gyg");
 
-  // Estrategia: buscamos en GYG por DESTINO + fechas, no por título de
-  // actividad. GYG no encuentra de forma fiable tours genéricos por
-  // título (ej. "Tour Privado por el Casco Histórico" devuelve Portsmouth
-  // si no anclamos por ciudad). En cambio, una búsqueda por destino sí
-  // localiza la ciudad y muestra actividades reales con disponibilidad
-  // en esas fechas — el usuario elige la que más le encaje.
+  if (direct) {
+    // Detectar el proveedor del enlace directo para que el redirect
+    // tracker lo etiquete correctamente en analítica.
+    const provider = (activity?.provider || "").toLowerCase();
+    const looksLikeTiqets = /tiqets\.com/i.test(direct) || provider.includes("tiqets");
+    if (looksLikeTiqets) return wrapTrackedUrl(direct, "tiqets");
+    return wrapTrackedUrl(direct, "gyg");
+  }
+
+  // Sin URL directa: caemos al search de GYG (resto del fallback histórico).
   const dest = options.destination || activity?.destination || "";
   const title = activity?.title || activity?.name || "";
   const query = (dest || title).trim();

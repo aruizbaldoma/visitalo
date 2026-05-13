@@ -172,7 +172,12 @@ class ItineraryService:
             f"(ej.: \"Hoteles 3-4★ en zona céntrica, ~80-150€/persona/noche\").\n"
         )
         budget_block += hotel_price_block
-        
+
+        # Catálogo Tiqets — productos REALES con afiliado. Si tenemos
+        # productos para esta ciudad, le pedimos a Gemini que los USE
+        # como primera opción siempre que encajen con el plan del día.
+        tiqets_block = await self._build_tiqets_catalog_block(destination)
+
         # Prompt profesional — versión 2 (más rigurosa, anti-alucinaciones)
         prompt = f"""Eres un planificador senior de viajes con 15 años de experiencia local en {destination}. Construyes itinerarios que parecen escritos por alguien que vive allí: sabes qué calle coger, qué bar coger café, qué museo evitar los lunes, dónde no te timan, y cuánto cuesta cada cosa en 2026.
 
@@ -187,6 +192,7 @@ CONTEXTO DEL USUARIO:
 
 {budget_block}
 
+{tiqets_block}
 ═══════════════════════════════════════════════
 REGLAS INNEGOCIABLES (rompe cualquiera y el output es INVÁLIDO)
 ═══════════════════════════════════════════════
@@ -302,12 +308,66 @@ JSON:"""
                     f"(days={total_days}, max_tokens hasta {retry_max_tokens if 'retry_max_tokens' in locals() else max_tokens})"
                 )
 
+            # Enriquecer actividades que tengan `tiqetsId` con el deeplink
+            # de afiliado real (`product_url` con ?partner=...).
+            await self._enrich_tiqets_links(itinerary, destination)
+
             print(f"✅ ITINERARIO GENERADO: {destination}, {total_days} días\n")
             return itinerary
 
         except Exception as e:
             print(f"❌ ERROR: {str(e)}")
             raise Exception(f"Error generando itinerario: {str(e)}")
+
+    async def _enrich_tiqets_links(self, itinerary: Dict, destination: str) -> None:
+        """Para cada actividad con `tiqetsId`, inyecta el `bookingUrl` real
+        (deeplink afiliado de Tiqets con `?partner=vistalo-...`).
+
+        También fija `provider="Tiqets"` y trae imagen si Tiqets la tiene.
+        Sin Tiqets (vacío) no hace nada y la actividad queda como estaba.
+        """
+        try:
+            from services.tiqets_service import search_products
+            products = await search_products(destination, limit=50)
+        except Exception as e:  # noqa: BLE001
+            print(f"⚠️ Tiqets enrichment skipped: {e}")
+            return
+        if not products:
+            return
+
+        by_id = {str(p.get("id")): p for p in products}
+
+        # Fallback: índice por título normalizado (lowercase, sin espacios extra).
+        def norm(s):
+            return " ".join((s or "").lower().split())
+        by_title = {norm(p.get("title")): p for p in products}
+
+        for day in itinerary.get("days", []):
+            for block_key in ("morning", "afternoon", "night"):
+                block = day.get(block_key) or {}
+                for activity in block.get("activities", []):
+                    tid = str(activity.get("tiqetsId") or "").strip()
+                    product = by_id.get(tid) if tid else None
+                    if not product:
+                        # Última oportunidad: matching por título exacto.
+                        product = by_title.get(norm(activity.get("title")))
+                    if not product:
+                        continue
+                    url = product.get("product_url")
+                    if url:
+                        activity["bookingUrl"] = url
+                    activity["provider"] = "Tiqets"
+                    activity["tiqetsId"] = str(product.get("id"))
+                    # Si Gemini puso un precio absurdamente distinto al real, lo corregimos.
+                    real_price = product.get("price")
+                    try:
+                        if real_price is not None and (
+                            not activity.get("price")
+                            or abs(float(activity["price"]) - float(real_price)) / max(1.0, float(real_price)) > 0.5
+                        ):
+                            activity["price"] = float(real_price)
+                    except Exception:  # noqa: BLE001
+                        pass
 
     def _call_and_parse(self, headers: Dict, payload: Dict) -> Optional[Dict]:
         """
@@ -654,6 +714,63 @@ JSON:"""
             "days": days_list
         }
     
+    async def _build_tiqets_catalog_block(self, destination: str) -> str:
+        """Construye el bloque del prompt con productos REALES de Tiqets.
+
+        Cuando Tiqets tiene oferta en la ciudad, el modelo recibe un
+        catálogo recortado y se le pide priorizarlo. Cada producto pasa
+        con `tiqets_id` para que más tarde el frontend pueda enlazar
+        directamente al deeplink con tracking.
+        """
+        try:
+            from services.tiqets_service import list_for_prompt
+            items = await list_for_prompt(destination, limit=25)
+        except Exception as e:  # noqa: BLE001
+            print(f"⚠️ Tiqets catalog fetch failed: {e}")
+            return ""
+
+        if not items:
+            return ""
+
+        lines = [
+            "═══════════════════════════════════════════════",
+            "CATÁLOGO TIQETS — USA ESTAS ACTIVIDADES CUANDO ENCAJEN",
+            "═══════════════════════════════════════════════",
+            (
+                "Estas son actividades reales con precio real disponibles en "
+                f"{destination} a través de Tiqets (socio afiliado). PRIORÍZALAS "
+                "frente a inventar actividades genéricas. Para usarlas:"
+            ),
+            (
+                "  - Copia el `title` exacto en el campo `title` de la actividad."
+            ),
+            (
+                "  - Usa el precio (`price_eur`) tal cual, en el campo `price`."
+            ),
+            (
+                "  - Pon `provider: \"Tiqets\"` y añade un campo extra "
+                "`tiqetsId: \"<id>\"` para que se enlace con el catálogo."
+            ),
+            (
+                "  - Mete `address` en `location`."
+            ),
+            "",
+            "Catálogo (top {n} por relevancia):".format(n=len(items)),
+        ]
+        for it in items:
+            rating = it.get("rating")
+            rating_str = f" · {rating:.1f}⭐ ({it.get('rating_count')})" if rating else ""
+            lines.append(
+                f"- id={it['id']} | \"{it['title']}\" | {it.get('price_eur')}€"
+                f"{rating_str} | venue: {it.get('venue') or '—'} | {it.get('address') or '—'}"
+            )
+        lines.append("")
+        lines.append(
+            "Si una actividad del catálogo no encaja en el día, no pasa nada: "
+            "puedes elegir otra del catálogo, o crear una nueva siguiendo R2."
+        )
+        return "\n".join(lines)
+
     def _build_context(
         self,
         total_days: int,
