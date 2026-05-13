@@ -25,6 +25,9 @@ ALLOWED_HOSTS = (
     "holafly.com",
     "booking.com",
     "google.com",
+    "tiqets.com",
+    "civitatis.com",
+    "viator.com",
 )
 
 
@@ -44,10 +47,15 @@ async def track_redirect(
     session_token: Optional[str] = Cookie(None, alias="session_token"),
 ):
     db = request.app.state.db
+
+    # Fallback "casa" si la URL no es válida: mandamos al frontend público
+    # (`FRONTEND_URL`) en lugar de a `/` — en Railway, `/` del backend no
+    # sirve nada y mostraría `{"detail":"Not Found"}`.
+    import os
+    fallback_home = os.environ.get("FRONTEND_URL", "/").rstrip("/") or "/"
+
     if not _is_allowed(u):
-        # Si la URL no está en la lista blanca, no redirigimos: devolvemos
-        # 400 implícito vía RedirectResponse a la home.
-        return RedirectResponse(url="/", status_code=302)
+        return RedirectResponse(url=fallback_home, status_code=302)
 
     user_id = None
     if session_token:
