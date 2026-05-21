@@ -396,6 +396,7 @@
     "removeActivity": "Remove activity",
     "removeStay": "Remove stay",
     "book": "Book",
+    "free": "Free",
     "by": "By {{provider}}"
   },
   "deleteConfirm": {

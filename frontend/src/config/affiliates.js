@@ -178,16 +178,11 @@ export const getActivityBookingUrl = (activity, opts = {}) => {
     return wrapTrackedUrl(direct, "gyg");
   }
 
-  // Sin URL directa: caemos al search de GYG (resto del fallback histórico).
-  const dest = options.destination || activity?.destination || "";
-  const title = activity?.title || activity?.name || "";
-  const query = (dest || title).trim();
-
-  const url = buildGetYourGuideSearchUrl(query, {
-    startDate: options.startDate,
-    endDate: options.endDate,
-  });
-  return wrapTrackedUrl(url, "gyg");
+  // Política actual (Feb 2026): solo mostramos botón "Reservar" cuando
+  // tenemos un enlace afiliado real (Tiqets). Si no hay `bookingUrl`,
+  // devolvemos `null` y el componente oculta el botón. Sin fallback a
+  // search de GYG: no queremos mandar tráfico no monetizable.
+  return null;
 };
 
 // Legacy named exports (kept so older imports keep working).

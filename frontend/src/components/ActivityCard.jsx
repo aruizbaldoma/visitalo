@@ -125,28 +125,47 @@ export const ActivityCard = ({ activity, destination = "", isAuthenticated, onIn
           <span className="text-xs text-gray-500">{t("card.by", { provider: activity.provider })}</span>
 
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Precio SIEMPRE visible */}
-            <div className="flex items-center gap-1 font-bold text-lg" style={{ color: '#031834' }}>
-              <Euro className="w-4 h-4" />
-              {activity.price?.toFixed(2)}
-            </div>
+            {/* Precio visible solo si > 0 */}
+            {typeof activity.price === "number" && activity.price > 0 && (
+              <div className="flex items-center gap-1 font-bold text-lg" style={{ color: '#031834' }}>
+                <Euro className="w-4 h-4" />
+                {activity.price.toFixed(2)}
+              </div>
+            )}
 
-            {/* Botón Reservar Actividad */}
-            <a
-              href={getActivityBookingUrl(activity, {
+            {/* Etiqueta GRATIS cuando price=0 */}
+            {typeof activity.price === "number" && activity.price === 0 && (
+              <span
+                className="text-xs font-bold px-2 py-1 rounded-md"
+                style={{ backgroundColor: 'rgba(60,204,164,0.18)', color: '#031834' }}
+                data-testid={`free-tag-${activity.activityId}`}
+              >
+                {t("card.free")}
+              </span>
+            )}
+
+            {/* Botón Reservar SOLO si hay enlace afiliado real (Tiqets) */}
+            {(() => {
+              const bookingHref = getActivityBookingUrl(activity, {
                 destination,
                 startDate: searchParams?.startDate,
                 endDate: searchParams?.endDate,
-              })}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:shadow-lg transition-all"
-              style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
-              data-testid={`book-activity-${activity.activityId}`}
-            >
-              {t("card.book")}
-              <ExternalLink className="w-3 h-3" />
-            </a>
+              });
+              if (!bookingHref) return null;
+              return (
+                <a
+                  href={bookingHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:shadow-lg transition-all"
+                  style={{ backgroundColor: '#3ccca4', borderRadius: '8px' }}
+                  data-testid={`book-activity-${activity.activityId}`}
+                >
+                  {t("card.book")}
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              );
+            })()}
           </div>
         </div>
       </div>

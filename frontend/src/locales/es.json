@@ -396,6 +396,7 @@
     "removeActivity": "Quitar actividad",
     "removeStay": "Quitar alojamiento",
     "book": "Reservar",
+    "free": "Gratis",
     "by": "Por {{provider}}"
   },
   "deleteConfirm": {
