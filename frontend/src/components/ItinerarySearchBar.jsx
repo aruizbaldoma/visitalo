@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Calendar as CalendarIcon, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { RangeDatePicker } from "./RangeDatePicker";
@@ -14,6 +14,10 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
     endDate: "",
     travelers: 2,
   });
+  // Ref imperativa: fuerza la selección de la primera sugerencia del
+  // autocomplete si el usuario submite sin haber tocado la lista
+  // (caso típico en iPad/touch: tipea, ve la sugerencia, pulsa "Buscar").
+  const destCommitRef = useRef(null);
 
   const update = (partial) => {
     const newData = { ...searchData, ...partial };
@@ -23,8 +27,18 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (searchData.destination && searchData.startDate && searchData.endDate) {
-      onSearch(searchData);
+    // Antes de validar, pedimos al autocomplete que aplique la primera
+    // sugerencia si el usuario sólo tipeó un prefijo.
+    let destination = searchData.destination;
+    if (destCommitRef.current) {
+      const committed = destCommitRef.current();
+      if (committed && committed !== destination) {
+        destination = committed;
+        update({ destination });
+      }
+    }
+    if (destination && searchData.startDate && searchData.endDate) {
+      onSearch({ ...searchData, destination });
     }
   };
 
@@ -66,6 +80,7 @@ export const ItinerarySearchBar = ({ onSearch, onOpenDetails, onSearchDataChange
               onChange={(destination) => update({ destination })}
               placeholder={t("search.destinationPlaceholder")}
               testId="search-destination-input"
+              commitRef={destCommitRef}
             />
           </div>
 

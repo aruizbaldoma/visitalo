@@ -450,6 +450,14 @@ JSON:"""
                     title = activity.get("title") or ""
                     provider_raw = (activity.get("provider") or "").lower()
 
+                    # 🔒 SECURITY: descartar SIEMPRE la `bookingUrl` que
+                    # ponga Gemini. El LLM aluciona URLs inventadas que
+                    # parecen reales (p.ej. `/London/d737-ttd/p-464661P4`
+                    # en vez del producto exacto `/tours/London/<slug>/d737-...`).
+                    # Solo confiamos en URLs que vienen del catálogo real
+                    # de Tiqets/Viator y se asignan más abajo.
+                    activity.pop("bookingUrl", None)
+
                     # 1) Match Tiqets primero (por id explícito o por título).
                     tid = str(activity.get("tiqetsId") or "").strip()
                     product = tiqets_by_id.get(tid) if tid else None

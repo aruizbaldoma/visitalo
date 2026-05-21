@@ -150,10 +150,16 @@ async def find_destination_id(destination: str) -> Optional[int]:
         if _norm(d.get("name", "")) == key:
             return d.get("destinationId")
     # Pase 4: contiene (puede haber ruido — solo si type=CITY).
-    for d in destinations:
-        n = _norm(d.get("name", ""))
-        if key in n and d.get("type") == "CITY":
-            return d.get("destinationId")
+    # 🔒 Exigimos `key` >= 5 caracteres para evitar matches falsos con
+    # prefijos cortos del usuario tipo "Lond" → "London". Si el usuario
+    # no seleccionó un destino completo del autocomplete (caso iPad),
+    # preferimos devolver None y que el backend rechace la búsqueda
+    # antes que rellenar con un catálogo equivocado.
+    if len(key) >= 5:
+        for d in destinations:
+            n = _norm(d.get("name", ""))
+            if key in n and d.get("type") == "CITY":
+                return d.get("destinationId")
     return None
 
 

@@ -30,12 +30,17 @@ const newSessionToken = () => {
  *  - value: string (controlled)
  *  - onChange: (newValue: string) => void
  *  - placeholder: string
+ *  - commitRef: ref para que el padre fuerce la selección antes de submit
+ *               (cubre el caso iPad: usuario tipea, ve sugerencia, pulsa
+ *               "Buscar" sin tocar la sugerencia → ref().commit() aplica
+ *               la primera sugerencia).
  */
 export const DestinationAutocomplete = ({
   value,
   onChange,
   placeholder,
   testId = "search-destination-input",
+  commitRef,
 }) => {
   const { i18n } = useTranslation();
   const apiKey = process.env.REACT_APP_GOOGLE_PLACES_API_KEY;
@@ -144,7 +149,34 @@ export const DestinationAutocomplete = ({
     // La sesión termina al hacer una selección; abrimos token nuevo
     // por si el usuario decide cambiar el destino.
     sessionTokenRef.current = newSessionToken();
+    return full;
   };
+
+  // API imperativa para que el form padre fuerce la selección si el
+  // usuario submite con sólo un prefijo y hay sugerencias visibles.
+  useEffect(() => {
+    if (!commitRef) return;
+    commitRef.current = () => {
+      const typed = (value || "").trim();
+      // Si el valor ya está "completo" (incluye coma → main + secondary),
+      // no tocamos nada.
+      if (typed.includes(",")) return typed;
+      // Si hay sugerencias y la primera empieza por lo que tipeó el
+      // usuario (case-insensitive), la aplicamos.
+      if (suggestions.length > 0) {
+        const first = suggestions[0];
+        const main = first.structuredFormat?.mainText?.text || "";
+        if (!typed || main.toLowerCase().startsWith(typed.toLowerCase())) {
+          return selectSuggestion(first);
+        }
+      }
+      return typed;
+    };
+    return () => {
+      if (commitRef.current) commitRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, suggestions, commitRef]);
 
   const handleKeyDown = (e) => {
     if (!open || suggestions.length === 0) return;
@@ -210,8 +242,21 @@ export const DestinationAutocomplete = ({
                 type="button"
                 key={sug.placeId || `${main}-${idx}`}
                 onMouseEnter={() => setHighlightIndex(idx)}
+                onPointerDown={(e) => {
+                  // iPad/Safari: pointerdown llega ANTES que blur del
+                  // input → garantizamos que la selección se aplique
+                  // aunque el siguiente toque sea el botón "Buscar".
+                  e.preventDefault();
+                  selectSuggestion(sug);
+                }}
                 onMouseDown={(e) => {
-                  // mousedown evita que el blur del input cierre antes
+                  // Mantenemos mousedown como fallback para navegadores
+                  // que no implementan PointerEvents.
+                  e.preventDefault();
+                  selectSuggestion(sug);
+                }}
+                onClick={(e) => {
+                  // onClick puro como último cinturón de seguridad.
                   e.preventDefault();
                   selectSuggestion(sug);
                 }}
