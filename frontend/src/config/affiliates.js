@@ -174,8 +174,10 @@ export const getActivityBookingUrl = (activity, opts = {}) => {
     // tracker lo etiquete correctamente en analítica.
     const provider = (activity?.provider || "").toLowerCase();
     const looksLikeTiqets = /tiqets\.com/i.test(direct) || provider.includes("tiqets");
+    const looksLikeViator = /viator\.com/i.test(direct) || provider.includes("viator");
     const looksLikeKlook = /klook\.com|tp\.media/i.test(direct) || provider.includes("klook");
     if (looksLikeTiqets) return wrapTrackedUrl(direct, "tiqets");
+    if (looksLikeViator) return wrapTrackedUrl(direct, "viator");
     if (looksLikeKlook) return wrapTrackedUrl(direct, "klook");
     return wrapTrackedUrl(direct, "gyg");
   }

@@ -173,10 +173,11 @@ class ItineraryService:
         )
         budget_block += hotel_price_block
 
-        # Catálogo Tiqets — productos REALES con afiliado. Si tenemos
-        # productos para esta ciudad, le pedimos a Gemini que los USE
+        # Catálogo Tiqets + Viator — productos REALES con afiliado. Si
+        # tenemos productos para esta ciudad, le pedimos a Gemini que los USE
         # como primera opción siempre que encajen con el plan del día.
         tiqets_block = await self._build_tiqets_catalog_block(destination)
+        viator_block = await self._build_viator_catalog_block(destination)
 
         # Prompt profesional — versión 2 (más rigurosa, anti-alucinaciones)
         prompt = f"""Eres un planificador senior de viajes con 15 años de experiencia local en {destination}. Construyes itinerarios que parecen escritos por alguien que vive allí: sabes qué calle coger, qué bar coger café, qué museo evitar los lunes, dónde no te timan, y cuánto cuesta cada cosa en 2026.
@@ -193,6 +194,8 @@ CONTEXTO DEL USUARIO:
 {budget_block}
 
 {tiqets_block}
+
+{viator_block}
 ═══════════════════════════════════════════════
 REGLAS INNEGOCIABLES (rompe cualquiera y el output es INVÁLIDO)
 ═══════════════════════════════════════════════
@@ -219,11 +222,11 @@ R4. RITMO HUMANO
    - Bloques: MAÑANA termina ~14:00; TARDE 14:00-19:00; NOCHE desde 19:30.
    - Deja margen para comer/cenar (ya lo metes como actividad) y para caminar entre puntos. Los puntos de un mismo bloque deben estar cerca; no des saltos de 30 min en metro entre dos actividades seguidas.
 
-R5. PROVEEDORES — POLÍTICA ESTRICTA TIQETS + KLOOK
-   - Actividades de pago (museos, monumentos, tours, tickets, parques temáticos, atracciones, espectáculos):
-     • Si están en el CATÁLOGO TIQETS de más arriba → `provider: "Tiqets"` + `tiqetsId`.
-     • Si NO encajan con Tiqets pero existen de verdad y son turísticas de pago → `provider: "Klook"` (lo enriquecemos nosotros con tracking).
-     • NUNCA uses Civitatis, GetYourGuide ni Viator.
+R5. PROVEEDORES — POLÍTICA ESTRICTA TIQETS + VIATOR
+   - Actividades de pago (museos, monumentos, tours, parques temáticos, atracciones, miradores con entrada, espectáculos, experiencias guiadas):
+     • Si encajan con algo del CATÁLOGO TIQETS de más arriba → `provider: "Tiqets"` + `tiqetsId`.
+     • Si encajan con algo del CATÁLOGO VIATOR de más arriba → `provider: "Viator"` + `viatorCode` (productCode).
+     • NUNCA uses Civitatis, GetYourGuide, Klook ni inventes operadores.
    - Experiencias gratis → `provider: "Gratis"`, `price: 0`.
    - Tiempo libre GenZ → `provider: "Tiempo libre"`, `price: 0`.
    - Restaurantes / bares → `provider: "Reserva directa"`. Sin `bookingUrl`.
@@ -278,7 +281,7 @@ JSON:"""
         # Escalar maxOutputTokens según días: viajes largos generan JSON mucho más grande.
         # Gemini 3 Flash soporta hasta ~65k tokens de output. Reservamos margen amplio.
         # Heurística: 2500 base + 2500 por día. 2d->7500, 7d->20000, 14d->37500, tope 48000.
-        max_tokens = min(48000, 2500 + total_days * 2500)
+        max_tokens = min(60000, 4500 + total_days * 3000)
 
         base_generation_config = {
             "temperature": 0.55,
@@ -308,6 +311,29 @@ JSON:"""
                 }
                 itinerary = self._call_and_parse(headers, payload)
 
+            # Defensa adicional: a veces Gemini devuelve JSON válido pero con
+            # menos días de los pedidos (modelo "vago"). Si faltan días,
+            # reintentamos endureciendo el prompt.
+            def _days_returned(it: Optional[Dict]) -> int:
+                return len((it or {}).get("days", []) or [])
+
+            if itinerary is not None and _days_returned(itinerary) < total_days:
+                print(
+                    f"⚠️  Modelo devolvió {_days_returned(itinerary)} días de "
+                    f"{total_days}. Reintentando endurecido…"
+                )
+                payload["generationConfig"] = {
+                    "temperature": 0.3,
+                    "maxOutputTokens": min(60000, max_tokens * 2),
+                }
+                payload["contents"][0]["parts"][0]["text"] = (
+                    prompt
+                    + f"\n\nRECORDATORIO: el array `days` DEBE contener EXACTAMENTE {total_days} elementos. NO menos. Si te quedas sin espacio, recorta el texto de las descripciones pero NUNCA omitas días."
+                )
+                retry = self._call_and_parse(headers, payload)
+                if retry is not None and _days_returned(retry) >= _days_returned(itinerary):
+                    itinerary = retry
+
             if itinerary is None:
                 raise Exception(
                     "Gemini devolvió JSON inválido tras 2 intentos "
@@ -330,32 +356,39 @@ JSON:"""
 
         Política Feb 2026 (proveedores activos):
           1. **Tiqets** — primer proveedor (catálogo con precio real, deeplink directo).
-          2. **Klook** vía Travelpayouts — segundo proveedor (deeplink de búsqueda con tracking).
+          2. **Viator** — segundo proveedor (catálogo grande con precio + URL trackeada).
           3. **Gratis / Tiempo libre / Reserva directa** — sin enlace.
 
-        Para actividades de pago sin match Tiqets:
-          - Si Klook está habilitado → generamos `bookingUrl` Klook + tracking.
-          - Si Klook NO está habilitado → reemplazamos por "Tiempo libre" GenZ
-            (no mandamos tráfico a un proveedor sin comisión).
+        Klook quedó deshabilitado a petición del cliente; el código sigue
+        intacto y se puede reactivar cambiando el flag `_USE_KLOOK_FALLBACK`.
         """
-        from services import klook_service
+        from services import viator_service
 
         try:
-            from services.tiqets_service import search_products
-            products = await search_products(destination, limit=50)
+            from services.tiqets_service import search_products as tiqets_search
+            tiqets_products = await tiqets_search(destination, limit=50)
         except Exception as e:  # noqa: BLE001
             print(f"⚠️ Tiqets enrichment skipped: {e}")
-            products = []
+            tiqets_products = []
 
-        by_id = {str(p.get("id")): p for p in products}
+        try:
+            viator_products = await viator_service.search_products(destination, limit=40)
+        except Exception as e:  # noqa: BLE001
+            print(f"⚠️ Viator enrichment skipped: {e}")
+            viator_products = []
+
+        tiqets_by_id = {str(p.get("id")): p for p in (tiqets_products or [])}
 
         def norm(s):
             return " ".join((s or "").lower().split())
-        by_title = {norm(p.get("title")): p for p in (products or [])}
 
-        klook_enabled = klook_service.is_enabled()
+        tiqets_by_title = {norm(p.get("title")): p for p in (tiqets_products or [])}
+        viator_by_code = {str(p.get("productCode")): p for p in (viator_products or [])}
+        viator_by_title = {norm(p.get("title")): p for p in (viator_products or [])}
 
-        # Pool de slots "Tiempo libre" GenZ por si Klook no estuviera habilitado.
+        viator_enabled = bool(viator_products)
+
+        # Pool de slots "Tiempo libre" GenZ (último recurso).
         free_time_titles = [
             "Chill mode por el centro",
             "Vagueo del bueno por el barrio",
@@ -384,19 +417,49 @@ JSON:"""
                 )
             )
 
-        tiqets_count = klook_count = libre_count = 0
+        tiqets_count = viator_count = libre_count = 0
+        # Set para no asignar el mismo productCode Viator dos veces.
+        used_viator_codes: set = set()
+
+        def pick_viator_for_title(title: str) -> Optional[Dict]:
+            if not viator_enabled:
+                return None
+            t = norm(title)
+            # Match exacto título primero.
+            p = viator_by_title.get(t)
+            if p and str(p.get("productCode")) not in used_viator_codes:
+                return p
+            # Match por palabras clave significativas (>3 caracteres).
+            if t:
+                title_words = [w for w in t.split() if len(w) > 3]
+                best = None
+                best_score = 0
+                for vp in viator_products:
+                    vt = norm(vp.get("title"))
+                    if str(vp.get("productCode")) in used_viator_codes:
+                        continue
+                    score = sum(1 for w in title_words if w in vt)
+                    if score > best_score:
+                        best_score = score
+                        best = vp
+                if best_score >= 2 and best:
+                    return best
+            return None
 
         for day in itinerary.get("days", []):
             for block_key in ("morning", "afternoon", "night"):
                 block = day.get(block_key) or {}
                 for activity in block.get("activities", []):
+                    title = activity.get("title") or ""
+                    provider_raw = (activity.get("provider") or "").lower()
+
+                    # 1) Match Tiqets primero (por id explícito o por título).
                     tid = str(activity.get("tiqetsId") or "").strip()
-                    product = by_id.get(tid) if tid else None
+                    product = tiqets_by_id.get(tid) if tid else None
                     if not product:
-                        product = by_title.get(norm(activity.get("title")))
+                        product = tiqets_by_title.get(norm(title))
 
                     if product:
-                        # Match Tiqets: enriquecer.
                         url = product.get("product_url")
                         if url:
                             activity["bookingUrl"] = url
@@ -415,53 +478,50 @@ JSON:"""
                         tiqets_count += 1
                         continue
 
-                    # Sin Tiqets. ¿Es comida o gratis? Dejar tal cual.
-                    provider = (activity.get("provider") or "").lower()
-                    title = activity.get("title") or ""
-                    price = activity.get("price")
+                    # Comida o gratis explícita ya marcada → dejar.
+                    if is_meal(title) or "reserva directa" in provider_raw:
+                        continue
+
                     try:
-                        price_num = float(price) if price is not None else 0.0
+                        price_num = float(activity.get("price")) if activity.get("price") is not None else 0.0
                     except Exception:  # noqa: BLE001
                         price_num = 0.0
 
-                    if is_meal(title) or "reserva directa" in provider:
-                        continue
-                    if provider in ("gratis", "tiempo libre") or price_num == 0:
-                        # Si Gemini puso "Gratis"/"Tiempo libre" pero el título
-                        # sugiere atracción de pago (museo, palacio, parque
-                        # temático, observatorio, etc.), reconvertimos a Klook
-                        # para monetizar. Si no, dejamos como está.
-                        looks_paid = any(
-                            kw in title.lower() for kw in (
-                                "museo", "museum", "palacio", "palace", "castillo",
-                                "castle", "torre ", "tower", "observatorio",
-                                "mirador", "skydeck", "skytree", "parque temático",
-                                "universal", "disney", "warner", "portaventura",
-                                "kart", "ferri ", "ferry", "tour guiado",
-                                "free walking tour", "skip the line", "ticket",
-                            )
+                    # 2) Match Viator (por productCode si Gemini lo metió, o por título).
+                    vcode = str(activity.get("viatorCode") or "").strip()
+                    vproduct = viator_by_code.get(vcode) if vcode else None
+                    if not vproduct:
+                        vproduct = pick_viator_for_title(title)
+
+                    if vproduct:
+                        url = vproduct.get("productUrl")
+                        if url:
+                            activity["bookingUrl"] = url
+                        activity["provider"] = "Viator"
+                        activity["viatorCode"] = str(vproduct.get("productCode"))
+                        used_viator_codes.add(str(vproduct.get("productCode")))
+                        # Precio: ajustamos si Gemini se inventó.
+                        real_price = (
+                            (vproduct.get("pricing") or {}).get("summary", {}).get("fromPrice")
                         )
-                        if klook_enabled and looks_paid and provider != "reserva directa":
-                            query = klook_service.build_query(title, destination)
-                            activity["bookingUrl"] = klook_service.build_affiliate_url(query)
-                            activity["provider"] = "Klook"
-                            # Si no tenía precio, le metemos un estimado mínimo
-                            # razonable para que se muestre el precio en card.
-                            if not activity.get("price"):
-                                activity["price"] = 15
-                            klook_count += 1
+                        try:
+                            if real_price is not None and (
+                                not activity.get("price")
+                                or abs(float(activity["price"]) - float(real_price))
+                                / max(1.0, float(real_price)) > 0.5
+                            ):
+                                activity["price"] = float(real_price)
+                        except Exception:  # noqa: BLE001
+                            pass
+                        viator_count += 1
                         continue
 
-                    # Actividad de pago sin Tiqets → intentar Klook.
-                    if klook_enabled and title:
-                        query = klook_service.build_query(title, destination)
-                        activity["bookingUrl"] = klook_service.build_affiliate_url(query)
-                        activity["provider"] = "Klook"
-                        activity.pop("tiqetsId", None)
-                        klook_count += 1
+                    # 3) Sin match con ningún afiliado.
+                    if provider_raw in ("gratis", "tiempo libre") or price_num == 0:
+                        # Gratis válida: dejar como está.
                         continue
 
-                    # Sin Klook: caer a "Tiempo libre" GenZ.
+                    # Actividad de pago sin afiliado → convertir a Tiempo libre.
                     activity["title"] = free_time_titles[free_idx % len(free_time_titles)]
                     activity["description"] = free_time_descriptions[
                         free_idx % len(free_time_descriptions)
@@ -470,11 +530,12 @@ JSON:"""
                     activity["provider"] = "Tiempo libre"
                     activity.pop("bookingUrl", None)
                     activity.pop("tiqetsId", None)
+                    activity.pop("viatorCode", None)
                     free_idx += 1
                     libre_count += 1
 
         print(
-            f"🔗 Enriched: Tiqets={tiqets_count} Klook={klook_count} TiempoLibre={libre_count}"
+            f"🔗 Enriched: Tiqets={tiqets_count} Viator={viator_count} TiempoLibre={libre_count}"
         )
 
     def _call_and_parse(self, headers: Dict, payload: Dict) -> Optional[Dict]:
@@ -522,7 +583,7 @@ JSON:"""
 
             for attempt in range(max_retries_per_model + 1):
                 try:
-                    response = requests.post(url, headers=headers, json=payload, timeout=50)
+                    response = requests.post(url, headers=headers, json=payload, timeout=90)
                 except requests.exceptions.RequestException as req_err:
                     last_status = None
                     last_error_text = f"network_error: {req_err}"
@@ -823,16 +884,10 @@ JSON:"""
         }
     
     async def _build_tiqets_catalog_block(self, destination: str) -> str:
-        """Construye el bloque del prompt con productos REALES de Tiqets.
-
-        Política actual (Feb 2026): SOLO mostramos actividades de pago que
-        estén en el catálogo Tiqets (es el único proveedor con API afiliada
-        confirmada). Lo demás → experiencias gratis o "tiempo libre" en
-        lenguaje GenZ. Esto evita mandar al usuario a sitios sin tracking.
-        """
+        """Construye el bloque del prompt con productos REALES de Tiqets."""
         try:
             from services.tiqets_service import list_for_prompt
-            items = await list_for_prompt(destination, limit=25)
+            items = await list_for_prompt(destination, limit=15)
         except Exception as e:  # noqa: BLE001
             print(f"⚠️ Tiqets catalog fetch failed: {e}")
             items = []
@@ -842,42 +897,32 @@ JSON:"""
             "POLÍTICA DE ACTIVIDADES DE PAGO — OBLIGATORIA",
             "═══════════════════════════════════════════════",
             (
-                "Proveedores afiliados activos: **Tiqets** (preferido) y **Klook** (fallback). "
-                "NO uses Civitatis, GetYourGuide ni Viator. Reglas:"
+                "Proveedores afiliados activos: **Tiqets** (preferido) y **Viator** (fallback con gran catálogo). "
+                "NO uses Civitatis, GetYourGuide ni Klook. Reglas:"
             ),
             "",
             "0. PROPORCIÓN OBJETIVO POR DÍA (importante):",
-            "   - Al menos el 60% de las actividades de cada día deben ser de PAGO con afiliado (Tiqets o Klook). Las gratis y de tiempo libre son **relleno** cuando no encaja una de pago.",
-            "   - En un día típico de 4 actividades: 2-3 Tiqets/Klook + 1 comida + 0-1 gratis. NO conviertas el itinerario en un paseo gratuito.",
+            "   - Al menos el 60% de las actividades de cada día deben ser de PAGO con afiliado (Tiqets o Viator). Las gratis y de tiempo libre son **relleno** cuando no encaja una de pago.",
+            "   - En un día típico de 4 actividades: 2-3 Tiqets/Viator + 1 comida + 0-1 gratis. NO conviertas el itinerario en un paseo gratuito.",
             "",
             "1. ACTIVIDADES DE PAGO (museos, monumentos, tours, parques temáticos, atracciones, miradores con entrada, espectáculos, experiencias guiadas):",
             "   - Si encaja con algo del CATÁLOGO TIQETS de abajo → `provider: \"Tiqets\"` + `tiqetsId`.",
-            "   - Si NO encaja con Tiqets pero la atracción es real y popular → `provider: \"Klook\"` (¡úsalo agresivamente, no seas tímido!). Ejemplos donde Klook es perfecto:",
-            "     · Parques temáticos (Universal, Disneyland, PortAventura)",
-            "     · Miradores y observatorios (Shibuya Sky, Burj Khalifa)",
-            "     · Tours guiados de un día (excursiones a pueblos, rutas en bus turístico)",
-            "     · Atracciones con tickets de salto de cola que Tiqets no tenga",
-            "     · Experiencias gastronómicas y de cultura (clases de cocina, tours de tapas, espectáculos)",
-            "     · Traslados aeropuerto y pases de transporte turístico",
-            "     · Karts, bicis, gondolas, ferris turísticos",
-            "   - Para Klook, usa un título descriptivo de la atracción (nosotros lo convertimos en búsqueda Klook). Mete precio estimado realista 2026.",
+            "   - Si encaja con algo del CATÁLOGO VIATOR de abajo → `provider: \"Viator\"` + `viatorCode` (productCode exacto).",
+            "   - Para Viator, copia el `title` lo más fiel posible al catálogo (ayuda al matching automático posterior).",
             "",
             "2. EXPERIENCIAS GRATIS:",
-            "   - Solo como relleno cuando NO encaje ninguna de pago.",
-            "   - Máximo 1 actividad gratis por día.",
+            "   - Solo como relleno cuando NO encaje ninguna de pago. Máximo 1 por día.",
             "   - `price: 0` y `provider: \"Gratis\"`. Sin `bookingUrl`.",
             "",
             "3. TIEMPO LIBRE GENZ:",
-            "   - Solo como último recurso si no encaja ni pago ni gratis.",
-            "   - `price: 0`, `provider: \"Tiempo libre\"`.",
+            "   - Solo como último recurso. `price: 0`, `provider: \"Tiempo libre\"`.",
             "",
             "4. COMIDAS Y CENAS:",
             "   - Restaurantes/bares reales con precio realista por persona.",
             "   - `provider: \"Reserva directa\"`. Sin `bookingUrl`.",
             "",
             "5. PROHIBIDO:",
-            "   - Civitatis, GetYourGuide, Viator y operadores inventados.",
-            "   - Hacer un día completo solo con actividades gratuitas si en la ciudad hay catálogo Tiqets/Klook posible.",
+            "   - Civitatis, GetYourGuide, Klook, Viator fuera del catálogo proporcionado y operadores inventados.",
             "",
         ]
 
@@ -929,6 +974,39 @@ JSON:"""
                 "NUNCA inventes actividades de pago.",
             ]
 
+        return "\n".join(lines)
+
+    async def _build_viator_catalog_block(self, destination: str) -> str:
+        """Catálogo Viator a inyectar en el prompt (similar a Tiqets)."""
+        try:
+            from services.viator_service import list_for_prompt
+            items = await list_for_prompt(destination, limit=15)
+        except Exception as e:  # noqa: BLE001
+            print(f"⚠️ Viator catalog fetch failed: {e}")
+            items = []
+
+        if not items:
+            return ""
+
+        lines = [
+            "═══════════════════════════════════════════════",
+            f"CATÁLOGO VIATOR DISPONIBLE EN {destination.upper()}",
+            "═══════════════════════════════════════════════",
+            "Productos REALES de Viator (afiliado). Para usarlos:",
+            "  - Copia el `title` lo más fiel posible.",
+            "  - Usa el precio (`price_eur`) como referencia.",
+            "  - Pon `provider: \"Viator\"` y `viatorCode: \"<code>\"`.",
+            "",
+            f"Catálogo ({len(items)} productos):",
+        ]
+        for it in items:
+            # Recortamos el title a 80 chars para no inflar el prompt
+            t = (it.get("title") or "")[:80]
+            rating = it.get("rating")
+            rating_str = f" ⭐{rating:.1f}" if rating else ""
+            lines.append(
+                f"- code={it['code']}{rating_str} | \"{t}\" | {it.get('price_eur')}€"
+            )
         return "\n".join(lines)
 
     def _build_context(
