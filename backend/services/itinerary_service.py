@@ -219,8 +219,10 @@ R4. RITMO HUMANO
    - Bloques: MAÑANA termina ~14:00; TARDE 14:00-19:00; NOCHE desde 19:30.
    - Deja margen para comer/cenar (ya lo metes como actividad) y para caminar entre puntos. Los puntos de un mismo bloque deben estar cerca; no des saltos de 30 min en metro entre dos actividades seguidas.
 
-R5. PROVEEDORES
-   - Campo `provider`: usa "GetYourGuide" para tours/visitas guiadas/experiencias, "Civitatis" para tours en español, "Reserva directa" para restaurantes/bares.
+R5. PROVEEDORES — POLÍTICA ESTRICTA TIQETS-ONLY
+   - Actividades de pago (museos, monumentos, tours, tickets) → SOLO `provider: "Tiqets"` y SOLO si están en el catálogo Tiqets de más arriba. Nada de Civitatis, GetYourGuide ni Viator.
+   - Si no hay producto Tiqets que encaje → usa una experiencia **gratis** (`provider: "Gratis"`, `price: 0`) o un slot de **tiempo libre GenZ** (`provider: "Tiempo libre"`, `price: 0`).
+   - Restaurantes / bares → `provider: "Reserva directa"`. No metas `bookingUrl`.
 
 R6. ESTRUCTURA POR DÍA
    - Genera EXACTAMENTE {total_days} entradas en `days`, una por cada día del rango.
@@ -323,24 +325,54 @@ JSON:"""
         """Para cada actividad con `tiqetsId`, inyecta el `bookingUrl` real
         (deeplink afiliado de Tiqets con `?partner=vistalo-...`).
 
-        También fija `provider="Tiqets"` y trae imagen si Tiqets la tiene.
-        Sin Tiqets (vacío) no hace nada y la actividad queda como estaba.
+        Safety net (Feb 2026): si una actividad NO es Tiqets, NO es una
+        comida/cena y tiene precio > 0, la convertimos en "Tiempo libre"
+        GenZ. Política: solo Tiqets como proveedor de pago.
         """
         try:
             from services.tiqets_service import search_products
             products = await search_products(destination, limit=50)
         except Exception as e:  # noqa: BLE001
             print(f"⚠️ Tiqets enrichment skipped: {e}")
-            return
-        if not products:
-            return
+            products = []
 
         by_id = {str(p.get("id")): p for p in products}
 
-        # Fallback: índice por título normalizado (lowercase, sin espacios extra).
         def norm(s):
             return " ".join((s or "").lower().split())
-        by_title = {norm(p.get("title")): p for p in products}
+        by_title = {norm(p.get("title")): p for p in (products or [])}
+
+        # Vocabulario GenZ para los slots de tiempo libre que tengamos que
+        # generar nosotros como safety net. Rotamos para no repetir frase.
+        free_time_titles = [
+            "Chill mode por el centro",
+            "Vagueo del bueno por el barrio",
+            "Tu rato pa ti",
+            "Modo turista 0 estrés",
+            "Café & vibras en una terraza random",
+            "Plan flexible: lo que te apetezca",
+            "Reset rápido: paseo sin rumbo",
+            "Mini break: tu rollo",
+        ]
+        free_time_descriptions = [
+            "Sin presión: tira por donde te llame el ojo y descúbrelo a tu ritmo.",
+            "Tiempo para tu plan, una siesta o callejear sin Google Maps.",
+            "Hueco para improvisar: la mejor parte del viaje suele estar aquí.",
+            "Bloque libre. Ideal para terraza, vermut o lo que te apetezca.",
+        ]
+        free_idx = 0
+
+        def is_meal(title: str) -> bool:
+            t = (title or "").lower()
+            return any(
+                kw in t for kw in (
+                    "desayuno", "almuerzo", "comida", "cena", "brunch",
+                    "tapas", "tapeo", "restaurante", "mesón", "meson",
+                    "bar ", "café ", "cafe ", "vermut",
+                )
+            )
+
+        replaced = 0
 
         for day in itinerary.get("days", []):
             for block_key in ("morning", "afternoon", "night"):
@@ -349,25 +381,61 @@ JSON:"""
                     tid = str(activity.get("tiqetsId") or "").strip()
                     product = by_id.get(tid) if tid else None
                     if not product:
-                        # Última oportunidad: matching por título exacto.
                         product = by_title.get(norm(activity.get("title")))
-                    if not product:
+
+                    if product:
+                        # Match con Tiqets: enriquecer.
+                        url = product.get("product_url")
+                        if url:
+                            activity["bookingUrl"] = url
+                        activity["provider"] = "Tiqets"
+                        activity["tiqetsId"] = str(product.get("id"))
+                        real_price = product.get("price")
+                        try:
+                            if real_price is not None and (
+                                not activity.get("price")
+                                or abs(float(activity["price"]) - float(real_price))
+                                / max(1.0, float(real_price)) > 0.5
+                            ):
+                                activity["price"] = float(real_price)
+                        except Exception:  # noqa: BLE001
+                            pass
                         continue
-                    url = product.get("product_url")
-                    if url:
-                        activity["bookingUrl"] = url
-                    activity["provider"] = "Tiqets"
-                    activity["tiqetsId"] = str(product.get("id"))
-                    # Si Gemini puso un precio absurdamente distinto al real, lo corregimos.
-                    real_price = product.get("price")
+
+                    # Safety net: no es Tiqets. ¿Es comida o gratis?
+                    provider = (activity.get("provider") or "").lower()
+                    title = activity.get("title") or ""
+                    price = activity.get("price")
                     try:
-                        if real_price is not None and (
-                            not activity.get("price")
-                            or abs(float(activity["price"]) - float(real_price)) / max(1.0, float(real_price)) > 0.5
-                        ):
-                            activity["price"] = float(real_price)
+                        price_num = float(price) if price is not None else 0.0
                     except Exception:  # noqa: BLE001
-                        pass
+                        price_num = 0.0
+
+                    if is_meal(title) or "reserva directa" in provider:
+                        # Comida/cena: la dejamos tal cual.
+                        continue
+                    if provider in ("gratis", "tiempo libre") or price_num == 0:
+                        # Ya viene marcada como gratis/libre: ok.
+                        continue
+
+                    # Cualquier otra: actividad de pago no-Tiqets → la
+                    # convertimos en "Tiempo libre" GenZ.
+                    activity["title"] = free_time_titles[free_idx % len(free_time_titles)]
+                    activity["description"] = free_time_descriptions[
+                        free_idx % len(free_time_descriptions)
+                    ]
+                    activity["price"] = 0
+                    activity["provider"] = "Tiempo libre"
+                    activity.pop("bookingUrl", None)
+                    activity.pop("tiqetsId", None)
+                    free_idx += 1
+                    replaced += 1
+
+        if replaced:
+            print(
+                f"🛡️ Safety net Tiqets-only: {replaced} actividad(es) de pago "
+                "no-Tiqets reemplazadas por 'Tiempo libre' GenZ."
+            )
 
     def _call_and_parse(self, headers: Dict, payload: Dict) -> Optional[Dict]:
         """
@@ -717,58 +785,98 @@ JSON:"""
     async def _build_tiqets_catalog_block(self, destination: str) -> str:
         """Construye el bloque del prompt con productos REALES de Tiqets.
 
-        Cuando Tiqets tiene oferta en la ciudad, el modelo recibe un
-        catálogo recortado y se le pide priorizarlo. Cada producto pasa
-        con `tiqets_id` para que más tarde el frontend pueda enlazar
-        directamente al deeplink con tracking.
+        Política actual (Feb 2026): SOLO mostramos actividades de pago que
+        estén en el catálogo Tiqets (es el único proveedor con API afiliada
+        confirmada). Lo demás → experiencias gratis o "tiempo libre" en
+        lenguaje GenZ. Esto evita mandar al usuario a sitios sin tracking.
         """
         try:
             from services.tiqets_service import list_for_prompt
             items = await list_for_prompt(destination, limit=25)
         except Exception as e:  # noqa: BLE001
             print(f"⚠️ Tiqets catalog fetch failed: {e}")
-            return ""
-
-        if not items:
-            return ""
+            items = []
 
         lines = [
             "═══════════════════════════════════════════════",
-            "CATÁLOGO TIQETS — USA ESTAS ACTIVIDADES CUANDO ENCAJEN",
+            "POLÍTICA DE ACTIVIDADES DE PAGO — OBLIGATORIA",
             "═══════════════════════════════════════════════",
             (
-                "Estas son actividades reales con precio real disponibles en "
-                f"{destination} a través de Tiqets (socio afiliado). PRIORÍZALAS "
-                "frente a inventar actividades genéricas. Para usarlas:"
-            ),
-            (
-                "  - Copia el `title` exacto en el campo `title` de la actividad."
-            ),
-            (
-                "  - Usa el precio (`price_eur`) tal cual, en el campo `price`."
-            ),
-            (
-                "  - Pon `provider: \"Tiqets\"` y añade un campo extra "
-                "`tiqetsId: \"<id>\"` para que se enlace con el catálogo."
-            ),
-            (
-                "  - Mete `address` en `location`."
+                "El ÚNICO proveedor de actividades de pago permitido en este "
+                "itinerario es **Tiqets**. NO uses Civitatis, GetYourGuide, Viator "
+                "ni inventes operadores. Reglas:"
             ),
             "",
-            "Catálogo (top {n} por relevancia):".format(n=len(items)),
+            "1. ACTIVIDADES DE PAGO (museos, monumentos, tours, miradores con entrada, espectáculos):",
+            "   - Solo si están en el CATÁLOGO TIQETS de abajo.",
+            "   - Si no hay producto Tiqets que encaje → NO inventes una de pago. Pasa al punto 2 o 3.",
+            "",
+            "2. EXPERIENCIAS GRATIS (rellena los huecos cuando no haya Tiqets que encaje):",
+            "   - Paseos por barrios, miradores libres, parques, plazas, mercados de calle, calles emblemáticas, vistas desde puentes, atardeceres en sitios concretos.",
+            "   - `price: 0` y `provider: \"Gratis\"`. Sin `bookingUrl`.",
+            "   - Ejemplos: \"Paseo por el Barrio Gótico al atardecer\", \"Aperitivo callejero en el Mercat de la Boqueria\", \"Vistas desde el Búnker del Carmel (gratis)\".",
+            "",
+            "3. TIEMPO LIBRE GENZ (si no encaja ni Tiqets ni una gratis clara):",
+            "   - Crea una actividad con título estilo GenZ: \"Chill mode en Plaza Mayor 🌿\", \"Vagueo del bueno por el barrio\", \"Tu rato pa ti\", \"Modo turista 0 estrés\", \"Café & vibras en una terraza random\".",
+            "   - Sin emojis es válido también; importa el tono fresco y casual.",
+            "   - `price: 0`, `provider: \"Tiempo libre\"`, `bookingUrl` ausente.",
+            "   - Duración corta (1h-2h) y `location` puede ser una zona genérica (\"Centro\", \"Barrio del Born\").",
+            "",
+            "4. COMIDAS Y CENAS:",
+            "   - Sí puedes recomendar restaurantes/bares reales con precio realista por persona.",
+            "   - `provider: \"Reserva directa\"`. No metas `bookingUrl`.",
+            "",
+            "5. PROHIBIDO:",
+            "   - Inventar tours, tickets o experiencias de pago que NO estén en el catálogo Tiqets.",
+            "   - Usar otros providers para actividades de pago.",
+            "",
         ]
-        for it in items:
-            rating = it.get("rating")
-            rating_str = f" · {rating:.1f}⭐ ({it.get('rating_count')})" if rating else ""
-            lines.append(
-                f"- id={it['id']} | \"{it['title']}\" | {it.get('price_eur')}€"
-                f"{rating_str} | venue: {it.get('venue') or '—'} | {it.get('address') or '—'}"
-            )
-        lines.append("")
-        lines.append(
-            "Si una actividad del catálogo no encaja en el día, no pasa nada: "
-            "puedes elegir otra del catálogo, o crear una nueva siguiendo R2."
-        )
+
+        if items:
+            lines += [
+                "═══════════════════════════════════════════════",
+                f"CATÁLOGO TIQETS DISPONIBLE EN {destination.upper()}",
+                "═══════════════════════════════════════════════",
+                (
+                    "Para usar un producto del catálogo en una actividad:"
+                ),
+                (
+                    "  - Copia el `title` exacto en el campo `title`."
+                ),
+                (
+                    "  - Usa el precio (`price_eur`) tal cual, en el campo `price`."
+                ),
+                (
+                    "  - Pon `provider: \"Tiqets\"` y `tiqetsId: \"<id>\"`."
+                ),
+                (
+                    "  - Mete `address` en `location`."
+                ),
+                "",
+                f"Catálogo ({len(items)} productos):",
+            ]
+            for it in items:
+                rating = it.get("rating")
+                rating_str = f" · {rating:.1f}⭐ ({it.get('rating_count')})" if rating else ""
+                lines.append(
+                    f"- id={it['id']} | \"{it['title']}\" | {it.get('price_eur')}€"
+                    f"{rating_str} | venue: {it.get('venue') or '—'} | {it.get('address') or '—'}"
+                )
+        else:
+            lines += [
+                "═══════════════════════════════════════════════",
+                f"AVISO: NO HAY CATÁLOGO TIQETS PARA {destination.upper()}",
+                "═══════════════════════════════════════════════",
+                (
+                    "Tiqets NO tiene productos en esta ciudad ahora mismo. "
+                    "TODAS las actividades del itinerario deben ser:"
+                ),
+                "  - Experiencias gratis (punto 2 de arriba), o",
+                "  - Tiempo libre GenZ (punto 3), o",
+                "  - Comidas/cenas reales (punto 4).",
+                "NUNCA inventes actividades de pago.",
+            ]
+
         return "\n".join(lines)
 
     def _build_context(
