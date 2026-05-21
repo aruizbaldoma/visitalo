@@ -547,6 +547,115 @@ JSON:"""
                     free_idx += 1
                     libre_count += 1
 
+        # ═══════════════════════════════════════════════
+        # POST-PROCESSING: REEMPLAZAR "Tiempo libre" POR CATÁLOGO NO USADO
+        # ═══════════════════════════════════════════════
+        # Si Gemini se quedó corto de actividades de pago y dejó huecos
+        # como "Tiempo libre", los rellenamos con productos Tiqets/Viator
+        # que NO se hayan usado ya. Objetivo: minimizar las "Gratis/Tiempo
+        # libre" cuando hay catálogo disponible.
+        unused_tiqets = [
+            p for pid, p in tiqets_by_id.items() if pid not in used_tiqets_ids
+        ]
+        # Ordenamos por popularidad/rating del producto Tiqets para inyectar
+        # los mejores primero.
+        unused_tiqets.sort(
+            key=lambda p: (
+                -float((p.get("ratings") or {}).get("average") or 0),
+                -float((p.get("ratings") or {}).get("total") or 0),
+            )
+        )
+        unused_viator = [
+            p for code, p in viator_by_code.items() if code not in used_viator_codes
+        ]
+        # Productos Viator ya vienen ordenados por TRAVELER_RATING DESC.
+
+        replace_count = 0
+        # Alternamos Tiqets/Viator para garantizar mix de proveedores.
+        prefer_tiqets_next = True
+        for day in itinerary.get("days", []):
+            for block_key in ("morning", "afternoon", "night"):
+                block = day.get(block_key) or {}
+                acts = block.get("activities") or []
+                for i, activity in enumerate(acts):
+                    provider_raw = (activity.get("provider") or "").lower()
+                    # Solo reemplazamos rellenos genéricos. Respetamos comidas
+                    # y experiencias "Gratis" explícitas (eg. parques, miradores).
+                    if provider_raw not in ("tiempo libre",):
+                        continue
+                    # Pickeamos del catálogo intentando alternar proveedores.
+                    chosen = None
+                    chosen_kind = None
+                    if prefer_tiqets_next and unused_tiqets:
+                        chosen = unused_tiqets.pop(0)
+                        chosen_kind = "tiqets"
+                    elif unused_viator:
+                        chosen = unused_viator.pop(0)
+                        chosen_kind = "viator"
+                    elif unused_tiqets:
+                        chosen = unused_tiqets.pop(0)
+                        chosen_kind = "tiqets"
+                    if not chosen:
+                        break
+                    prefer_tiqets_next = not prefer_tiqets_next
+
+                    if chosen_kind == "tiqets":
+                        new_id = str(chosen.get("id"))
+                        used_tiqets_ids.add(new_id)
+                        activity["title"] = chosen.get("title") or activity.get("title")
+                        activity["description"] = (
+                            chosen.get("tagline")
+                            or activity.get("description")
+                            or ""
+                        )[:280]
+                        venue = chosen.get("venue") or {}
+                        activity["location"] = (
+                            venue.get("address")
+                            or (chosen.get("starting_point") or {}).get("address")
+                            or activity.get("location")
+                            or ""
+                        )
+                        activity["provider"] = "Tiqets"
+                        activity["tiqetsId"] = new_id
+                        activity["bookingUrl"] = chosen.get("product_url") or None
+                        try:
+                            if chosen.get("price") is not None:
+                                activity["price"] = float(chosen["price"])
+                        except Exception:  # noqa: BLE001
+                            pass
+                        tiqets_count += 1
+                    else:  # viator
+                        new_code = str(chosen.get("productCode"))
+                        used_viator_codes.add(new_code)
+                        activity["title"] = chosen.get("title") or activity.get("title")
+                        # Limpieza descripcion: cogemos description Viator si la hay.
+                        desc = (
+                            chosen.get("description")
+                            or chosen.get("shortDescription")
+                            or activity.get("description")
+                            or ""
+                        )
+                        activity["description"] = str(desc)[:280]
+                        activity["provider"] = "Viator"
+                        activity["viatorCode"] = new_code
+                        activity["bookingUrl"] = chosen.get("productUrl") or None
+                        # Precio Viator
+                        try:
+                            real_price = (
+                                (chosen.get("pricing") or {})
+                                .get("summary", {})
+                                .get("fromPrice")
+                            )
+                            if real_price is not None:
+                                activity["price"] = float(real_price)
+                        except Exception:  # noqa: BLE001
+                            pass
+                    libre_count = max(0, libre_count - 1)
+                    replace_count += 1
+
+        if replace_count:
+            print(f"♻️  Reemplazadas {replace_count} 'Tiempo libre' por catálogo no usado")
+
         print(
             f"🔗 Enriched: Tiqets={tiqets_count} Viator={viator_count} TiempoLibre={libre_count}"
         )
@@ -900,7 +1009,7 @@ JSON:"""
         """Construye el bloque del prompt con productos REALES de Tiqets."""
         try:
             from services.tiqets_service import list_for_prompt
-            items = await list_for_prompt(destination, limit=15)
+            items = await list_for_prompt(destination, limit=30)
         except Exception as e:  # noqa: BLE001
             print(f"⚠️ Tiqets catalog fetch failed: {e}")
             items = []
@@ -914,9 +1023,17 @@ JSON:"""
                 "NO uses Civitatis, GetYourGuide ni Klook. Reglas:"
             ),
             "",
-            "0. PROPORCIÓN OBJETIVO POR DÍA (importante):",
-            "   - Al menos el 60% de las actividades de cada día deben ser de PAGO con afiliado (Tiqets o Viator). Las gratis y de tiempo libre son **relleno** cuando no encaja una de pago.",
-            "   - En un día típico de 4 actividades: 2-3 Tiqets/Viator + 1 comida + 0-1 gratis. NO conviertas el itinerario en un paseo gratuito.",
+            "0. CUOTA MÍNIMA OBLIGATORIA DE ACTIVIDADES DE PAGO (cumplir SÍ O SÍ):",
+            "   - **Mínimo 2 actividades de Tiqets/Viator por día** (en días completos). Esto NO es negociable.",
+            "   - En días con llegada tardía o salida temprana, mínimo 1 de pago.",
+            "   - Si tienes 4 días → MÍNIMO 6-8 actividades Tiqets/Viator en TODO el itinerario.",
+            "   - Las actividades 'Gratis' y 'Tiempo libre' son RELLENO. Si tu plan tiene más gratis que de pago en algún día, REHAZLO.",
+            "   - Si el catálogo Tiqets/Viator tiene 20+ productos, USA al menos 8 en un viaje de 4 días.",
+            "",
+            "0.b PRIORIDAD ENTRE PROVEEDORES:",
+            "   - Tiqets para tickets de monumentos/museos/atracciones puntuales (precio típicamente 8-30€).",
+            "   - Viator para tours guiados, experiencias y day-trips (precio típicamente 25-150€).",
+            "   - Para CADA día, intenta mezclar: 1 Tiqets (ticket) + 1 Viator (tour) cuando ambos catálogos tengan stock.",
             "",
             "1. ACTIVIDADES DE PAGO (museos, monumentos, tours, parques temáticos, atracciones, miradores con entrada, espectáculos, experiencias guiadas):",
             "   - Si encaja con algo del CATÁLOGO TIQETS de abajo → `provider: \"Tiqets\"` + `tiqetsId`.",
@@ -993,7 +1110,7 @@ JSON:"""
         """Catálogo Viator a inyectar en el prompt (similar a Tiqets)."""
         try:
             from services.viator_service import list_for_prompt
-            items = await list_for_prompt(destination, limit=15)
+            items = await list_for_prompt(destination, limit=30)
         except Exception as e:  # noqa: BLE001
             print(f"⚠️ Viator catalog fetch failed: {e}")
             items = []
