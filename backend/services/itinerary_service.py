@@ -242,6 +242,10 @@ R8. PRECIOS NULL PARA TRANSPORTE Y HOTELES
    - Actividades turísticas: `price` numérico siempre (no null).
    - Vuelos / hoteles / traslados informativos: `price=null`.
 
+R9. NUNCA REPITAS ATRACCIONES
+   - Cada lugar/producto solo puede aparecer UNA VEZ en todo el itinerario.
+   - Si tienes pocos productos Tiqets/Viator y muchos días: alterna y rellena el resto con gratis/comidas.
+
 ═══════════════════════════════════════════════
 ESTRUCTURA JSON REQUERIDA (RESPONDE SOLO CON ESTE JSON)
 ═══════════════════════════════════════════════
@@ -263,7 +267,8 @@ ESTRUCTURA JSON REQUERIDA (RESPONDE SOLO CON ESTE JSON)
             "duration": "2h",
             "price": 12.00,
             "activityId": "act_1_morning_1",
-            "provider": "Civitatis",
+            "provider": "Tiqets",
+            "tiqetsId": "12345",
             "tip": "Ve antes de las 11h para evitar grupos."
           }}
         ]
@@ -418,32 +423,24 @@ JSON:"""
             )
 
         tiqets_count = viator_count = libre_count = 0
-        # Set para no asignar el mismo productCode Viator dos veces.
+        # Sets para no asignar el mismo producto dos veces.
         used_viator_codes: set = set()
+        used_tiqets_ids: set = set()
 
         def pick_viator_for_title(title: str) -> Optional[Dict]:
-            if not viator_enabled:
+            """Match estricto SOLO por título exacto normalizado.
+
+            Eliminamos el fuzzy matching por palabras clave: producía
+            matches engañosos del tipo "Paseo por Piazza Navona" → "Rome
+            Private City Walking Tour Kids Free". Si Gemini no copia el
+            título exacto Y el `viatorCode`, NO asignamos producto Viator.
+            """
+            if not viator_enabled or not title:
                 return None
             t = norm(title)
-            # Match exacto título primero.
             p = viator_by_title.get(t)
             if p and str(p.get("productCode")) not in used_viator_codes:
                 return p
-            # Match por palabras clave significativas (>3 caracteres).
-            if t:
-                title_words = [w for w in t.split() if len(w) > 3]
-                best = None
-                best_score = 0
-                for vp in viator_products:
-                    vt = norm(vp.get("title"))
-                    if str(vp.get("productCode")) in used_viator_codes:
-                        continue
-                    score = sum(1 for w in title_words if w in vt)
-                    if score > best_score:
-                        best_score = score
-                        best = vp
-                if best_score >= 2 and best:
-                    return best
             return None
 
         for day in itinerary.get("days", []):
@@ -460,23 +457,31 @@ JSON:"""
                         product = tiqets_by_title.get(norm(title))
 
                     if product:
-                        url = product.get("product_url")
-                        if url:
-                            activity["bookingUrl"] = url
-                        activity["provider"] = "Tiqets"
-                        activity["tiqetsId"] = str(product.get("id"))
-                        real_price = product.get("price")
-                        try:
-                            if real_price is not None and (
-                                not activity.get("price")
-                                or abs(float(activity["price"]) - float(real_price))
-                                / max(1.0, float(real_price)) > 0.5
-                            ):
-                                activity["price"] = float(real_price)
-                        except Exception:  # noqa: BLE001
-                            pass
-                        tiqets_count += 1
-                        continue
+                        pid = str(product.get("id"))
+                        if pid in used_tiqets_ids:
+                            # Ya usamos este Tiqets en otro día/bloque.
+                            # Pasamos al siguiente fallback (Viator/libre)
+                            # para no duplicar.
+                            product = None
+                        else:
+                            url = product.get("product_url")
+                            if url:
+                                activity["bookingUrl"] = url
+                            activity["provider"] = "Tiqets"
+                            activity["tiqetsId"] = pid
+                            used_tiqets_ids.add(pid)
+                            real_price = product.get("price")
+                            try:
+                                if real_price is not None and (
+                                    not activity.get("price")
+                                    or abs(float(activity["price"]) - float(real_price))
+                                    / max(1.0, float(real_price)) > 0.5
+                                ):
+                                    activity["price"] = float(real_price)
+                            except Exception:  # noqa: BLE001
+                                pass
+                            tiqets_count += 1
+                            continue
 
                     # Comida o gratis explícita ya marcada → dejar.
                     if is_meal(title) or "reserva directa" in provider_raw:
@@ -992,15 +997,16 @@ JSON:"""
             "═══════════════════════════════════════════════",
             f"CATÁLOGO VIATOR DISPONIBLE EN {destination.upper()}",
             "═══════════════════════════════════════════════",
-            "Productos REALES de Viator (afiliado). Para usarlos:",
-            "  - Copia el `title` lo más fiel posible.",
-            "  - Usa el precio (`price_eur`) como referencia.",
-            "  - Pon `provider: \"Viator\"` y `viatorCode: \"<code>\"`.",
+            "Productos REALES de Viator (afiliado). REGLAS ESTRICTAS:",
+            "  - El `title` debe ser una COPIA EXACTA, palabra por palabra, del título del catálogo.",
+            "  - El `viatorCode` DEBE ser el `code=` exacto del producto que copiaste.",
+            "  - Si modificas el título (lo traduces, lo recortas, lo embelleces), el enlace NO funcionará y la actividad se perderá.",
+            "  - SOLO usa `provider: \"Viator\"` cuando vayas a copiar literalmente título Y code.",
+            "  - Pon el precio del catálogo (`price_eur`).",
             "",
             f"Catálogo ({len(items)} productos):",
         ]
         for it in items:
-            # Recortamos el title a 80 chars para no inflar el prompt
             t = (it.get("title") or "")[:80]
             rating = it.get("rating")
             rating_str = f" ⭐{rating:.1f}" if rating else ""
