@@ -132,10 +132,27 @@ app.include_router(tiqets_router, prefix="/api/tiqets")  # Catálogo Tiqets afil
 async def startup_db():
     app.state.db = db
 
+# CORS — Política robusta para producción + preview + local.
+# Se aceptan:
+#   1) Los orígenes listados en la env `CORS_ORIGINS` (separados por coma).
+#   2) Cualquier subdominio de `visitalo.es` y `emergentagent.com` (preview/dev).
+#   3) localhost / 127.0.0.1 para desarrollo.
+# `allow_credentials=True` requiere listado concreto (no `*`).
+_explicit_origins = [
+    "https://visitalo.es",
+    "https://www.visitalo.es",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+_env_origins = [o.strip() for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip() and o.strip() != "*"]
+_allowed_origins = list({*(_explicit_origins + _env_origins)})
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=_allowed_origins,
+    # Permite cualquier *.visitalo.es y *.emergentagent.com (preview/clusters).
+    allow_origin_regex=r"^https?://([a-zA-Z0-9-]+\.)?(visitalo\.es|emergentagent\.com|preview\.emergentagent\.com)$",
     allow_methods=["*"],
     allow_headers=["*"],
 )
