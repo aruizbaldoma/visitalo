@@ -427,6 +427,29 @@ JSON:"""
                     if is_meal(title) or "reserva directa" in provider:
                         continue
                     if provider in ("gratis", "tiempo libre") or price_num == 0:
+                        # Si Gemini puso "Gratis"/"Tiempo libre" pero el título
+                        # sugiere atracción de pago (museo, palacio, parque
+                        # temático, observatorio, etc.), reconvertimos a Klook
+                        # para monetizar. Si no, dejamos como está.
+                        looks_paid = any(
+                            kw in title.lower() for kw in (
+                                "museo", "museum", "palacio", "palace", "castillo",
+                                "castle", "torre ", "tower", "observatorio",
+                                "mirador", "skydeck", "skytree", "parque temático",
+                                "universal", "disney", "warner", "portaventura",
+                                "kart", "ferri ", "ferry", "tour guiado",
+                                "free walking tour", "skip the line", "ticket",
+                            )
+                        )
+                        if klook_enabled and looks_paid and provider != "reserva directa":
+                            query = klook_service.build_query(title, destination)
+                            activity["bookingUrl"] = klook_service.build_affiliate_url(query)
+                            activity["provider"] = "Klook"
+                            # Si no tenía precio, le metemos un estimado mínimo
+                            # razonable para que se muestre el precio en card.
+                            if not activity.get("price"):
+                                activity["price"] = 15
+                            klook_count += 1
                         continue
 
                     # Actividad de pago sin Tiqets → intentar Klook.
@@ -823,16 +846,29 @@ JSON:"""
                 "NO uses Civitatis, GetYourGuide ni Viator. Reglas:"
             ),
             "",
-            "1. ACTIVIDADES DE PAGO (museos, monumentos, tours, parques temáticos, atracciones, miradores con entrada, espectáculos):",
+            "0. PROPORCIÓN OBJETIVO POR DÍA (importante):",
+            "   - Al menos el 60% de las actividades de cada día deben ser de PAGO con afiliado (Tiqets o Klook). Las gratis y de tiempo libre son **relleno** cuando no encaja una de pago.",
+            "   - En un día típico de 4 actividades: 2-3 Tiqets/Klook + 1 comida + 0-1 gratis. NO conviertas el itinerario en un paseo gratuito.",
+            "",
+            "1. ACTIVIDADES DE PAGO (museos, monumentos, tours, parques temáticos, atracciones, miradores con entrada, espectáculos, experiencias guiadas):",
             "   - Si encaja con algo del CATÁLOGO TIQETS de abajo → `provider: \"Tiqets\"` + `tiqetsId`.",
-            "   - Si NO encaja con Tiqets pero la atracción es real y popular (parques temáticos, atracciones de masas, miradores famosos, tours culturales conocidos) → `provider: \"Klook\"`. Nosotros añadimos el enlace afiliado automáticamente.",
+            "   - Si NO encaja con Tiqets pero la atracción es real y popular → `provider: \"Klook\"` (¡úsalo agresivamente, no seas tímido!). Ejemplos donde Klook es perfecto:",
+            "     · Parques temáticos (Universal, Disneyland, PortAventura)",
+            "     · Miradores y observatorios (Shibuya Sky, Burj Khalifa)",
+            "     · Tours guiados de un día (excursiones a pueblos, rutas en bus turístico)",
+            "     · Atracciones con tickets de salto de cola que Tiqets no tenga",
+            "     · Experiencias gastronómicas y de cultura (clases de cocina, tours de tapas, espectáculos)",
+            "     · Traslados aeropuerto y pases de transporte turístico",
+            "     · Karts, bicis, gondolas, ferris turísticos",
+            "   - Para Klook, usa un título descriptivo de la atracción (nosotros lo convertimos en búsqueda Klook). Mete precio estimado realista 2026.",
             "",
             "2. EXPERIENCIAS GRATIS:",
-            "   - Paseos por barrios, miradores libres, parques, plazas, mercados de calle, atardeceres en sitios concretos.",
+            "   - Solo como relleno cuando NO encaje ninguna de pago.",
+            "   - Máximo 1 actividad gratis por día.",
             "   - `price: 0` y `provider: \"Gratis\"`. Sin `bookingUrl`.",
             "",
             "3. TIEMPO LIBRE GENZ:",
-            "   - Si no encaja ni Tiqets, ni Klook, ni gratis claro: \"Chill mode en Plaza Mayor\", \"Vagueo del bueno por el barrio\", \"Tu rato pa ti\".",
+            "   - Solo como último recurso si no encaja ni pago ni gratis.",
             "   - `price: 0`, `provider: \"Tiempo libre\"`.",
             "",
             "4. COMIDAS Y CENAS:",
@@ -841,6 +877,7 @@ JSON:"""
             "",
             "5. PROHIBIDO:",
             "   - Civitatis, GetYourGuide, Viator y operadores inventados.",
+            "   - Hacer un día completo solo con actividades gratuitas si en la ciudad hay catálogo Tiqets/Klook posible.",
             "",
         ]
 
