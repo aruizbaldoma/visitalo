@@ -1,0 +1,56 @@
+{
+  "summary": "Verificado el fix de Viator URL routing. La parte determinista del fix (endpoint /api/r y patrón de URL Viator) ESTÁ CORRECTAMENTE IMPLEMENTADA y verificada via curl + logs. UI smoke test OK (form de búsqueda renderiza, autocompletado de Roma funciona). NO fue posible completar la generación end-to-end del itinerario porque la cuota diaria de Gemini API está agotada (429 en gemini-flash-latest y gemini-2.5-flash, fallback agotado). Sin embargo, los logs del backend muestran una generación previa exitosa en la misma sesión que produjo exactamente el patrón esperado: /tours/Rome/.../d511-476313P2?mcid=42383&pid=P00298920.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/generate-itinerary", "issue": "Gemini API daily quota exhausted (429 en gemini-flash-latest y gemini-2.5-flash). Devuelve 503 con mensaje en español. No es un bug del fix de Viator — es un límite de cuota externo. Esperar reset de cuota o usar otra key/proyecto para validación E2E completa."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_aspects": {
+    "viator_redirect_endpoint": "✅ VERIFICADO via curl: GET /api/r?u=<viator_url>&k=viator devuelve HTTP 302 con Location preservando la URL EXACTA de Viator: https://www.viator.com/es-ES/tours/Rome/Rome-Pasta-Fettuccine-Ravioli-and-Tiramisu-Class/d511-476313P2?mcid=42383&pid=P00298920",
+    "viator_url_pattern": "✅ CONFIRMADO en logs del backend: la URL generada cumple el regex /tours/.+/d\\d+-\\w+ con pid= y mcid= preservados. NO es /searchresults.",
+    "viator_partner_api": "✅ La llamada a https://api.viator.com/partner/products/search devuelve 200 OK durante la generación (confirmado en backend logs).",
+    "frontend_getActivityBookingUrl": "✅ CODE REVIEW: /app/frontend/src/config/affiliates.js línea 168-190 — si activity.bookingUrl existe y contiene 'viator.com', se envuelve con wrapTrackedUrl(direct, 'viator') que produce ${REACT_APP_BACKEND_URL}/api/r?u=<url>&k=viator. Tiqets/Klook tratados igual.",
+    "activity_card_free_no_book_button": "✅ CODE REVIEW: /app/frontend/src/components/ActivityCard.jsx líneas 125-176 — el botón Reservar solo se renderiza si bookingHref existe. Cuando price===0 o provider es 'gratis'/'tiempo libre', se muestra la etiqueta 'Gratis' (testid free-tag-{id}) en lugar del botón. getActivityBookingUrl devuelve null sin bookingUrl, ocultando el botón.",
+    "tiqets_redirect": "✅ Misma lógica que Viator: wrapTrackedUrl(direct, 'tiqets') envuelve con /api/r?u=...&k=tiqets. Logs muestran llamadas exitosas a https://api.tiqets.com/v2/products.",
+    "home_ui_loads": "✅ Visitalo.es carga, form de búsqueda renderiza con data-testid='itinerary-search-form', inputs visibles (destination, personalize, submit). Autocomplete Google Places sugiere 'Roma - Metropolitan City of Rome Capital, Italy' al teclear 'Roma'."
+  },
+  "evidence": {
+    "curl_redirect_302": "HTTP 302 -> https://www.viator.com/es-ES/tours/Rome/Rome-Pasta-Fettuccine-Ravioli-and-Tiramisu-Class/d511-476313P2?mcid=42383&pid=P00298920",
+    "backend_log_excerpt": "GET /api/r?u=https%3A%2F%2Fwww.viator.com%2Fes-ES%2Ftours%2FRome%2FRome-Pasta-Fettuccine-Ravioli-and-Tiramisu-Class%2Fd511-476313P2%3Fmcid%3D42383%26pid%3DP00298920%26medium%3Dapi%26api_version%3D2.0&k=viator HTTP/1.1 302 Found",
+    "viator_api_log": "HTTP Request: POST https://api.viator.com/partner/products/search HTTP/1.1 200 OK",
+    "gemini_quota_log": "❌ ERROR: GEMINI_UNAVAILABLE: last_status=429 detail=...You exceeded your current quota..."
+  },
+  "tests_blocked_by_gemini_quota": [
+    "No se pudo generar un itinerario completo en vivo para inspeccionar la lista exacta de actividades Viator del itinerario actual (provider, viatorCode, bookingUrl) — la generación devolvió 503 en 3 intentos consecutivos con espera de 75s/120s/180s entre cada uno.",
+    "No se pudo capturar el href real del botón Reservar en una ActivityCard renderizada en runtime (pero la lógica de wrapping está code-reviewed y el endpoint /api/r está curl-verificado)."
+  ],
+  "test_report_links": ["/tmp/test_viator.py"],
+  "action_items": [
+    "Cuando se renueve la cuota de Gemini (o se rotate la API key), re-ejecutar /tmp/test_viator.py para confirmar end-to-end que al menos 1 actividad Viator del itinerario tiene bookingUrl con patrón /tours/.../d{id}-{productCode}?...pid=...&mcid=... y que actividades Gratis/Tiempo libre/restaurantes NO traen bookingUrl.",
+    "Considerar implementar fallback más robusto cuando Gemini esté saturado (cache de itinerarios populares, modelo alternativo no-Google, o cola con retry diferido) — actualmente devuelve 503 instantáneo tras agotar fallbacks.",
+    "OPCIONAL: añadir data-testid='activity-card-{id}' al contenedor de ActivityCard para facilitar localización en tests E2E."
+  ],
+  "critical_code_review_comments": [
+    "✅ El fix de Viator URL routing está correctamente implementado: el cliente Viator Partner devuelve productUrl con pid+mcid, el matching ya es por productCode exacto (sin fuzzy), y el wrapper /api/r preserva los query params al hacer 302.",
+    "✅ /app/frontend/src/config/affiliates.js wrapTrackedUrl usa URLSearchParams correctamente, codifica la URL completa en el parámetro 'u' (no la divide), y el backend la decodifica antes del redirect.",
+    "✅ getActivityBookingUrl distingue correctamente entre Tiqets/Viator/Klook/GYG por inspección regex de la URL Y por provider name — robusto.",
+    "⚠️ AFFILIATE_CONFIG.VIATOR_AID en /app/frontend/src/config/affiliates.js sigue como 'PLACEHOLDER_VIATOR_AID' pero NO importa porque la URL Viator ya viene del backend con pid+mcid embebidos (el frontend NO los añade). El placeholder solo afecta a los legacy fallbacks getProviderHomeUrl que ya no se usan en producción."
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "Indeterminate — fix verificado en componentes (curl 302 + logs Viator API 200) pero generación E2E bloqueada por cuota Gemini",
+    "frontend": "100% en componentes verificables: home carga, form OK, autocomplete OK, ActivityCard render logic code-verificada"
+  },
+  "test_credentials": "No usadas — la búsqueda no requiere auth.",
+  "seed_data_creation": "Ninguna.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "El fix de Viator URL routing está verificado a nivel de componentes (endpoint /api/r devuelve 302 a /tours/.../d{id}-{code}?pid=...&mcid=..., y los logs muestran que en una generación previa hoy se produjo exactamente este patrón). Bloqueador: Gemini API quota diaria agotada — esperar reset (medianoche UTC normalmente) o rotar API key. Cuando se renueve, ejecutar `python3 /tmp/test_viator.py` (configurado para Roma/París/Barcelona, 3 días, PLUS) y validar: (1) status 200, (2) >=1 actividad con provider='Viator' y bookingUrl matching r'/tours/.+/d\\d+-\\w+', (3) bookingUrl contiene 'pid=' y 'mcid=', (4) actividades con price=0 o provider='gratis'/'tiempo libre' NO tienen bookingUrl. Para verificar end-to-end UI, hay que cargar la home, rellenar 'Roma', seleccionar fechas, abrir 'Customize it' (Personalizar) para activar plan PLUS y submit; esperar ~30-60s al modal de loading; luego buscar el primer botón con data-testid='book-activity-*' y leer su atributo href — debe empezar por REACT_APP_BACKEND_URL + '/api/r?u=...&k=viator'.",
+  "rca_of_the_issue": "El fix RCA original (Gemini devolviendo URLs Viator inventadas) está atacado en 2 capas: (a) Gemini ahora recibe el catálogo Viator real e instrucciones de devolver productCode verbatim en viatorCode, eliminando fuzzy matching, (b) el post-procesador mapea viatorCode -> productUrl exacto del cliente Viator Partner (con pid+mcid). El curl directo a /api/r confirma que cuando una bookingUrl Viator llega al frontend, el redirect 302 preserva los query params íntegramente, evitando /searchresults. Falta validar live-fetch que las bookingUrls que llegan al frontend siempre tengan ese patrón cuando Gemini está disponible."
+}
