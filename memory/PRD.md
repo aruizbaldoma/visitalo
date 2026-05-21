@@ -112,5 +112,7 @@
   - Traducciones ES/EN. Validado con curl (4 casos: faltan campos → 422, token corto → 422, token inválido → 400, email a admin enviado). Smoke screenshot confirma render limpio.
   - Nota dominio preview: el badge muestra "Invalid domain" porque `barato-planner.preview.emergentagent.com` no está añadido en la consola reCAPTCHA del usuario; en producción `visitalo.es` funciona al 100%.
 
+- ✅ **Fix Viator URL routing → producto exacto (verificado)**: Antes el botón "Reservar" en actividades Viator caía en la search page genérica. Fix en dos capas: (a) el prompt Gemini ahora recibe el catálogo Viator real (`viator_service.list_for_prompt`) y se le obliga a devolver `viatorCode` verbatim (sin fuzzy matching), (b) `_enrich_with_affiliate_links` mapea `viatorCode → productUrl` exacto del Partner API (ya viene con `pid=P00298920&mcid=42383`). El tracker `/api/r?u=…&k=viator` preserva los query params al hacer 302 (validado por curl). Testing agent E2E confirma patrón `/tours/.../d{destId}-{productCode}?...pid=…&mcid=…`, NO `/searchresults`. Reporte: `/app/test_reports/iteration_4.json`.
+
 ---
 **Última Actualización**: Febrero 2026
