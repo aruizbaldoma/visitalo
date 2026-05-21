@@ -838,8 +838,11 @@ JSON:"""
                 f"CATÁLOGO TIQETS DISPONIBLE EN {destination.upper()}",
                 "═══════════════════════════════════════════════",
                 (
-                    "Para usar un producto del catálogo en una actividad:"
+                    "⚠️  USO OBLIGATORIO: incluye AL MENOS 1 actividad de este "
+                    "catálogo en cada día del itinerario (preferentemente 2)."
                 ),
+                "",
+                "Para usar un producto del catálogo en una actividad:",
                 (
                     "  - Copia el `title` exacto en el campo `title`."
                 ),
@@ -853,7 +856,7 @@ JSON:"""
                     "  - Mete `address` en `location`."
                 ),
                 "",
-                f"Catálogo ({len(items)} productos):",
+                f"Catálogo ({len(items)} productos disponibles):",
             ]
             for it in items:
                 rating = it.get("rating")

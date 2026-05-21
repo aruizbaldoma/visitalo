@@ -77,23 +77,38 @@ _cache: Dict[str, Dict[str, Any]] = {}
 
 
 def _normalize_destination(destination: str) -> str:
-    """Devuelve el `city_name` que Tiqets reconoce."""
+    """Devuelve el `city_name` que Tiqets reconoce.
+
+    Estrategia:
+    1. Quitamos sufijos (",", "(") y aplicamos lowercase.
+    2. Si el nombre está en el mapeo ES→EN, devolvemos la traducción.
+    3. Probamos sin tildes (París → Paris, Múnich → Munich) — Tiqets usa
+       grafías sin tildes en la mayoría de ciudades.
+    4. Si nada de lo anterior, devolvemos el primer nombre tal cual.
+    """
     if not destination:
         return ""
     raw = destination.strip()
-    # Primera palabra antes de coma/paréntesis.
     head = raw.split(",")[0].split("(")[0].strip()
     key = head.lower()
+
     if key in _CITY_MAP_ES_EN:
         return _CITY_MAP_ES_EN[key]
-    # Quitar tildes simples para retry.
-    import unicodedata
 
-    stripped = (
+    import unicodedata
+    stripped_key = (
         unicodedata.normalize("NFKD", key).encode("ascii", "ignore").decode("ascii").strip()
     )
-    if stripped in _CITY_MAP_ES_EN:
-        return _CITY_MAP_ES_EN[stripped]
+    if stripped_key in _CITY_MAP_ES_EN:
+        return _CITY_MAP_ES_EN[stripped_key]
+
+    # Importante: Tiqets reconoce muchas ciudades por su grafía SIN tildes
+    # (París → Paris, Múnich → Munich, Berlín → Berlin), pero rechaza la
+    # versión con tildes. Devolvemos siempre la versión sin acentos cuando
+    # no tenemos un mapeo explícito.
+    if stripped_key and stripped_key != key:
+        # Capitalizamos cada palabra para mantener formato consistente.
+        return " ".join(w.capitalize() for w in stripped_key.split())
     return head
 
 
