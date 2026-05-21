@@ -219,10 +219,14 @@ R4. RITMO HUMANO
    - Bloques: MAÑANA termina ~14:00; TARDE 14:00-19:00; NOCHE desde 19:30.
    - Deja margen para comer/cenar (ya lo metes como actividad) y para caminar entre puntos. Los puntos de un mismo bloque deben estar cerca; no des saltos de 30 min en metro entre dos actividades seguidas.
 
-R5. PROVEEDORES — POLÍTICA ESTRICTA TIQETS-ONLY
-   - Actividades de pago (museos, monumentos, tours, tickets) → SOLO `provider: "Tiqets"` y SOLO si están en el catálogo Tiqets de más arriba. Nada de Civitatis, GetYourGuide ni Viator.
-   - Si no hay producto Tiqets que encaje → usa una experiencia **gratis** (`provider: "Gratis"`, `price: 0`) o un slot de **tiempo libre GenZ** (`provider: "Tiempo libre"`, `price: 0`).
-   - Restaurantes / bares → `provider: "Reserva directa"`. No metas `bookingUrl`.
+R5. PROVEEDORES — POLÍTICA ESTRICTA TIQETS + KLOOK
+   - Actividades de pago (museos, monumentos, tours, tickets, parques temáticos, atracciones, espectáculos):
+     • Si están en el CATÁLOGO TIQETS de más arriba → `provider: "Tiqets"` + `tiqetsId`.
+     • Si NO encajan con Tiqets pero existen de verdad y son turísticas de pago → `provider: "Klook"` (lo enriquecemos nosotros con tracking).
+     • NUNCA uses Civitatis, GetYourGuide ni Viator.
+   - Experiencias gratis → `provider: "Gratis"`, `price: 0`.
+   - Tiempo libre GenZ → `provider: "Tiempo libre"`, `price: 0`.
+   - Restaurantes / bares → `provider: "Reserva directa"`. Sin `bookingUrl`.
 
 R6. ESTRUCTURA POR DÍA
    - Genera EXACTAMENTE {total_days} entradas en `days`, una por cada día del rango.
@@ -322,13 +326,20 @@ JSON:"""
             raise Exception(f"Error generando itinerario: {str(e)}")
 
     async def _enrich_tiqets_links(self, itinerary: Dict, destination: str) -> None:
-        """Para cada actividad con `tiqetsId`, inyecta el `bookingUrl` real
-        (deeplink afiliado de Tiqets con `?partner=vistalo-...`).
+        """Enriquece las actividades con enlaces afiliados reales.
 
-        Safety net (Feb 2026): si una actividad NO es Tiqets, NO es una
-        comida/cena y tiene precio > 0, la convertimos en "Tiempo libre"
-        GenZ. Política: solo Tiqets como proveedor de pago.
+        Política Feb 2026 (proveedores activos):
+          1. **Tiqets** — primer proveedor (catálogo con precio real, deeplink directo).
+          2. **Klook** vía Travelpayouts — segundo proveedor (deeplink de búsqueda con tracking).
+          3. **Gratis / Tiempo libre / Reserva directa** — sin enlace.
+
+        Para actividades de pago sin match Tiqets:
+          - Si Klook está habilitado → generamos `bookingUrl` Klook + tracking.
+          - Si Klook NO está habilitado → reemplazamos por "Tiempo libre" GenZ
+            (no mandamos tráfico a un proveedor sin comisión).
         """
+        from services import klook_service
+
         try:
             from services.tiqets_service import search_products
             products = await search_products(destination, limit=50)
@@ -342,8 +353,9 @@ JSON:"""
             return " ".join((s or "").lower().split())
         by_title = {norm(p.get("title")): p for p in (products or [])}
 
-        # Vocabulario GenZ para los slots de tiempo libre que tengamos que
-        # generar nosotros como safety net. Rotamos para no repetir frase.
+        klook_enabled = klook_service.is_enabled()
+
+        # Pool de slots "Tiempo libre" GenZ por si Klook no estuviera habilitado.
         free_time_titles = [
             "Chill mode por el centro",
             "Vagueo del bueno por el barrio",
@@ -372,7 +384,7 @@ JSON:"""
                 )
             )
 
-        replaced = 0
+        tiqets_count = klook_count = libre_count = 0
 
         for day in itinerary.get("days", []):
             for block_key in ("morning", "afternoon", "night"):
@@ -384,7 +396,7 @@ JSON:"""
                         product = by_title.get(norm(activity.get("title")))
 
                     if product:
-                        # Match con Tiqets: enriquecer.
+                        # Match Tiqets: enriquecer.
                         url = product.get("product_url")
                         if url:
                             activity["bookingUrl"] = url
@@ -400,9 +412,10 @@ JSON:"""
                                 activity["price"] = float(real_price)
                         except Exception:  # noqa: BLE001
                             pass
+                        tiqets_count += 1
                         continue
 
-                    # Safety net: no es Tiqets. ¿Es comida o gratis?
+                    # Sin Tiqets. ¿Es comida o gratis? Dejar tal cual.
                     provider = (activity.get("provider") or "").lower()
                     title = activity.get("title") or ""
                     price = activity.get("price")
@@ -412,14 +425,20 @@ JSON:"""
                         price_num = 0.0
 
                     if is_meal(title) or "reserva directa" in provider:
-                        # Comida/cena: la dejamos tal cual.
                         continue
                     if provider in ("gratis", "tiempo libre") or price_num == 0:
-                        # Ya viene marcada como gratis/libre: ok.
                         continue
 
-                    # Cualquier otra: actividad de pago no-Tiqets → la
-                    # convertimos en "Tiempo libre" GenZ.
+                    # Actividad de pago sin Tiqets → intentar Klook.
+                    if klook_enabled and title:
+                        query = klook_service.build_query(title, destination)
+                        activity["bookingUrl"] = klook_service.build_affiliate_url(query)
+                        activity["provider"] = "Klook"
+                        activity.pop("tiqetsId", None)
+                        klook_count += 1
+                        continue
+
+                    # Sin Klook: caer a "Tiempo libre" GenZ.
                     activity["title"] = free_time_titles[free_idx % len(free_time_titles)]
                     activity["description"] = free_time_descriptions[
                         free_idx % len(free_time_descriptions)
@@ -429,13 +448,11 @@ JSON:"""
                     activity.pop("bookingUrl", None)
                     activity.pop("tiqetsId", None)
                     free_idx += 1
-                    replaced += 1
+                    libre_count += 1
 
-        if replaced:
-            print(
-                f"🛡️ Safety net Tiqets-only: {replaced} actividad(es) de pago "
-                "no-Tiqets reemplazadas por 'Tiempo libre' GenZ."
-            )
+        print(
+            f"🔗 Enriched: Tiqets={tiqets_count} Klook={klook_count} TiempoLibre={libre_count}"
+        )
 
     def _call_and_parse(self, headers: Dict, payload: Dict) -> Optional[Dict]:
         """
@@ -802,33 +819,28 @@ JSON:"""
             "POLÍTICA DE ACTIVIDADES DE PAGO — OBLIGATORIA",
             "═══════════════════════════════════════════════",
             (
-                "El ÚNICO proveedor de actividades de pago permitido en este "
-                "itinerario es **Tiqets**. NO uses Civitatis, GetYourGuide, Viator "
-                "ni inventes operadores. Reglas:"
+                "Proveedores afiliados activos: **Tiqets** (preferido) y **Klook** (fallback). "
+                "NO uses Civitatis, GetYourGuide ni Viator. Reglas:"
             ),
             "",
-            "1. ACTIVIDADES DE PAGO (museos, monumentos, tours, miradores con entrada, espectáculos):",
-            "   - Solo si están en el CATÁLOGO TIQETS de abajo.",
-            "   - Si no hay producto Tiqets que encaje → NO inventes una de pago. Pasa al punto 2 o 3.",
+            "1. ACTIVIDADES DE PAGO (museos, monumentos, tours, parques temáticos, atracciones, miradores con entrada, espectáculos):",
+            "   - Si encaja con algo del CATÁLOGO TIQETS de abajo → `provider: \"Tiqets\"` + `tiqetsId`.",
+            "   - Si NO encaja con Tiqets pero la atracción es real y popular (parques temáticos, atracciones de masas, miradores famosos, tours culturales conocidos) → `provider: \"Klook\"`. Nosotros añadimos el enlace afiliado automáticamente.",
             "",
-            "2. EXPERIENCIAS GRATIS (rellena los huecos cuando no haya Tiqets que encaje):",
-            "   - Paseos por barrios, miradores libres, parques, plazas, mercados de calle, calles emblemáticas, vistas desde puentes, atardeceres en sitios concretos.",
+            "2. EXPERIENCIAS GRATIS:",
+            "   - Paseos por barrios, miradores libres, parques, plazas, mercados de calle, atardeceres en sitios concretos.",
             "   - `price: 0` y `provider: \"Gratis\"`. Sin `bookingUrl`.",
-            "   - Ejemplos: \"Paseo por el Barrio Gótico al atardecer\", \"Aperitivo callejero en el Mercat de la Boqueria\", \"Vistas desde el Búnker del Carmel (gratis)\".",
             "",
-            "3. TIEMPO LIBRE GENZ (si no encaja ni Tiqets ni una gratis clara):",
-            "   - Crea una actividad con título estilo GenZ: \"Chill mode en Plaza Mayor 🌿\", \"Vagueo del bueno por el barrio\", \"Tu rato pa ti\", \"Modo turista 0 estrés\", \"Café & vibras en una terraza random\".",
-            "   - Sin emojis es válido también; importa el tono fresco y casual.",
-            "   - `price: 0`, `provider: \"Tiempo libre\"`, `bookingUrl` ausente.",
-            "   - Duración corta (1h-2h) y `location` puede ser una zona genérica (\"Centro\", \"Barrio del Born\").",
+            "3. TIEMPO LIBRE GENZ:",
+            "   - Si no encaja ni Tiqets, ni Klook, ni gratis claro: \"Chill mode en Plaza Mayor\", \"Vagueo del bueno por el barrio\", \"Tu rato pa ti\".",
+            "   - `price: 0`, `provider: \"Tiempo libre\"`.",
             "",
             "4. COMIDAS Y CENAS:",
-            "   - Sí puedes recomendar restaurantes/bares reales con precio realista por persona.",
-            "   - `provider: \"Reserva directa\"`. No metas `bookingUrl`.",
+            "   - Restaurantes/bares reales con precio realista por persona.",
+            "   - `provider: \"Reserva directa\"`. Sin `bookingUrl`.",
             "",
             "5. PROHIBIDO:",
-            "   - Inventar tours, tickets o experiencias de pago que NO estén en el catálogo Tiqets.",
-            "   - Usar otros providers para actividades de pago.",
+            "   - Civitatis, GetYourGuide, Viator y operadores inventados.",
             "",
         ]
 

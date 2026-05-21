@@ -28,6 +28,8 @@ ALLOWED_HOSTS = (
     "tiqets.com",
     "civitatis.com",
     "viator.com",
+    "klook.com",
+    "tp.media",
 )
 
 
