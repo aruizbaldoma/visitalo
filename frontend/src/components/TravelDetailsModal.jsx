@@ -428,14 +428,16 @@ export const TravelDetailsModal = ({
                         </button>
                       )}
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Ciudad (ej: Roma)"
-                      value={c.name}
-                      onChange={(e) => updateCity(idx, "name", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3ccca4]"
-                      data-testid={`city-name-${idx}`}
-                    />
+                    <div className="w-full" data-testid={`city-name-${idx}`}>
+                      <div className="px-3 py-2 border border-gray-300 rounded-md text-sm focus-within:border-[#3ccca4] transition-colors">
+                        <DestinationAutocomplete
+                          value={c.name}
+                          onChange={(name) => updateCity(idx, "name", name)}
+                          placeholder="Ciudad (ej: Roma)"
+                          testId={`city-autocomplete-${idx}`}
+                        />
+                      </div>
+                    </div>
                     {(() => {
                       const outOfRange = (() => {
                         if (!startDate || !endDate) return false;
