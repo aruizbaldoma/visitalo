@@ -340,10 +340,18 @@ JSON:"""
                     itinerary = retry
 
             if itinerary is None:
-                raise Exception(
-                    "Gemini devolvió JSON inválido tras 2 intentos "
-                    f"(days={total_days}, max_tokens hasta {retry_max_tokens if 'retry_max_tokens' in locals() else max_tokens})"
+                # ÚLTIMO INTENTO: fallback a Claude Sonnet 4.5 (Emergent LLM key).
+                # Gemini devolvió JSON inválido 2 veces. Probamos otro modelo.
+                print(
+                    "⚠️  Gemini falló parseo JSON 2 veces. "
+                    "Cambiando a Claude Sonnet como motor alternativo…"
                 )
+                itinerary = await self._call_claude_fallback(prompt, total_days)
+                if itinerary is None:
+                    raise Exception(
+                        "Ningún motor de IA pudo generar el itinerario "
+                        f"(days={total_days})"
+                    )
 
             # Enriquecer actividades que tengan `tiqetsId` con el deeplink
             # de afiliado real (`product_url` con ?partner=...).
@@ -353,6 +361,24 @@ JSON:"""
             return itinerary
 
         except Exception as e:
+            err = str(e)
+            # Si Gemini está caído/sin cuota, probamos Claude como red de seguridad.
+            if "GEMINI_UNAVAILABLE" in err:
+                print(
+                    f"⚠️  {err[:120]}…\n"
+                    "🔄 Activando fallback a Claude Sonnet (Emergent LLM key)…"
+                )
+                try:
+                    itinerary = await self._call_claude_fallback(prompt, total_days)
+                    if itinerary:
+                        await self._enrich_tiqets_links(itinerary, destination)
+                        print(
+                            f"✅ ITINERARIO GENERADO (vía Claude fallback): "
+                            f"{destination}, {total_days} días\n"
+                        )
+                        return itinerary
+                except Exception as claude_err:  # noqa: BLE001
+                    print(f"❌ Claude fallback también falló: {claude_err}")
             print(f"❌ ERROR: {str(e)}")
             raise Exception(f"Error generando itinerario: {str(e)}")
 
@@ -742,6 +768,75 @@ JSON:"""
         raise Exception(
             f"GEMINI_UNAVAILABLE: last_status={last_status} detail={last_error_text}"
         )
+
+    async def _call_claude_fallback(
+        self, prompt: str, total_days: int
+    ) -> Optional[Dict]:
+        """
+        Fallback a Claude Sonnet 4.5 vía emergentintegrations (Universal Key).
+        Se invoca cuando Gemini agotó cuota o devolvió JSON inválido 2 veces.
+
+        Devuelve el dict del itinerario parseado, o None si Claude también falla.
+        Lanza Exception SOLO si la propia llamada al SDK explota (no JSON inválido).
+        """
+        api_key = os.environ.get("EMERGENT_LLM_KEY")
+        if not api_key:
+            print("⚠️  EMERGENT_LLM_KEY no configurada, no se puede usar Claude")
+            return None
+
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+        except ImportError as e:
+            print(f"⚠️  emergentintegrations no disponible: {e}")
+            return None
+
+        # Mensaje de sistema: insistimos en JSON puro (Claude tiende a anteponer
+        # "Aquí tienes…"). El prompt original ya termina con "JSON:" así que
+        # la combinación es robusta.
+        system_msg = (
+            "Eres un planificador profesional de viajes. Respondes SIEMPRE y "
+            "ÚNICAMENTE con un objeto JSON válido, sin markdown, sin ```json, "
+            "sin texto antes ni después. Si el usuario pide N días, devuelves "
+            "EXACTAMENTE N entradas en el array `days`."
+        )
+
+        # max_tokens para Claude Sonnet 4.5: hasta 64k. Escalamos como en Gemini.
+        max_tokens = min(60000, 4500 + total_days * 3000)
+
+        session_id = f"itin-claude-{int(time.time())}-{random.randint(1000, 9999)}"
+
+        try:
+            chat = (
+                LlmChat(
+                    api_key=api_key,
+                    session_id=session_id,
+                    system_message=system_msg,
+                )
+                .with_model("anthropic", "claude-sonnet-4-5-20250929")
+                .with_params(max_tokens=max_tokens, temperature=0.4)
+            )
+            user_msg = UserMessage(text=prompt)
+            response_text = await chat.send_message(user_msg)
+        except Exception as e:  # noqa: BLE001
+            print(f"❌ Claude API error: {e}")
+            return None
+
+        if not response_text:
+            print("⚠️  Claude devolvió respuesta vacía")
+            return None
+
+        clean_text = self._clean_json(response_text)
+        try:
+            return json.loads(clean_text)
+        except json.JSONDecodeError as je:
+            repaired = self._repair_truncated_json(clean_text)
+            if repaired is not None:
+                try:
+                    return json.loads(repaired)
+                except json.JSONDecodeError:
+                    pass
+            print(f"⚠️  Claude JSON inválido: {je} (len={len(clean_text)})")
+            return None
     
     def _generate_mock_itinerary(
         self,
